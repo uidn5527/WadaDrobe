@@ -20,8 +20,10 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid v
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
 #fullscreenHint{display:none}
+#fullscreenColorName{display:none}
 body.fullscreen-color-mode #colorFieldToggle{visibility:hidden!important}
-body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!important;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .8s ease;text-shadow:0 1px 3px rgba(0,0,0,.14);opacity:1}
+body.fullscreen-color-mode #fullscreenColorName{display:block;visibility:visible!important;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.14)}
+body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!important;position:fixed;left:24px;top:24px;z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .8s ease;text-shadow:0 1px 3px rgba(0,0,0,.14);opacity:1}
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
 </style>
@@ -117,7 +119,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r29</span></h1>
+<h1>WadaDrobe <span class="revision">r30</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -153,6 +155,7 @@ button,select,input{touch-action:manipulation}
 <section><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
 </main>
+<div id="fullscreenColorName" aria-hidden="true"></div>
 <div id="fullscreenHint" aria-hidden="true"></div>
 <script>
 const COLORS=[["Pale Purplish Vinaceous","#fde2dd"],["Hermosa Pink","#f9c1ce"],["Corinthian Pink","#f8b6ba"],["Cameo Pink","#e0b3b6"],["Pale Cinammon-Pink","#f4deca"],["Fawn","#d1b0a7"],["Pale Ecru-Drab","#c5b7b0"],["Light Brown Drab","#b59392"],["Coral Red","#f58e84"],["Fresh Color","#f6917e"],["Grenadine Pink","#f48067"],["Eosine Pink","#f37f94"],["Spinel Red","#f27291"],["Old Rose","#d46d7a"],["Eugenia Red 1","#e2625e"],["Eugenia Red 2","#da525d"],["Raw Sienna","#bb7125"],["Vinaceous Tawny","#c56127"],["Jasper Red","#eb5324"],["Spectrum Red","#e31f26"],["Red Orange","#dd4027"],["Etruscan Red","#c55347"],["Burnt Sienna","#ae5224"],["Ocher Red","#ab544d"],["Scarlet","#cb2f43"],["Carmine","#cc1236"],["Indian Lake","#c53c69"],["Rosolanc Purple","#b73f74"],["Pomegranate Purple","#b71f57"],["Hydrangea Red","#a94151"],["Brick Red","#a84222"],["Carmine Red","#a62c37"],["Pompeian Red","#ab2439"],["Red","#a72144"],["Brown","#7c4226"],["Hay's Russet","#793327"],["Vandyke Red","#82241f"],["Pansy Purple","#7d133a"],["Pale Burnt Lake","#802626"],["Violet Red","#642d5e"],["Vistoris Lake","#6d4145"],["Sulphur Yellow","#f5ecc2"],["Sea-foam Yellow","#f0e6be"],["Pale Lemon Yellow","#ffefae"],["Naples Yellow","#fbe6a0"],["Ivory Buff","#ebd3a2"],["Seashell Pink","#fdd4bd"],["Light Pinkish Cinnamon","#fcc79b"],["Pinkish Cinnamon","#eeb480"],["Cinnamon Buff","#fdc57e"],["Cream Yellow","#fdbf68"],["Golden Yellow","#f3a257"],["Vinaceous Cinnamon","#eea78c"],["Ochraceous Salmon","#d8a37b"],["Isabella Color","#c5a56e"],["Maple","#c59f6b"],["Olive Buff","#c1c494"],["Ecru","#c2ae93"],["Yellow","#fff200"],["Lemon Yellow","#f8ed43"],["Apricot Yellow","#ffdd00"],["Pyrite Yellow","#cab356"],["Olive Ocher","#d6b43e"],["Yellow Ocher","#e2b540"],["Orange Yellow","#fcb315"],["Yellow Orange","#f99d1b"],["Apricot Orange","#f68c50"],["Orange","#f37420"],["Peach Red","#f15a30"],["English Red","#d96629"],["Cinnamon Rufous","#c27544"],["Orange Rufous","#c16b27"],["Sulphine Yellow","#c19f2c"],["Khaki / Tawny Olive","#bc892b"],["Citron Yellow","#b2b73e"],["Citrine","#a49531"],["Dull Citrine","#8d8559"],["Buffy Citrine","#96874d"],["Dark Citrine","#8b835b"],["Light Grayish Olive","#848061"],["Kronbergs Green","#84875e"],["Olive","#837e31"],["Orange Citrine","#986f2d"],["Sudan Brown","#a36752"],["Olive Green","#6b7140"],["Light Brownish Olive","#806e4b"],["Deep Grayish Olive","#635a3a"],["Pale Raw Umber","#71502f"],["Sepia","#644b1e"],["Madder Brown","#762c19"],["Mars Brown Tobacco","#653514"],["Vandyke Brown","#4b3317"],["Turquoise Green","#b5decc"],["Glaucous Green","#b4cdc2"],["Dark Greenish Glaucous","#b7c2a9"],["Pale Turtle Green","#c3cd9d"],["Yellow Green","#afd472"],["Light Green Yellow","#c7d14f"],["Light Green","#87c540"],["Olive Yellow","#a6a159"],["Artemisia Green","#709390"],["Andover Green","#6d7e77"],["Rainette Green","#788860"],["Chromium Green","#719470"],["Pistachio Green","#648f7b"],["Sea Green","#00b49b"],["Benzol Green","#00978d"],["Light Porcelain Green","#00908a"],["Green","#489b6e"],["Dull Viridian Green","#009465"],["Oil Green","#819238"],["Grape Green","#a2a865"],["Diamine Green","#008842"],["Cossack Green","#437742"],["Lincoln Green","#555832"],["Blackish Olive","#42533e"],["Deep Slate Olive","#253122"],["Pale King's Blue 1","#f0f3e7"],["Nile Blue","#bce4e5"],["Pale King's Blue 2","#a7d4e4"],["Light Glaucous Blue","#a5c8d1"],["Salvia Blue","#97acc8"],["Cobalt Green","#96d1aa"],["Calamine Blue","#78cdd0"],["Venice Green","#62c6bf"],["Pale Methyl Blue","#54afb4"],["Cerulean Blue","#0093a5"],["Peacock Blue","#00939b"],["Green Blue","#099197"],["Olympic Blue","#5a82b3"],["Blue","#006eb8"],["Antwarp Blue","#007190"],["Helvetia Blue","#005b8d"],["Dark Medici Blue","#547076"],["Dusky Green","#004f46"],["Deep Lyons Blue","#1c4286"],["Violet Blue","#40456a"],["Vandar Poel's Blue","#064f6e"],["Dark Tyrian Blue","#12354e"],["Dull Violet Black","#0d1c43"],["Deep Indigo","#051230"],["Deep Slate Green","#112f2c"],["Grayish Lavender 1","#b5b1d8"],["Grayish Lavender 2","#c0a9b3"],["Laelia Pink","#ca92a8"],["Lilac","#b984af"],["Eupatorium Purple","#bf5892"],["Light Mauve","#9a72aa"],["Aconite Violet","#a36aa5"],["Dull Blue Violet","#80719e"],["Dark Soft Violet","#66629c"],["Blue Violet","#6450a1"],["Violet Ultramarine","#522e91"],["Purple Drab","#84565b"],["Deep Violet Plumbeous","#70727c"],["Vernonia Purple","#8c4c62"],["Dark Slate Purple","#704357"],["Taupe Brown","#7a4456"],["Violet Carmine","#713b4c"],["Violet","#4f4086"],["Red Violet","#59256a"],["Cotinga Purple","#501345"],["Dusky Madder Violet","#4e1d4c"],["Dark Perilla Purple","#542e36"],["Dull Purplish Black","#443b35"],["White","#ffffff"],["Neutral Gray","#b6bfc1"],["Mineral Gray","#a2b0ad"],["Warm Gray","#a1a39a"],["Slate Color","#34454c"],["Black","#111314"]];
@@ -183,7 +186,7 @@ function ciede2000(a,b){
  return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
 }
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
-const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
+const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
 const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key,c])=>[key,c.value]));
 function updateMethodControls(){const method=similarityMethod.value,c=methodConfig[method];threshold.max=c.max;threshold.step=c.step;threshold.value=methodThresholds[method];document.querySelector('label[for=threshold]').childNodes[0].nodeValue=c.label+' ';render();}
@@ -255,11 +258,33 @@ function setFullscreenHintColor(hex){
 function positionFullscreenHint(){
  if(!fullscreenHint)return;
  const rect=fullscreenHint.getBoundingClientRect();
- const marginX=24,marginY=24;
+ const marginX=24,marginY=24,exclusionPadding=28;
+ const nameRect=fullscreenColorName?.getBoundingClientRect();
+ const exclusion=nameRect?{
+   left:nameRect.left-exclusionPadding,
+   top:nameRect.top-exclusionPadding,
+   right:nameRect.right+exclusionPadding,
+   bottom:nameRect.bottom+exclusionPadding
+ }:null;
  const maxX=Math.max(marginX,window.innerWidth-rect.width-marginX);
  const maxY=Math.max(marginY,window.innerHeight-rect.height-marginY);
- const x=marginX+Math.random()*Math.max(0,maxX-marginX);
- const y=marginY+Math.random()*Math.max(0,maxY-marginY);
+ const overlaps=(x,y)=>exclusion&&x<exclusion.right&&x+rect.width>exclusion.left&&y<exclusion.bottom&&y+rect.height>exclusion.top;
+ let x=marginX,y=marginY,placed=false;
+ for(let attempt=0;attempt<100;attempt++){
+   x=marginX+Math.random()*Math.max(0,maxX-marginX);
+   y=marginY+Math.random()*Math.max(0,maxY-marginY);
+   if(!overlaps(x,y)){placed=true;break;}
+ }
+ if(!placed){
+   const candidates=[
+     [marginX,marginY],
+     [maxX,marginY],
+     [marginX,maxY],
+     [maxX,maxY]
+   ];
+   const safe=candidates.find(([cx,cy])=>!overlaps(cx,cy));
+   if(safe)[x,y]=safe;
+ }
  fullscreenHint.style.left=x+'px';
  fullscreenHint.style.top=y+'px';
  fullscreenHint.style.transform='none';
@@ -293,6 +318,7 @@ function stopFullscreenLanguageCycle(){
 function enterFullscreenColorMode(){
  document.body.classList.add('fullscreen-color-mode');
  document.body.style.setProperty('--chosen-color',map[select.value]);
+ fullscreenColorName.textContent=select.value;
  setFullscreenHintColor(map[select.value]);
  startFullscreenLanguageCycle();
 }
