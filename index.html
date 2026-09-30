@@ -27,18 +27,34 @@ body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!impo
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
 
-@media (orientation: landscape) and (max-height: 600px) and (min-width: 700px){
-  body{padding:18px 28px 40px}
-  header{margin-bottom:18px}
-  h1{font-size:42px;margin-bottom:14px}
-  .main-grid{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);gap:18px;align-items:stretch}
-  .controls-card{height:100%;box-sizing:border-box}
-  .camera-card{margin-top:0}
-  .camera-stage{height:clamp(360px,62vh,520px)}
-  .results-grid{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);gap:18px;align-items:start}
-  .similarity-card{margin-top:0}
-  .similar-colors-card{margin-top:0}
-  .combinations-card{margin-top:18px}
+@media screen and (orientation: landscape) and (max-height: 600px) and (min-width: 700px){
+  main{
+    display:grid;
+    grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);
+    grid-template-areas:
+      "title title"
+      "controls camera"
+      "selected camera"
+      "similarity similar"
+      "combinations combinations"
+      "footer footer";
+    column-gap:18px;
+    align-items:start;
+  }
+  main>h1{grid-area:title;margin-bottom:2px}
+  main>.controls{grid-area:controls;margin:8px 0 0;padding:16px;display:block}
+  main>.camera-panel{grid-area:camera;margin:8px 0 0;padding:12px}
+  main>.camera-panel .camera-stage{
+    width:100%;
+    max-width:none;
+    height:min(46vh,360px);
+    aspect-ratio:auto;
+  }
+  main>section:nth-of-type(3){grid-area:selected;margin:0;padding:14px}
+  main>.similarity-controls{grid-area:similarity;margin:0;padding:14px}
+  main>section:nth-of-type(5){grid-area:similar;margin:0;padding:14px}
+  main>section:nth-of-type(6){grid-area:combinations;margin:0;padding:14px}
+  main>footer{grid-area:footer;margin-top:4px}
 }
 </style>
 
