@@ -117,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r17</span></h1>
+<h1>WadaDrobe <span class="revision">r18</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -310,8 +310,8 @@ const cameraResultSwatch=document.getElementById('cameraResultSwatch');
 const cameraResultText=document.getElementById('cameraResultText');
 let cameraStream=null,cameraFrame=null,lastCameraMatch=null;
 let displayedCameraMatch=null,candidateCameraMatch=null,candidateSince=0;
-const CAMERA_DEBOUNCE_MS=180;
-const CAMERA_SWITCH_MARGIN=0.35;
+const CAMERA_DEBOUNCE_MS=120;
+const CAMERA_SWITCH_MARGIN=0.15;
 
 function rgbBytesToLab(r,g,b){
  const rgb=[r/255,g/255,b/255].map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
@@ -370,7 +370,7 @@ function sampleCameraColor(){
    candidateCameraMatch=null;
    candidateSince=0;
  }else{
-   const displayedDelta=ciede2000(lab,hexToLab(displayedCameraMatch.hex));
+   const displayedDelta=ciede2000Lab(lab,labMap[displayedCameraMatch.name]);
    const meaningfullyBetter=match.delta < displayedDelta-CAMERA_SWITCH_MARGIN;
    if(meaningfullyBetter){
      if(candidateCameraMatch?.name!==match.name){
