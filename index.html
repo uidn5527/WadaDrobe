@@ -103,6 +103,8 @@ button,select,input{touch-action:manipulation}
 .camera-panel{background:#111;color:#fff;border-radius:12px;padding:14px;overflow:hidden}
 .camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover}
+.camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.camera-switch:active{transform:scale(.94)}
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 .camera-target::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(255,255,255,.72)}
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -133,6 +135,7 @@ button,select,input{touch-action:manipulation}
 <section class="camera-panel">
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
+<button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
 <div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
@@ -246,6 +249,9 @@ similarityMethod.addEventListener('change',updateMethodControls);colorSearch.add
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
 const cameraVideo=document.getElementById('cameraVideo');
+const cameraSwitch=document.getElementById('cameraSwitch');
+let cameraFacing='environment';
+let cameraStream=null;
 const cameraCanvas=document.getElementById('cameraCanvas');
 const cameraTarget=document.getElementById('cameraTarget');
 const cameraStatus=document.getElementById('cameraStatus');
@@ -333,6 +339,7 @@ function captureCameraColor(){
 }
 cameraTarget.addEventListener('click',captureCameraColor);
 startCamera();
+cameraSwitch.addEventListener('click',async e=>{e.stopPropagation();cameraFacing=cameraFacing==='environment'?'user':'environment';await startCamera();});
 window.addEventListener('pagehide',stopCamera);
 </script>
 </body></html>
