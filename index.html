@@ -107,7 +107,7 @@ button,select,input{touch-action:manipulation}
 .camera-switch:active{transform:scale(.94)}
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 
-.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-ring-half{position:absolute;left:0;right:0;height:50%;overflow:hidden;pointer-events:none;z-index:1}\n.camera-ring-live{top:0}\n.camera-ring-wada{bottom:0}\n.camera-ring{position:absolute;left:50%;top:50%;width:100%;height:100%;transform:translate(-50%,-50%);border:42px solid transparent;border-radius:50%;box-sizing:border-box}\n.camera-ring-live .camera-ring{border-color:var(--live-ring-color,#fff)}\n.camera-ring-wada .camera-ring{border-color:var(--wada-ring-color,#fff)}\n@media(max-width:600px){.camera-ring{border-width:36px}}\n.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
@@ -117,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r20</span></h1>
+<h1>WadaDrobe <span class="revision">r24</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -136,7 +136,7 @@ button,select,input{touch-action:manipulation}
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><div class="camera-ring-half camera-ring-live"><div class="camera-ring"></div></div><div class="camera-ring-half camera-ring-wada"><div class="camera-ring"></div></div></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -430,6 +430,7 @@ function sampleCameraColor(){
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  const rgb=[Math.round(avg(0)),Math.round(avg(1)),Math.round(avg(2))];
+ const liveHex='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
  if(!displayedCameraMatch){
@@ -458,7 +459,8 @@ function sampleCameraColor(){
    }
  }
  lastCameraMatch=displayedCameraMatch;
- cameraTarget.style.borderColor=displayedCameraMatch.hex;
+ cameraTarget.style.setProperty('--live-ring-color',liveHex);
+ cameraTarget.style.setProperty('--wada-ring-color',displayedCameraMatch.hex);
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
  cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
  cameraResult.hidden=false;
