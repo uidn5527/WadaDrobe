@@ -19,9 +19,8 @@ footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid v
 #colorFieldToggle:hover{background:#f0f0f0}
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
-body.fullscreen-color-mode #colorFieldToggle{visibility:visible!important;position:fixed;top:18px;right:18px;z-index:10000;background:rgba(255,255,255,.9);color:#222;border:1px solid rgba(0,0,0,.45)}
-body.fullscreen-color-mode #colorFieldToggle{font-size:0}
-body.fullscreen-color-mode #colorFieldToggle::after{content:'Restore normal view';font-size:inherit}
+#fullscreenHint{display:none}
+body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!important;position:fixed;left:50%;bottom:max(22px,calc(env(safe-area-inset-bottom) + 18px));transform:translateX(-50%);z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .8s ease;text-shadow:0 1px 3px rgba(0,0,0,.14);opacity:1}
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
 </style>
@@ -61,7 +60,7 @@ input,select,button{font-size:16px;min-height:44px}
 .block span{font-size:.72rem;line-height:1.15;background:rgba(255,255,255,.78);color:#111;border-radius:4px;padding:2px 4px;max-width:100%}
 .combination-title{font-weight:700;line-height:1.25;margin-bottom:8px}
 footer{font-size:.8rem;line-height:1.4;padding:12px 16px}
-body.fullscreen-color-mode #colorFieldToggle{top:auto;right:12px;bottom:12px;left:12px;width:auto;min-height:48px}
+
 @media (min-width:600px){
  main{padding:24px}
  section{padding:18px}
@@ -116,6 +115,7 @@ button,select,input{touch-action:manipulation}
 @media(max-width:600px){.camera-target{border-width:36px}}
 </style></head>
 <body>
+<div id="fullscreenHint" aria-hidden="true">tap anywhere to exit</div>
 <main>
 <h1>WadaDrobe</h1>
 
@@ -129,7 +129,7 @@ button,select,input{touch-action:manipulation}
 <div id="colorPickerMenu" class="custom-select-menu" role="listbox" hidden></div>
 </div>
 <select id="colorSelect" hidden aria-hidden="true"></select>
-<button id="colorFieldToggle" type="button" aria-pressed="false">Show full-screen color sample</button>
+
 </div>
 </section>
 <section class="camera-panel">
@@ -182,7 +182,7 @@ function ciede2000(a,b){
  return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
 }
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
-const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
+const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
 const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key,c])=>[key,c.value]));
 function updateMethodControls(){const method=similarityMethod.value,c=methodConfig[method];threshold.max=c.max;threshold.step=c.step;threshold.value=methodThresholds[method];document.querySelector('label[for=threshold]').childNodes[0].nodeValue=c.label+' ';render();}
@@ -237,9 +237,59 @@ function render(){const selected=select.value,t=Number(threshold.value); updateC
 }
 document.addEventListener('click',e=>{const swatch=e.target.closest('.clickable-color');if(swatch&&swatch.dataset.color){const chosen=swatch.dataset.color;colorSearch.value='';populateColorSelect(chosen);}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('clickable-color')){e.preventDefault();e.target.click();}});
-function exitFullscreenColorMode(){if(document.body.classList.contains('fullscreen-color-mode')){document.body.classList.remove('fullscreen-color-mode');colorFieldToggle.setAttribute('aria-pressed','false');colorFieldToggle.textContent='Show full-screen color sample';}}
-colorFieldToggle.addEventListener('click',e=>{e.stopPropagation();const active=document.body.classList.toggle('fullscreen-color-mode');document.body.style.setProperty('--chosen-color',map[select.value]);colorFieldToggle.setAttribute('aria-pressed',String(active));colorFieldToggle.textContent=active?'Restore normal view':'Show full-screen color sample';});
-document.addEventListener('click',e=>{if(document.body.classList.contains('fullscreen-color-mode')&&e.target!==colorFieldToggle&&!colorFieldToggle.contains(e.target))exitFullscreenColorMode();});
+const fullscreenLanguages=[
+ ['tap anywhere to exit','en'],
+ ['toca en cualquier lugar para salir','es'],
+ ['גע בכל מקום כדי לצאת','he'],
+ ['点击任意位置退出','zh'],
+ ['toque em qualquer lugar para sair','pt']
+];
+let fullscreenLanguageIndex=0,fullscreenLanguageTimer=null;
+function setFullscreenHintColor(hex){
+ const h=hex.replace('#','');
+ const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+ const luminance=(0.2126*r+0.7152*g+0.0722*b)/255;
+ document.documentElement.style.setProperty('--fullscreen-text',luminance>0.58?'rgba(0,0,0,.56)':'rgba(255,255,255,.62)');
+}
+function showFullscreenLanguage(){
+ if(!fullscreenHint)return;
+ const [text,lang]=fullscreenLanguages[fullscreenLanguageIndex];
+ fullscreenHint.textContent=text;
+ fullscreenHint.lang=lang;
+ fullscreenHint.style.opacity='0';
+ requestAnimationFrame(()=>{fullscreenHint.style.opacity='1';});
+ fullscreenLanguageIndex=(fullscreenLanguageIndex+1)%fullscreenLanguages.length;
+}
+function startFullscreenLanguageCycle(){
+ clearInterval(fullscreenLanguageTimer);
+ fullscreenLanguageIndex=0;
+ showFullscreenLanguage();
+ fullscreenLanguageTimer=setInterval(()=>{
+   fullscreenHint.style.opacity='0';
+   setTimeout(showFullscreenLanguage,800);
+ },4000);
+}
+function stopFullscreenLanguageCycle(){
+ clearInterval(fullscreenLanguageTimer);
+ fullscreenLanguageTimer=null;
+ if(fullscreenHint)fullscreenHint.style.opacity='0';
+}
+function enterFullscreenColorMode(){
+ document.body.classList.add('fullscreen-color-mode');
+ document.body.style.setProperty('--chosen-color',map[select.value]);
+ setFullscreenHintColor(map[select.value]);
+ startFullscreenLanguageCycle();
+}
+function exitFullscreenColorMode(){
+ if(document.body.classList.contains('fullscreen-color-mode')){
+   document.body.classList.remove('fullscreen-color-mode');
+   stopFullscreenLanguageCycle();
+ }
+}
+colorFieldToggle?.addEventListener('click',e=>{e.stopPropagation();if(document.body.classList.contains('fullscreen-color-mode'))exitFullscreenColorMode();else enterFullscreenColorMode();});
+document.addEventListener('click',e=>{
+ if(document.body.classList.contains('fullscreen-color-mode')&&e.target!==colorFieldToggle&&!colorFieldToggle?.contains(e.target))exitFullscreenColorMode();
+});
 select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();});
 colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
 colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();});
