@@ -102,7 +102,7 @@ button,select,input{touch-action:manipulation}
 /* Live camera color sampler */
 .camera-panel{background:#111;color:#fff;border-radius:12px;padding:14px;overflow:hidden}
 .camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden}
-#cameraVideo{width:100%;height:100%;display:block;object-fit:cover}
+#cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1)}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-switch:active{transform:scale(.94)}
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
@@ -318,7 +318,9 @@ async function startCamera(){
  try{
    if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
-   cameraVideo.srcObject=cameraStream;await cameraVideo.play();
+   cameraVideo.srcObject=cameraStream;
+   cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';
+   await cameraVideo.play();
    cameraResult.hidden=false;
    cameraFrame=requestAnimationFrame(cameraLoop);
  }catch(err){
