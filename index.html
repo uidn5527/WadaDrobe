@@ -101,14 +101,14 @@ button,select,input{touch-action:manipulation}
 
 /* Live camera color sampler */
 .camera-panel{background:#111;color:#fff;border-radius:12px;padding:14px;overflow:hidden}
-.camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden}
-#cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1)}
+.camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden;touch-action:none}
+#cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1);transform-origin:center center;will-change:transform}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-switch:active{transform:scale(.94)}
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
+.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
@@ -117,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r19</span></h1>
+<h1>WadaDrobe <span class="revision">r20</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -136,7 +136,7 @@ button,select,input{touch-action:manipulation}
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -308,6 +308,64 @@ const cameraStatus=document.getElementById('cameraStatus');
 const cameraResult=document.getElementById('cameraResult');
 const cameraResultSwatch=document.getElementById('cameraResultSwatch');
 const cameraResultText=document.getElementById('cameraResultText');
+const cameraZoom=document.getElementById('cameraZoom');
+const cameraStage=document.querySelector('.camera-stage');
+let cameraZoomLevel=1;
+let cameraZoomMin=1,cameraZoomMax=1,cameraZoomStep=.1;
+let zoomHideTimer=null;
+let pinchStartDistance=null,pinchStartZoom=1;
+let lastWheelTime=0;
+
+function getCameraZoomCapabilities(){
+ const track=cameraStream?.getVideoTracks?.()[0];
+ const caps=track?.getCapabilities?.();
+ if(caps&&typeof caps.zoom==='object'){
+   cameraZoomMin=Number.isFinite(caps.zoom.min)?caps.zoom.min:1;
+   cameraZoomMax=Number.isFinite(caps.zoom.max)?caps.zoom.max:cameraZoomMin;
+   cameraZoomStep=Number.isFinite(caps.zoom.step)&&caps.zoom.step>0?caps.zoom.step:.1;
+ }else{cameraZoomMin=1;cameraZoomMax=4;cameraZoomStep=.1;}
+ cameraZoomLevel=Math.min(Math.max(cameraZoomLevel,cameraZoomMin),cameraZoomMax);
+ updateCameraZoomLabel();
+}
+function updateCameraZoomLabel(){
+ const value=cameraZoomLevel.toFixed(1).replace('.0','');
+ cameraZoom.textContent=value+'×';
+}
+function showCameraZoom(){
+ cameraZoom.classList.add('visible');
+ clearTimeout(zoomHideTimer);
+ zoomHideTimer=setTimeout(()=>cameraZoom.classList.remove('visible'),700);
+}
+async function setCameraZoom(level){
+ level=Math.min(cameraZoomMax,Math.max(cameraZoomMin,level));
+ const stepped=cameraZoomMin===1?Math.round(level/cameraZoomStep)*cameraZoomStep:cameraZoomMin+Math.round((level-cameraZoomMin)/cameraZoomStep)*cameraZoomStep;
+ cameraZoomLevel=Math.min(cameraZoomMax,Math.max(cameraZoomMin,stepped));
+ const track=cameraStream?.getVideoTracks?.()[0];
+ const caps=track?.getCapabilities?.();
+ if(track&&caps&&typeof caps.zoom==='object'){
+   try{await track.applyConstraints({advanced:[{zoom:cameraZoomLevel}]});}catch(err){}
+ }else{cameraVideo.style.transform='scaleX('+(cameraFacing==='user'?-cameraZoomLevel:cameraZoomLevel)+')';}
+ updateCameraZoomLabel();
+ showCameraZoom();
+ sampleCameraColor();
+}
+function distanceBetweenTouches(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+cameraStage.addEventListener('touchstart',e=>{
+ if(e.touches.length===2){pinchStartDistance=distanceBetweenTouches(e.touches[0],e.touches[1]);pinchStartZoom=cameraZoomLevel;e.preventDefault();}
+},{passive:false});
+cameraStage.addEventListener('touchmove',e=>{
+ if(e.touches.length===2&&pinchStartDistance){
+   const ratio=distanceBetweenTouches(e.touches[0],e.touches[1])/pinchStartDistance;
+   setCameraZoom(pinchStartZoom*ratio);e.preventDefault();
+ }
+},{passive:false});
+cameraStage.addEventListener('touchend',e=>{if(e.touches.length<2)pinchStartDistance=null;},{passive:false});
+cameraStage.addEventListener('wheel',e=>{
+ if(e.ctrlKey||e.metaKey||e.deltaY!==0){
+   const now=performance.now();if(now-lastWheelTime<25)return;lastWheelTime=now;e.preventDefault();
+   setCameraZoom(cameraZoomLevel*Math.exp(-e.deltaY*.0025));
+ }
+},{passive:false});
 let cameraStream=null,cameraFrame=null,lastCameraMatch=null;
 let displayedCameraMatch=null,candidateCameraMatch=null,candidateSince=0;
 const CAMERA_DEBOUNCE_MS=120;
@@ -413,6 +471,10 @@ async function startCamera(){
    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
    cameraVideo.srcObject=cameraStream;
    cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';
+   getCameraZoomCapabilities();
+   const track=cameraStream.getVideoTracks()[0];
+   const caps=track?.getCapabilities?.();
+   if(caps&&typeof caps.zoom==='object'){try{await track.applyConstraints({advanced:[{zoom:cameraZoomLevel}]});}catch(err){}}
    displayedCameraMatch=null;
    candidateCameraMatch=null;
    candidateSince=0;
