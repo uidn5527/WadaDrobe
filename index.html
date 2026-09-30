@@ -26,6 +26,20 @@ body.fullscreen-color-mode #fullscreenColorName{display:block;visibility:visible
 body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!important;position:fixed;left:24px;top:24px;z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .8s ease;text-shadow:0 1px 3px rgba(0,0,0,.14);opacity:1}
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
+
+@media (orientation: landscape) and (max-height: 600px) and (min-width: 700px){
+  body{padding:18px 28px 40px}
+  header{margin-bottom:18px}
+  h1{font-size:42px;margin-bottom:14px}
+  .main-grid{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);gap:18px;align-items:stretch}
+  .controls-card{height:100%;box-sizing:border-box}
+  .camera-card{margin-top:0}
+  .camera-stage{height:clamp(360px,62vh,520px)}
+  .results-grid{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);gap:18px;align-items:start}
+  .similarity-card{margin-top:0}
+  .similar-colors-card{margin-top:0}
+  .combinations-card{margin-top:18px}
+}
 </style>
 
 <style>
@@ -119,7 +133,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r30</span></h1>
+<h1>WadaDrobe <span class="revision">r31</span></h1>
 
 <section class="controls">
 <div class="color-picker">
