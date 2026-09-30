@@ -117,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r28</span></h1>
+<h1>WadaDrobe <span class="revision">r29</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -252,18 +252,33 @@ function setFullscreenHintColor(hex){
  const luminance=(0.2126*r+0.7152*g+0.0722*b)/255;
  document.documentElement.style.setProperty('--fullscreen-text',luminance>0.58?'rgba(0,0,0,.56)':'rgba(255,255,255,.62)');
 }
+function positionFullscreenHint(){
+ if(!fullscreenHint)return;
+ const rect=fullscreenHint.getBoundingClientRect();
+ const marginX=24,marginY=24;
+ const maxX=Math.max(marginX,window.innerWidth-rect.width-marginX);
+ const maxY=Math.max(marginY,window.innerHeight-rect.height-marginY);
+ const x=marginX+Math.random()*Math.max(0,maxX-marginX);
+ const y=marginY+Math.random()*Math.max(0,maxY-marginY);
+ fullscreenHint.style.left=x+'px';
+ fullscreenHint.style.top=y+'px';
+ fullscreenHint.style.transform='none';
+}
 function showFullscreenLanguage(){
  if(!fullscreenHint)return;
  const [text,lang]=fullscreenLanguages[fullscreenLanguageIndex];
  fullscreenHint.textContent=text;
  fullscreenHint.lang=lang;
  fullscreenHint.style.opacity='0';
- requestAnimationFrame(()=>{fullscreenHint.style.opacity='1';});
+ requestAnimationFrame(()=>{
+   positionFullscreenHint();
+   fullscreenHint.style.opacity='1';
+ });
  fullscreenLanguageIndex=(fullscreenLanguageIndex+1)%fullscreenLanguages.length;
 }
 function startFullscreenLanguageCycle(){
  clearInterval(fullscreenLanguageTimer);
- fullscreenLanguageIndex=0;
+ fullscreenLanguageIndex=Math.floor(Math.random()*fullscreenLanguages.length);
  showFullscreenLanguage();
  fullscreenLanguageTimer=setInterval(()=>{
    fullscreenHint.style.opacity='0';
