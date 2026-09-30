@@ -317,7 +317,8 @@ function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAni
 async function startCamera(){
  if(!navigator.mediaDevices?.getUserMedia)return;
  try{
-   cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+   if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+   cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
    cameraVideo.srcObject=cameraStream;await cameraVideo.play();
    cameraResult.hidden=false;
    cameraFrame=requestAnimationFrame(cameraLoop);
