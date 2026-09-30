@@ -105,7 +105,7 @@ button,select,input{touch-action:manipulation}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1)}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-switch:active{transform:scale(.94)}
-.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
+.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
@@ -117,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r18</span></h1>
+<h1>WadaDrobe <span class="revision">r19</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -341,21 +341,34 @@ function nearestWadaFromLab(lab){
 }
 function sampleCameraColor(){
  if(!cameraStream||cameraVideo.readyState<2)return;
- const w=cameraVideo.videoWidth,h=cameraVideo.videoHeight;if(!w||!h)return;
- const rect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
- const cx=(rect.left+rect.width/2-videoRect.left)/videoRect.width*w;
- const cy=(rect.top+rect.height/2-videoRect.top)/videoRect.height*h;
- const rx=rect.width/2/videoRect.width*w,ry=rect.height/2/videoRect.height*h;
- const size=Math.max(12,Math.min(ry,rx)*1.35); // central sample window; circular pixels are retained below
- cameraCanvas.width=Math.min(180,Math.max(60,Math.round(size*2)));cameraCanvas.height=cameraCanvas.width;
+ const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;
+ const targetRect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
+ const targetCx=targetRect.left+targetRect.width/2-videoRect.left;
+ const targetCy=targetRect.top+targetRect.height/2-videoRect.top;
+
+ // Map the target from the displayed object-fit:cover video into intrinsic video coordinates.
+ const scale=Math.max(videoRect.width/iw,videoRect.height/ih);
+ const renderedW=iw*scale,renderedH=ih*scale;
+ const cropX=(renderedW-videoRect.width)/2,cropY=(renderedH-videoRect.height)/2;
+ let cx=(targetCx+cropX)/scale,cy=(targetCy+cropY)/scale;
+ if(cameraFacing==='user')cx=iw-cx;
+
+ // Sample the actual visible interior of the target circle, excluding its white ring.
+ const border=parseFloat(getComputedStyle(cameraTarget).borderLeftWidth)||0;
+ const innerRadius=Math.max(6,(targetRect.width/2)-border);
+ const sourceRadius=Math.max(4,innerRadius/scale);
+ const sampleRadius=sourceRadius*.90;
+ const drawSize=Math.max(24,Math.min(180,Math.ceil(sampleRadius*2)));
+ cameraCanvas.width=drawSize;cameraCanvas.height=drawSize;
  const ctx=cameraCanvas.getContext('2d',{willReadFrequently:true});
- ctx.drawImage(cameraVideo,cx-size,cy-size,size*2,size*2,0,0,cameraCanvas.width,cameraCanvas.height);
- const img=ctx.getImageData(0,0,cameraCanvas.width,cameraCanvas.height).data;
- const samples=[];const c=cameraCanvas.width/2,r=cameraCanvas.width/2*.88;
- for(let y=0;y<cameraCanvas.height;y++)for(let x=0;x<cameraCanvas.width;x++){
-   if(Math.hypot(x-c,y-c)<=r){const i=(y*cameraCanvas.width+x)*4;samples.push([img[i],img[i+1],img[i+2]]);}
+ ctx.drawImage(cameraVideo,cx-sampleRadius,cy-sampleRadius,sampleRadius*2,sampleRadius*2,0,0,drawSize,drawSize);
+ const img=ctx.getImageData(0,0,drawSize,drawSize).data;
+ const samples=[];const c=drawSize/2,r=drawSize/2*.96;
+ for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++){
+   if(Math.hypot(x-c,y-c)<=r){const i=(y*drawSize+x)*4;samples.push([img[i],img[i+1],img[i+2]]);}
  }
  if(!samples.length)return;
+
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  const rgb=[Math.round(avg(0)),Math.round(avg(1)),Math.round(avg(2))];
@@ -391,7 +404,6 @@ function sampleCameraColor(){
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
  cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
  cameraResult.hidden=false;
- 
 }
 function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);}
 async function startCamera(){
@@ -401,6 +413,10 @@ async function startCamera(){
    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
    cameraVideo.srcObject=cameraStream;
    cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';
+   displayedCameraMatch=null;
+   candidateCameraMatch=null;
+   candidateSince=0;
+   lastCameraMatch=null;
    await cameraVideo.play();
    cameraResult.hidden=false;
    cameraFrame=requestAnimationFrame(cameraLoop);
