@@ -105,7 +105,9 @@ button,select,input{touch-action:manipulation}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1);transform-origin:center center;will-change:transform}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-switch:active{transform:scale(.94)}
-.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:0 solid transparent;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;--ring-width:42px}\n.camera-ring{position:absolute;inset:calc(-1 * var(--ring-width));width:calc(100% + 2 * var(--ring-width));height:calc(100% + 2 * var(--ring-width));pointer-events:none;z-index:2;overflow:visible}\n.camera-ring path{fill:none;stroke-width:var(--ring-width);stroke-linecap:butt}\n@media(max-width:600px){.camera-target{--ring-width:36px}}\n.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
+
+.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
@@ -115,7 +117,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r22</span></h1>
+<h1>WadaDrobe <span class="revision">r20</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -134,7 +136,7 @@ button,select,input{touch-action:manipulation}
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><svg class="camera-ring" viewBox="-42 -42 184 184" preserveAspectRatio="none" aria-hidden="true"><path id="liveRing" d="M 50 8 A 42 42 0 0 1 92 50"></path><path id="wadaRing" d="M 92 50 A 42 42 0 0 1 50 92 A 42 42 0 0 1 8 50 A 42 42 0 0 1 50 8"></path></svg></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -307,8 +309,6 @@ const cameraResult=document.getElementById('cameraResult');
 const cameraResultSwatch=document.getElementById('cameraResultSwatch');
 const cameraResultText=document.getElementById('cameraResultText');
 const cameraZoom=document.getElementById('cameraZoom');
-const liveRing=document.getElementById('liveRing');
-const wadaRing=document.getElementById('wadaRing');
 const cameraStage=document.querySelector('.camera-stage');
 let cameraZoomLevel=1;
 let cameraZoomMin=1,cameraZoomMax=1,cameraZoomStep=.1;
@@ -412,7 +412,7 @@ function sampleCameraColor(){
  if(cameraFacing==='user')cx=iw-cx;
 
  // Sample the actual visible interior of the target circle, excluding its white ring.
- const border=parseFloat(getComputedStyle(cameraTarget).getPropertyValue('--ring-width'))||42;
+ const border=parseFloat(getComputedStyle(cameraTarget).borderLeftWidth)||0;
  const innerRadius=Math.max(6,(targetRect.width/2)-border);
  const sourceRadius=Math.max(4,innerRadius/scale);
  const sampleRadius=sourceRadius*.90;
@@ -430,7 +430,6 @@ function sampleCameraColor(){
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  const rgb=[Math.round(avg(0)),Math.round(avg(1)),Math.round(avg(2))];
- const liveHex='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
  if(!displayedCameraMatch){
@@ -459,8 +458,7 @@ function sampleCameraColor(){
    }
  }
  lastCameraMatch=displayedCameraMatch;
- liveRing.style.stroke=liveHex;
- wadaRing.style.stroke=displayedCameraMatch.hex;
+ cameraTarget.style.borderColor=displayedCameraMatch.hex;
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
  cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
  cameraResult.hidden=false;
