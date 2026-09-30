@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sanzo Wada Color Explorer — Updated Catalog</title>
+<title>WadaDrobe</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -81,41 +81,61 @@ body.fullscreen-color-mode #colorFieldToggle{top:auto;right:12px;bottom:12px;lef
 }
 .clickable-color{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,select,input{touch-action:manipulation}
+
+/* Custom color picker */
+.color-picker{position:relative}
+.custom-select{position:relative;width:100%}
+.custom-select-button{width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #bbb;border-radius:6px;background:#fff;color:#222;font:inherit;text-align:left;cursor:pointer;min-height:44px}
+.custom-select-button:focus{outline:3px solid rgba(49,95,140,.25);outline-offset:1px}
+#selectedSwatch{width:28px;height:28px;border-radius:6px;border:1px solid #999;flex:0 0 28px}
+#selectedColorName{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.custom-select-chevron{font-size:1.2rem;line-height:1;flex:none;color:#666}
+.custom-select-menu{position:absolute;z-index:2000;left:0;right:0;top:calc(100% + 4px);max-height:min(55vh,420px);overflow:auto;background:#fff;border:1px solid #bbb;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:5px}
+.custom-select-group-label{padding:8px 10px 4px;color:#666;font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.custom-select-option{display:flex;align-items:center;gap:10px;width:100%;border:0;background:#fff;color:#222;padding:8px 10px;min-height:40px;border-radius:6px;font:inherit;text-align:left;cursor:pointer}
+.custom-select-option:hover,.custom-select-option:focus{background:#f1f4f6;outline:none}
+.custom-select-option[aria-selected="true"]{background:#e8eef4;font-weight:650}
+.custom-option-swatch{width:24px;height:24px;border-radius:5px;border:1px solid #999;flex:0 0 24px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.custom-option-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#colorSelect[hidden]{display:none}
+
 /* Live camera color sampler */
 .camera-panel{background:#111;color:#fff;border-radius:12px;padding:14px;overflow:hidden}
 .camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover}
-.camera-target{position:absolute;left:50%;top:50%;width:min(42vw,210px);height:min(42vw,210px);max-width:210px;max-height:210px;min-width:120px;min-height:120px;transform:translate(-50%,-50%);border-radius:50%;border:14px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none;transition:border-color .08s linear}
+.camera-target{position:absolute;left:50%;top:50%;width:min(42vw,210px);height:min(42vw,210px);max-width:210px;max-height:210px;min-width:120px;min-height:120px;transform:translate(-50%,-50%);border-radius:50%;border:28px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 .camera-target::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(255,255,255,.72)}
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
-.camera-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
-.camera-status{margin:8px 0 0;color:#ccc;font-size:.84rem;text-align:center;min-height:1.2em}
-@media(max-width:600px){.camera-target{border-width:12px}.camera-controls button{flex-basis:100%}}
+.camera-status{display:none}
+@media(max-width:600px){.camera-target{border-width:24px}}
 </style></head>
 <body>
 <main>
-<h1>🎨 Sanzo Wada Color Explorer</h1>
-<p class="subtitle">Choose a color, tune visual similarity, and explore matching color combinations.</p>
+<h1>WadaDrobe</h1>
 
 <section class="controls">
-<div><label for="colorSelect">Select a Sanzo Wada color</label><label for="colorSearch">Search colors by name</label>
-<input id="colorSearch" type="search" placeholder="Type part of a color name…" autocomplete="off">
-<div class="select-with-swatch"><div id="selectedSwatch" aria-hidden="true"></div><select id="colorSelect"></select></div>
-<button id="colorFieldToggle" type="button" aria-pressed="false">Show full-screen color sample</button></div>
-
+<div class="color-picker">
+<input id="colorSearch" type="search" placeholder="Search colors…" autocomplete="off" aria-label="Search colors">
+<div class="custom-select" id="colorPicker" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+<button id="colorPickerButton" class="custom-select-button" type="button" aria-label="Choose a color">
+<span id="selectedSwatch" aria-hidden="true"></span><span id="selectedColorName"></span><span class="custom-select-chevron" aria-hidden="true">⌄</span>
+</button>
+<div id="colorPickerMenu" class="custom-select-menu" role="listbox" hidden></div>
+</div>
+<select id="colorSelect" hidden aria-hidden="true"></select>
+<button id="colorFieldToggle" type="button" aria-pressed="false">Show full-screen color sample</button>
+</div>
 </section>
 <section class="camera-panel">
-<h2>Live color sampler</h2>
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
-<div id="cameraTarget" class="camera-target" aria-label="Live color sampling area"></div>
-<div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText">Point the camera at a color</span></div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>
+<div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
-<div class="camera-controls"><button id="cameraStart" type="button">Use camera</button><button id="cameraCapture" type="button" disabled>Capture this color</button><button id="cameraStop" type="button" disabled>Stop camera</button></div>
-<div id="cameraStatus" class="camera-status">The live match uses the average color inside the circle and CIEDE2000.</div>
 <canvas id="cameraCanvas" hidden></canvas>
 </section>
 <section><h2>Selected color</h2><div class="selected" id="selectedColor"></div></section>
@@ -159,7 +179,7 @@ function ciede2000(a,b){
  return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
 }
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
-const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), colorFieldToggle=document.getElementById('colorFieldToggle'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
+const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
 const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key,c])=>[key,c.value]));
 function updateMethodControls(){const method=similarityMethod.value,c=methodConfig[method];threshold.max=c.max;threshold.step=c.step;threshold.value=methodThresholds[method];document.querySelector('label[for=threshold]').childNodes[0].nodeValue=c.label+' ';render();}
@@ -188,12 +208,25 @@ function populateColorSelect(preferredColor=null){
  const groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));
  colorRecords.filter(c=>c.name.toLowerCase().includes(query)).forEach(c=>groups[c.family].push(c));
  let first=null, selectedStill=false;
- familyOrder.forEach(f=>{if(!groups[f].length)return; const og=document.createElement('optgroup');og.label=f;groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>{const o=document.createElement('option');o.value=c.name;o.textContent=c.name;o.dataset.hex=c.hex;og.appendChild(o);if(!first)first=c.name;if(c.name===current)selectedStill=true});select.appendChild(og)});
+ colorPickerMenu.innerHTML='';
+ familyOrder.forEach(f=>{
+   if(!groups[f].length)return;
+   const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;colorPickerMenu.appendChild(label);
+   groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>{
+     const o=document.createElement('option');o.value=c.name;o.textContent=c.name;o.dataset.hex=c.hex;select.appendChild(o);
+     const item=document.createElement('button');item.type='button';item.className='custom-select-option';item.setAttribute('role','option');item.dataset.color=c.name;item.setAttribute('aria-selected',String(c.name===current));
+     item.innerHTML='<span class="custom-option-swatch" style="background:'+c.hex+'"></span><span class="custom-option-name">'+c.name+'</span>';
+     colorPickerMenu.appendChild(item);
+     if(!first)first=c.name;if(c.name===current)selectedStill=true;
+   });
+ });
  if(selectedStill)select.value=current; else if(first)select.value=first;
+ updateColorPickerButton();
  render();
 }
 populateColorSelect();
-function render(){const selected=select.value,t=Number(threshold.value); selectedSwatch.style.background=map[selected]; selectedSwatch.title=selected+' '+map[selected];thresholdValue.textContent=similarityMethod.value==='rgb'?t.toFixed(2):t.toFixed(1);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected&&distance(selected,n)<=t).sort((a,b)=>distance(selected,a)-distance(selected,b));const group=[selected,...similar];
+function updateColorPickerButton(){const selected=select.value;selectedSwatch.style.background=map[selected]||'transparent';selectedSwatch.title=selected+' '+(map[selected]||'');selectedColorName.textContent=selected||'Choose a color';colorPickerButton.setAttribute('aria-label',selected?'Choose '+selected:'Choose a color');colorPickerMenu.querySelectorAll('.custom-select-option').forEach(o=>o.setAttribute('aria-selected',String(o.dataset.color===selected)));}
+function render(){const selected=select.value,t=Number(threshold.value); updateColorPickerButton();thresholdValue.textContent=similarityMethod.value==='rgb'?t.toFixed(2):t.toFixed(1);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected&&distance(selected,n)<=t).sort((a,b)=>distance(selected,a)-distance(selected,b));const group=[selected,...similar];
  document.getElementById('selectedColor').innerHTML=`<div class="swatch clickable-color" role="button" tabindex="0" data-color="${selected}" title="Choose ${selected}" style="background:${map[selected]}"></div><div><div class="name">${selected}</div><div class="hex">${map[selected]}</div></div>`;
  document.getElementById('similarHeading').textContent=`Visually similar colors (${group.length})`;
  const grid=document.getElementById('similarColors');grid.innerHTML=group.map(n=>`<article class="color-card"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div><div class="hex">${map[n]}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
@@ -204,21 +237,22 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 function exitFullscreenColorMode(){if(document.body.classList.contains('fullscreen-color-mode')){document.body.classList.remove('fullscreen-color-mode');colorFieldToggle.setAttribute('aria-pressed','false');colorFieldToggle.textContent='Show full-screen color sample';}}
 colorFieldToggle.addEventListener('click',e=>{e.stopPropagation();const active=document.body.classList.toggle('fullscreen-color-mode');document.body.style.setProperty('--chosen-color',map[select.value]);colorFieldToggle.setAttribute('aria-pressed',String(active));colorFieldToggle.textContent=active?'Restore normal view':'Show full-screen color sample';});
 document.addEventListener('click',e=>{if(document.body.classList.contains('fullscreen-color-mode')&&e.target!==colorFieldToggle&&!colorFieldToggle.contains(e.target))exitFullscreenColorMode();});
-select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();});similarityMethod.addEventListener('change',updateMethodControls);colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{methodThresholds[similarityMethod.value]=Number(threshold.value);render();});updateMethodControls();
+select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();});
+colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
+colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();});
+document.addEventListener('click',e=>{if(!colorPicker.contains(e.target)){colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');}});
+similarityMethod.addEventListener('change',updateMethodControls);colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{methodThresholds[similarityMethod.value]=Number(threshold.value);render();});updateMethodControls();
 
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
 const cameraVideo=document.getElementById('cameraVideo');
 const cameraCanvas=document.getElementById('cameraCanvas');
 const cameraTarget=document.getElementById('cameraTarget');
-const cameraStart=document.getElementById('cameraStart');
-const cameraCapture=document.getElementById('cameraCapture');
-const cameraStop=document.getElementById('cameraStop');
 const cameraStatus=document.getElementById('cameraStatus');
 const cameraResult=document.getElementById('cameraResult');
 const cameraResultSwatch=document.getElementById('cameraResultSwatch');
 const cameraResultText=document.getElementById('cameraResultText');
-let cameraStream=null,cameraFrame=null,cameraLocked=false,lastCameraMatch=null;
+let cameraStream=null,cameraFrame=null,lastCameraMatch=null;
 
 function rgbBytesToLab(r,g,b){
  const rgb=[r/255,g/255,b/255].map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
@@ -247,7 +281,7 @@ function nearestWadaFromLab(lab){
  return best;
 }
 function sampleCameraColor(){
- if(!cameraStream||cameraLocked||cameraVideo.readyState<2)return;
+ if(!cameraStream||cameraVideo.readyState<2)return;
  const w=cameraVideo.videoWidth,h=cameraVideo.videoHeight;if(!w||!h)return;
  const rect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
  const cx=(rect.left+rect.width/2-videoRect.left)/videoRect.width*w;
@@ -271,30 +305,34 @@ function sampleCameraColor(){
  cameraResultSwatch.style.background=match.hex;
  cameraResultText.textContent=`${match.name} · ΔE00 ${match.delta.toFixed(1)}`;
  cameraResult.hidden=false;
- cameraStatus.textContent=`Live sample: RGB ${rgb.join(', ')} · ${match.hex}`;
+ 
 }
-function cameraLoop(){sampleCameraColor();if(cameraStream&&!cameraLocked)cameraFrame=requestAnimationFrame(cameraLoop);}
+function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);}
 async function startCamera(){
- if(!navigator.mediaDevices?.getUserMedia){cameraStatus.textContent='Camera access is not supported by this browser.';return;}
+ if(!navigator.mediaDevices?.getUserMedia)return;
  try{
-   cameraLocked=false;
    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
    cameraVideo.srcObject=cameraStream;await cameraVideo.play();
-   cameraStart.disabled=true;cameraCapture.disabled=false;cameraStop.disabled=false;
-   cameraStatus.textContent='Move the circle over the color you want to sample.';cameraResult.hidden=false;cameraResultText.textContent='Sampling…';cameraFrame=requestAnimationFrame(cameraLoop);
- }catch(err){cameraStatus.textContent=err.name==='NotAllowedError'?'Camera permission was denied. Enable camera access for this site and try again.':'Could not start the camera.';}
+   cameraResult.hidden=false;
+   cameraFrame=requestAnimationFrame(cameraLoop);
+ }catch(err){
+   cameraResult.hidden=false;
+   cameraResultText.textContent=err.name==='NotAllowedError'?'Camera access is required.':'Camera unavailable';
+ }
 }
 function stopCamera(){
- cameraLocked=false;if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;
+ if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;
  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
- cameraVideo.srcObject=null;cameraStart.disabled=false;cameraCapture.disabled=true;cameraStop.disabled=true;cameraStatus.textContent='Camera stopped.';
+ cameraVideo.srcObject=null;
 }
 function captureCameraColor(){
- if(!lastCameraMatch)return;cameraLocked=true;if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;
- const chosen=lastCameraMatch.name;colorSearch.value='';populateColorSelect(chosen);cameraStatus.textContent=`Captured ${chosen} · ${lastCameraMatch.hex} · ΔE00 ${lastCameraMatch.delta.toFixed(1)}`;
- stopCamera();
+ if(!lastCameraMatch)return;
+ const chosen=lastCameraMatch.name;
+ colorSearch.value='';
+ populateColorSelect(chosen);
 }
-cameraStart.addEventListener('click',startCamera);cameraStop.addEventListener('click',stopCamera);cameraCapture.addEventListener('click',captureCameraColor);
+cameraTarget.addEventListener('click',captureCameraColor);
+startCamera();
 window.addEventListener('pagehide',stopCamera);
 </script>
 </body></html>
