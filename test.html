@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test08</title>
+<title>WadaDrobe test09</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -416,7 +416,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">test08</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test09</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -846,7 +846,7 @@ function sampleCameraColor(){
  cameraLiveRing.style.setProperty('--live-color',liveHex);
  cameraStableRing.style.setProperty('--stable-color',displayedCameraMatch.hex);
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
- cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
+ cameraResultText.textContent=displayedCameraMatch.name;
  cameraResult.hidden=false;
 }
 function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);}
