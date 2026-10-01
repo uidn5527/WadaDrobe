@@ -313,7 +313,12 @@ button,select,input{touch-action:manipulation}
 .color-correction-toggle[aria-pressed="true"]::before{opacity:1}
 .color-correction-toggle[aria-pressed="true"] .eyedropper-icon{z-index:1}
 
-.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
+.camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:0 solid transparent;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer}
+.camera-live-ring,.camera-stable-ring{position:absolute;border-radius:50%;pointer-events:none;box-sizing:border-box}
+.camera-live-ring{inset:0;border:21px solid transparent}
+.camera-stable-ring{inset:0;border:21px solid transparent}
+.camera-live-ring{transform:scale(.5);transform-origin:center;transition:border-color .08s linear}
+.camera-stable-ring{transition:border-color .08s linear}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
@@ -321,11 +326,11 @@ button,select,input{touch-action:manipulation}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
 .camera-status{display:none}
-@media(max-width:600px){.camera-target{border-width:36px}}
+@media(max-width:600px){.camera-live-ring,.camera-stable-ring{border-width:18px}.camera-live-ring{transform:scale(.5)}}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r38</span></h1>
+<h1>WadaDrobe <span class="revision">r39</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -345,7 +350,7 @@ button,select,input{touch-action:manipulation}
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
 <button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -553,6 +558,8 @@ let cameraFacing='environment';
 let colorCorrectionEnabled=true;
 const cameraCanvas=document.getElementById('cameraCanvas');
 const cameraTarget=document.getElementById('cameraTarget');
+const cameraLiveRing=document.getElementById('cameraLiveRing');
+const cameraStableRing=document.getElementById('cameraStableRing');
 const cameraStatus=document.getElementById('cameraStatus');
 const cameraResult=document.getElementById('cameraResult');
 const cameraResultSwatch=document.getElementById('cameraResultSwatch');
@@ -694,6 +701,7 @@ function sampleCameraColor(){
  rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
  rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
  }
+ const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
  if(!displayedCameraMatch){
@@ -722,7 +730,8 @@ function sampleCameraColor(){
    }
  }
  lastCameraMatch=displayedCameraMatch;
- cameraTarget.style.borderColor=displayedCameraMatch.hex;
+ cameraLiveRing.style.borderColor=liveHex;
+ cameraStableRing.style.borderColor=displayedCameraMatch.hex;
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
  cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
  cameraResult.hidden=false;
@@ -743,6 +752,8 @@ async function startCamera(){
    candidateCameraMatch=null;
    candidateSince=0;
    lastCameraMatch=null;
+   cameraLiveRing.style.borderColor='transparent';
+   cameraStableRing.style.borderColor='transparent';
    await cameraVideo.play();
    cameraResult.hidden=false;
    cameraFrame=requestAnimationFrame(cameraLoop);
