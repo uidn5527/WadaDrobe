@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test04</title>
+<title>WadaDrobe test05</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -339,9 +339,9 @@ button,select,input{touch-action:manipulation}
   }
 }
 </style><style>
-/* test04 fullscreen experiment — no effect in normal mode */
-.site-title-even{display:flex;align-items:baseline;justify-content:space-between;gap:3px}
-.site-title-even .brand{color:#505423}
+/* test05 fullscreen experiment — no effect in normal mode */
+.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
+.site-title-odd .brand{color:#505423}
 #fullscreenColorBands{display:none}
 body.fullscreen-color-mode #fullscreenColorName{font-size:23.1px}
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorName{display:none!important}
@@ -373,7 +373,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-name-zone{
   position:relative;
   padding:28px;
-  background:rgba(255,0,255,.22);
+  background:transparent;
   display:flex;
   align-items:center;
   justify-content:center;
