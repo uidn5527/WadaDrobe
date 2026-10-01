@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe</title>
+<title>WadaDrobe r42</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -182,7 +182,7 @@ html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
 header{padding:8px 0 14px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
+h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25}
 section{margin:14px 0;padding:14px;border-radius:12px}
 label{display:block;font-weight:600;margin-top:10px}
@@ -338,10 +338,64 @@ button,select,input{touch-action:manipulation}
     background:radial-gradient(circle closest-side,transparent 0 calc(100% - 28.8px),var(--stable-color) calc(100% - 28.8px) 100%);
   }
 }
+</style><style>
+/* test05 fullscreen experiment — no effect in normal mode */
+.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
+.site-title-odd .brand{color:#505423}
+#fullscreenColorBands{display:none}
+body.fullscreen-color-mode #fullscreenColorName{font-size:23.1px}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorName{display:none!important}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands{
+  display:flex;
+  visibility:visible!important;
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100dvh;
+  min-height:100vh;
+  z-index:9999;
+  flex-direction:column;
+  overflow:hidden;
+}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band{
+  position:relative;
+  width:100%;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main{flex:1 1 auto}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.similar,
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main-bottom{flex:0 0 10%;height:10%}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main-bottom .fullscreen-name-zone{display:none}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-name-zone{
+  position:relative;
+  padding:28px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  max-width:calc(100% - 48px);
+  box-sizing:border-box;
+}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-name{
+  color:var(--fullscreen-text,rgba(255,255,255,.62));
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15.4px;
+  font-weight:700;
+  letter-spacing:.03em;
+  line-height:1.15;
+  white-space:nowrap;
+  pointer-events:none;
+  text-shadow:0 1px 3px rgba(0,0,0,.14);
+}
+body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">r41</span></h1>
+<h1 class="site-title-even"><span class="revision">r42</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -378,6 +432,7 @@ button,select,input{touch-action:manipulation}
 <section><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
 </main>
+<div id="fullscreenColorBands" aria-hidden="true"></div>
 <div id="fullscreenColorName" aria-hidden="true"></div>
 <div id="fullscreenHint" aria-hidden="true"></div>
 <script>
@@ -415,6 +470,7 @@ const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key
 function updateMethodControls(){threshold.min=0;threshold.max=7;threshold.step=1;threshold.value=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||4)));document.querySelector('label[for=threshold]').childNodes[0].nodeValue='Similar colors: ';render();}
 const colorSearch=document.getElementById('colorSearch');
 const familyOrder=['Reds','Oranges','Yellows','Greens','Blues','Purples','Pinks','Browns','Grays','Neutrals','Black & White','Other'];
+let currentSimilarColors=[];
 function colorFamily(name,hex){
  const n=name.toLowerCase();
  if(/red|scarlet|vermilion|coral|orange-red/.test(n)) return 'Reds';
@@ -456,7 +512,7 @@ function populateColorSelect(preferredColor=null){
 }
 populateColorSelect();
 function updateColorPickerButton(){const selected=select.value;selectedSwatch.style.background=map[selected]||'transparent';selectedSwatch.title=selected+' '+(map[selected]||'');selectedColorName.textContent=selected||'Choose a color';colorPickerButton.setAttribute('aria-label',selected?'Choose '+selected:'Choose a color');colorPickerMenu.querySelectorAll('.custom-select-option').forEach(o=>o.setAttribute('aria-selected',String(o.dataset.color===selected)));}
-function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);const group=[selected,...similar];
+function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);currentSimilarColors=similar.slice();const group=[selected,...similar];
  document.getElementById('selectedColor').innerHTML=`<div class="swatch clickable-color" role="button" tabindex="0" data-color="${selected}" title="Choose ${selected}" style="background:${map[selected]}"></div><div class="selected-color-meta"><div class="name">${selected}</div><div class="hex">${map[selected]}</div></div>`;
  document.getElementById('similarHeading').textContent='Visually similar colors';
  const grid=document.getElementById('similarColors');grid.innerHTML=group.map((n,index)=>`<article class="color-card${index===0?' selected-similar-color':''}"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
@@ -482,16 +538,19 @@ function positionFullscreenHint(){
  if(!fullscreenHint)return;
  const rect=fullscreenHint.getBoundingClientRect();
  const marginX=24,marginY=24,exclusionPadding=28;
- const nameRect=fullscreenColorName?.getBoundingClientRect();
- const exclusion=nameRect?{
-   left:nameRect.left-exclusionPadding,
-   top:nameRect.top-exclusionPadding,
-   right:nameRect.right+exclusionPadding,
-   bottom:nameRect.bottom+exclusionPadding
- }:null;
+ const zones=document.querySelectorAll('body.fullscreen-color-mode .fullscreen-name-zone');
+ const rects=Array.from(zones).map(z=>z.getBoundingClientRect()).filter(r=>r.width&&r.height);
+ const fallback=fullscreenColorName?.getBoundingClientRect();
+ if(!rects.length&&fallback?.width&&fallback?.height)rects.push(fallback);
+ const exclusions=rects.map(r=>({
+   left:r.left-exclusionPadding,
+   top:r.top-exclusionPadding,
+   right:r.right+exclusionPadding,
+   bottom:r.bottom+exclusionPadding
+ }));
  const maxX=Math.max(marginX,window.innerWidth-rect.width-marginX);
  const maxY=Math.max(marginY,window.innerHeight-rect.height-marginY);
- const overlaps=(x,y)=>exclusion&&x<exclusion.right&&x+rect.width>exclusion.left&&y<exclusion.bottom&&y+rect.height>exclusion.top;
+ const overlaps=(x,y)=>exclusions.some(exclusion=>x<exclusion.right&&x+rect.width>exclusion.left&&y<exclusion.bottom&&y+rect.height>exclusion.top);
  let x=marginX,y=marginY,placed=false;
  for(let attempt=0;attempt<100;attempt++){
    x=marginX+Math.random()*Math.max(0,maxX-marginX);
@@ -538,10 +597,32 @@ function stopFullscreenLanguageCycle(){
  fullscreenLanguageTimer=null;
  if(fullscreenHint)fullscreenHint.style.opacity='0';
 }
+function renderFullscreenBands(){
+ const bands=document.getElementById('fullscreenColorBands');
+ if(!bands)return;
+ const items=[select.value,...currentSimilarColors.slice(0,7)];
+ bands.innerHTML=items.map((name,index)=>{
+   const cls=index===0?'fullscreen-band main':'fullscreen-band similar';
+   return '<div class="'+cls+'" style="background:'+map[name]+'"><div class="fullscreen-name-zone"><div class="fullscreen-name">'+name+'</div></div></div>';
+ }).join('')+
+ '<div class="fullscreen-band main-bottom" style="background:'+map[select.value]+'"></div>';
+}
+function updateFullscreenBands(){
+ const active=document.body.classList.contains('fullscreen-color-mode');
+ const hasBands=currentSimilarColors.length>0;
+ document.body.classList.toggle('fullscreen-has-bands',active&&hasBands);
+ if(active){
+   renderFullscreenBands();
+   fullscreenColorName.textContent=select.value;
+   setFullscreenHintColor(map[select.value]);
+   requestAnimationFrame(positionFullscreenHint);
+ }
+}
 function enterFullscreenColorMode(){
  document.body.classList.add('fullscreen-color-mode');
  document.body.style.setProperty('--chosen-color',map[select.value]);
  fullscreenColorName.textContent=select.value;
+ updateFullscreenBands();
  setFullscreenHintColor(map[select.value]);
  startFullscreenLanguageCycle();
 }
@@ -555,11 +636,11 @@ colorFieldToggle?.addEventListener('click',e=>{e.stopPropagation();if(document.b
 document.addEventListener('click',e=>{
  if(document.body.classList.contains('fullscreen-color-mode')&&e.target!==colorFieldToggle&&!colorFieldToggle?.contains(e.target))exitFullscreenColorMode();
 });
-select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();});
+select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});
 colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
-colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();});
+colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});
 document.addEventListener('click',e=>{if(!colorPicker.contains(e.target)){colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');}});
-similarityMethod.addEventListener('change',()=>{render();updateMethodControls();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();});updateMethodControls();
+similarityMethod.addEventListener('change',()=>{render();updateMethodControls();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});updateMethodControls();
 
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
