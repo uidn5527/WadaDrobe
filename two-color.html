@@ -3,7 +3,7 @@
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}main{max-width:1180px;margin:auto;padding:18px 16px 44px}
-h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row-reverse;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0}.panel h2{font-size:1.15rem;margin:0 0 12px}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{border:1px solid var(--border);border-radius:10px;padding:10px}.slot.active{border:2px solid var(--olive);padding:9px}.slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}.slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}.slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}.slot button,.camera-actions button{width:100%;min-height:42px;border:1px solid #aaa;border-radius:8px;background:#fff;font:inherit;cursor:pointer}.picker{width:100%;padding:9px;border:1px solid #bbb;border-radius:7px;background:#fff;font:inherit;margin-top:7px}
 .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}.combo{border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff}.blocks{display:flex;height:74px;border-radius:7px;overflow:hidden}.block{flex:1;position:relative;border-right:1px solid rgba(0,0,0,.35)}.block:last-child{border-right:0}.block.match{box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),inset 0 0 0 5px rgba(0,0,0,.35)}.block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{font-size:.78rem;color:var(--muted);margin-top:7px}.empty{color:var(--muted);padding:10px 0}
@@ -106,7 +106,7 @@ h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:
 @media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}.camera-panel{border-radius:12px;overflow:hidden}}
 @media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
-<h1><span>WadaDrobe</span><span class="version">2C r20</span></h1>
+<h1><span>WadaDrobe</span><span class="version">2C r21</span></h1>
 <div class="top">
 <section class="panel input-panel"><h2>Your two colors</h2><div class="inputs">
 <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div><select class="picker" id="picker1"></select></div>
@@ -171,6 +171,24 @@ function nearest(lab){let best=null;COLORS.forEach(function(x){const d=de(lab,la
 
 document.addEventListener('DOMContentLoaded',function(){
   const p1=document.getElementById('picker1'),p2=document.getElementById('picker2'),reset=document.getElementById('reset');
+  const cameraVideo=document.getElementById('cameraVideo');
+  const cameraSwitch=document.getElementById('cameraSwitch');
+  const cameraCanvas=document.getElementById('cameraCanvas');
+  const cameraTarget=document.getElementById('cameraTarget');
+  const cameraLiveRing=document.getElementById('cameraLiveRing');
+  const cameraStableRing=document.getElementById('cameraStableRing');
+  const cameraResult=document.getElementById('cameraResult');
+  const cameraResultSwatch=document.getElementById('cameraResultSwatch');
+  const cameraResultText=document.getElementById('cameraResultText');
+  const cameraZoom=document.getElementById('cameraZoom');
+  const cameraStage=document.querySelector('.camera-stage');
+  let cameraFacing='environment';
+  let colorCorrectionEnabled=true;
+  let cameraZoomLevel=1;
+  let cameraZoomMin=1,cameraZoomMax=1,cameraZoomStep=.1;
+  let zoomHideTimer=null;
+  let pinchStartDistance=null,pinchStartZoom=1;
+  let lastWheelTime=0;
   const results=document.getElementById('results'),accessories=document.getElementById('accessories'),slots=[document.getElementById('slot1'),document.getElementById('slot2')];
   const selected=[null,null];let active=0;
   function updateCameraZoomLabel(){
