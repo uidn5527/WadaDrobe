@@ -11,9 +11,14 @@ h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:
 @media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}}
 @media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.camera{grid-column:2;grid-row:1 / span 2}.input-panel{grid-column:1;grid-row:1}.result-panel{grid-column:1;grid-row:2}.results-panel{margin-top:18px}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
-<h1><span>WadaDrobe</span><span class="version">2C r3</span></h1>
+<h1><span>WadaDrobe</span><span class="version">2C r4</span></h1>
 <p class="sub">Choose or sample two colors, then find Wada dictionary combinations that closely contain both.</p>
 <div class="top">
+<section class="panel" id="diagnostics" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem">
+<h2 style="margin:0 0 8px">Diagnostics</h2>
+<div id="diagStatus">Starting…</div>
+<pre id="diagLog" style="white-space:pre-wrap;margin:8px 0 0;max-height:240px;overflow:auto"></pre>
+</section>
 <section class="panel input-panel"><h2>Your two colors</h2><div class="inputs">
 <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div><select class="picker" id="picker1"></select></div>
 <div class="slot" id="slot2"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Not selected</div><select class="picker" id="picker2"></select></div>
@@ -26,6 +31,21 @@ h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:
 </main>
 <script>
 'use strict';
+(function(){
+  const diagLog=document.getElementById('diagLog');
+  const diagStatus=document.getElementById('diagStatus');
+  function diag(msg,ok=true){
+    const t=new Date().toLocaleTimeString();
+    if(diagLog) diagLog.textContent += '['+t+'] '+msg+'\n';
+    if(diagStatus){diagStatus.textContent=ok?'Diagnostic running':'Diagnostic error';diagStatus.style.color=ok?'#315f8c':'#b00020';}
+  }
+  window.addEventListener('error',function(e){diag('ERROR: '+(e.message||'unknown')+' @ '+(e.filename||'')+':'+(e.lineno||''),false);});
+  window.addEventListener('unhandledrejection',function(e){diag('PROMISE ERROR: '+(e.reason?.message||String(e.reason)),false);});
+  diag('HTML loaded');
+  diag('COLORS in source: '+(document.documentElement.innerHTML.match(/\["[^"]+","#[0-9a-fA-F]{6}"\]/g)||[]).length+' literal color entries detected');
+  document.addEventListener('DOMContentLoaded',()=>diag('DOMContentLoaded fired'));
+})();
+
 window.addEventListener('error',function(e){
   const el=document.getElementById('cameraLabel');
   if(el && !el.textContent.includes('permission')) el.textContent='Prototype error: '+(e.message||'JavaScript error');
