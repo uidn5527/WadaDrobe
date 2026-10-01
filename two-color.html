@@ -3,7 +3,7 @@
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}main{max-width:1180px;margin:auto;padding:18px 16px 44px}
-h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row-reverse;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0}.panel h2{font-size:1.15rem;margin:0 0 12px}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{border:1px solid var(--border);border-radius:10px;padding:10px}.slot.active{border:2px solid var(--olive);padding:9px}.slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}.slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}.slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}.slot button,.camera-actions button{width:100%;min-height:42px;border:1px solid #aaa;border-radius:8px;background:#fff;font:inherit;cursor:pointer}.picker{width:100%;padding:9px;border:1px solid #bbb;border-radius:7px;background:#fff;font:inherit;margin-top:7px}
 .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}.combo{border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff}.blocks{display:flex;height:74px;border-radius:7px;overflow:hidden}.block{flex:1;position:relative;border-right:1px solid rgba(0,0,0,.35)}.block:last-child{border-right:0}.block.match{box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),inset 0 0 0 5px rgba(0,0,0,.35)}.block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{font-size:.78rem;color:var(--muted);margin-top:7px}.empty{color:var(--muted);padding:10px 0}
@@ -106,7 +106,7 @@ h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:
 @media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}.camera-panel{border-radius:12px;overflow:hidden}}
 @media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
-<h1><span>WadaDrobe</span><span class="version">2C r19</span></h1>
+<h1><span>WadaDrobe</span><span class="version">2C r20</span></h1>
 <div class="top">
 <section class="panel input-panel"><h2>Your two colors</h2><div class="inputs">
 <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div><select class="picker" id="picker1"></select></div>
@@ -170,49 +170,9 @@ const labMap=Object.fromEntries(COLORS.map(function(x){return [x[0],rgbLab.apply
 function nearest(lab){let best=null;COLORS.forEach(function(x){const d=de(lab,labMap[x[0]]);if(!best||d<best.d)best={n:x[0],h:x[1],d:d}});return best}
 
 document.addEventListener('DOMContentLoaded',function(){
-  const p1=document.getElementById('picker1'),p2=document.getElementById('picker2'),video=document.getElementById('video');
-  const label=document.getElementById('cameraLabel'),captureRing=document.getElementById('captureRing'),liveRing=document.getElementById('cameraLiveRing'),stableRing=document.getElementById('cameraStableRing'),sw=document.getElementById('switch'),reset=document.getElementById('reset');
+  const p1=document.getElementById('picker1'),p2=document.getElementById('picker2'),reset=document.getElementById('reset');
   const results=document.getElementById('results'),accessories=document.getElementById('accessories'),slots=[document.getElementById('slot1'),document.getElementById('slot2')];
-  const selected=[null,null];let active=0,stream=null,facing='environment',liveFrame=0,displayedMatch=null;liveRing.setAttribute('stroke','#ffffff');stableRing.setAttribute('stroke','#ffffff');
-  function log(msg,ok=true){const s=document.getElementById('diagStatus'),l=document.getElementById('diagLog');if(s){s.textContent=ok?'Application initialized':'JavaScript error detected';s.style.color=ok?'#315f8c':'#b00020'}if(l)l.textContent+=(new Date()).toLocaleTimeString()+'  '+msg+'\n'}
-  function populate(p){p.innerHTML='';const first=document.createElement('option');first.value='';first.textContent='Choose a Wada color…';p.appendChild(first);COLORS.forEach(function(x){const o=document.createElement('option');o.value=x[0];o.textContent=x[0];p.appendChild(o)})}
-  function activate(i){active=i;label.textContent='Sample Color '+(i+1);stableRing.setAttribute('stroke',selected[i]?map[selected[i].name]:'#ffffff');slots.forEach(function(s,j){s.classList.toggle('active',i===j)})}
-  function selectColor(i,name,delta){selected[i]={name:name,delta:delta};document.getElementById('swatch'+(i+1)).style.background=map[name];document.getElementById('meta'+(i+1)).textContent=delta==null?name:name+' · camera ΔE00 '+delta.toFixed(1);activate(i===0?1:0);render()}
-  function match(c,a,b){let best=null;for(let i=0;i<c.colors.length;i++)for(let j=0;j<c.colors.length;j++){if(i===j)continue;const d1=de(labMap[a.name],labMap[c.colors[i].name]),d2=de(labMap[b.name],labMap[c.colors[j].name]),w=Math.max(d1,d2),sum=d1+d2;if(!best||w<best.w||(w===best.w&&sum<best.sum))best={a:c.colors[i],b:c.colors[j],w:w,sum:sum}}return best}
-  function render(){if(!selected[0]||!selected[1]){results.innerHTML='<div class="empty">Choose or sample both colors.</div>';accessories.innerHTML='<div class="empty">Choose two colors to see accessory candidates.</div>';return}const scored=COMBINATIONS.map(function(c){return {c:c,m:match(c,selected[0],selected[1])}}).filter(function(x){if(x.c.colors.length!==2)return true;const names=x.c.colors.map(function(col){return col.name});return names.indexOf(selected[0].name)!==-1&&names.indexOf(selected[1].name)!==-1}).sort(function(a,b){return a.m.w-b.m.w||a.m.sum-b.m.sum||a.c.colors.length-b.c.colors.length||a.c.number-b.c.number}).slice(0,12);displayedMatch=scored[0]||null;results.innerHTML=scored.map(function(x){return '<article class="combo"><div class="blocks">'+[x.m.a,x.m.b].concat(x.c.colors.filter(function(col){return col.name!==x.m.a.name&&col.name!==x.m.b.name})).map(function(col,idx){const hit=idx<2;return '<div class="block '+(hit?'match':'')+'" style="background:'+col.hex+'"><span>'+col.name+'</span></div>'}).join('')+'</div><div class="score">Combination #'+x.c.number+' · worst ΔE00 '+x.m.w.toFixed(1)+'</div></article>'}).join('');const acc={};scored.forEach(function(x){x.c.colors.forEach(function(col){if(col.name!==x.m.a.name&&col.name!==x.m.b.name&&!acc[col.name])acc[col.name]={hex:col.hex,score:x.m.w}})});const ar=Object.entries(acc).sort(function(a,b){return a[1].score-b[1].score}).slice(0,8);accessories.innerHTML=ar.map(function(x){return '<article class="combo"><div class="slot-swatch" style="background:'+x[1].hex+'"></div><strong>'+x[0]+'</strong></article>'}).join('')||'<div class="empty">No additional accessory colors found.</div>'}
-  // Live camera sampler: sample the average RGB value inside the target circle,
-  // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
-  const cameraVideo=document.getElementById('cameraVideo');
-  const cameraSwitch=document.getElementById('cameraSwitch');
-  let cameraFacing='environment';
-  let colorCorrectionEnabled=true;
-  const cameraCanvas=document.getElementById('cameraCanvas');
-  const cameraTarget=document.getElementById('cameraTarget');
-  const cameraLiveRing=document.getElementById('cameraLiveRing');
-  const cameraStableRing=document.getElementById('cameraStableRing');
-  const cameraStatus=document.getElementById('cameraStatus');
-  const cameraResult=document.getElementById('cameraResult');
-  const cameraResultSwatch=document.getElementById('cameraResultSwatch');
-  const cameraResultText=document.getElementById('cameraResultText');
-  const cameraZoom=document.getElementById('cameraZoom');
-  const cameraStage=document.querySelector('.camera-stage');
-  let cameraZoomLevel=1;
-  let cameraZoomMin=1,cameraZoomMax=1,cameraZoomStep=.1;
-  let zoomHideTimer=null;
-  let pinchStartDistance=null,pinchStartZoom=1;
-  let lastWheelTime=0;
-  
-  function getCameraZoomCapabilities(){
-   const track=cameraStream?.getVideoTracks?.()[0];
-   const caps=track?.getCapabilities?.();
-   if(caps&&typeof caps.zoom==='object'){
-     cameraZoomMin=Number.isFinite(caps.zoom.min)?caps.zoom.min:1;
-     cameraZoomMax=Number.isFinite(caps.zoom.max)?caps.zoom.max:cameraZoomMin;
-     cameraZoomStep=Number.isFinite(caps.zoom.step)&&caps.zoom.step>0?caps.zoom.step:.1;
-   }else{cameraZoomMin=1;cameraZoomMax=4;cameraZoomStep=.1;}
-   cameraZoomLevel=Math.min(Math.max(cameraZoomLevel,cameraZoomMin),cameraZoomMax);
-   updateCameraZoomLabel();
-  }
+  const selected=[null,null];let active=0;
   function updateCameraZoomLabel(){
    const value=cameraZoomLevel.toFixed(1).replace('.0','');
    cameraZoom.textContent=value+'×';
@@ -418,7 +378,18 @@ document.addEventListener('DOMContentLoaded',function(){
     sampleCameraColor();
   });
   window.addEventListener('pagehide',stopCamera);
-  p1.addEventListener('change',function(){if(p1.value)selectColor(0,p1.value,null)});p2.addEventListener('change',function(){if(p2.value)selectColor(1,p2.value,null)});slots[0].addEventListener('click',function(){activate(0)});slots[1].addEventListener('click',function(){activate(1)});captureRing.addEventListener('click',sample);sw.addEventListener('click',async function(){facing=facing==='environment'?'user':'environment';await startCamera()});reset.addEventListener('click',function(){selected[0]=selected[1]=null;p1.value='';p2.value='';['1','2'].forEach(function(i){document.getElementById('swatch'+i).style.background='';document.getElementById('meta'+i).textContent='Not selected'});displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;cameraLiveRing.style.setProperty('--live-color','transparent');cameraStableRing.style.setProperty('--stable-color','transparent');cameraResult.hidden=true;activate(0);render()});
-  populate(p1);populate(p2);activate(0);render();startCamera();updateLiveRing();
+  p1.addEventListener('change',function(){if(p1.value)selectColor(0,p1.value,null)});
+  p2.addEventListener('change',function(){if(p2.value)selectColor(1,p2.value,null)});
+  slots[0].addEventListener('click',function(){activate(0)});
+  slots[1].addEventListener('click',function(){activate(1)});
+  reset.addEventListener('click',function(){
+    selected[0]=selected[1]=null;p1.value='';p2.value='';
+    ['1','2'].forEach(function(i){document.getElementById('swatch'+i).style.background='';document.getElementById('meta'+i).textContent='Not selected'});
+    displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;
+    cameraLiveRing.style.setProperty('--live-color','transparent');
+    cameraStableRing.style.setProperty('--stable-color','transparent');
+    cameraResult.hidden=true;activate(0);render();
+  });
+  populate(p1);populate(p2);activate(0);render();
 });
 </script></body></html>
