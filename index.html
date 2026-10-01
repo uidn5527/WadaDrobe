@@ -315,9 +315,9 @@ button,select,input{touch-action:manipulation}
 
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:0 solid transparent;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer}
 .camera-live-ring,.camera-stable-ring{position:absolute;border-radius:50%;pointer-events:none;box-sizing:border-box}
-.camera-live-ring{inset:0;border:21px solid transparent}
+.camera-live-ring{inset:21px;border:21px solid transparent}
 .camera-stable-ring{inset:0;border:21px solid transparent}
-.camera-live-ring{transform:scale(.5);transform-origin:center;transition:border-color .08s linear}
+.camera-live-ring{transition:border-color .08s linear}
 .camera-stable-ring{transition:border-color .08s linear}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -326,7 +326,7 @@ button,select,input{touch-action:manipulation}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
 .camera-status{display:none}
-@media(max-width:600px){.camera-live-ring,.camera-stable-ring{border-width:18px}.camera-live-ring{transform:scale(.5)}}
+@media(max-width:600px){.camera-live-ring{inset:18px}.camera-live-ring,.camera-stable-ring{border-width:18px}}
 </style></head>
 <body>
 <main>
