@@ -248,6 +248,71 @@ button,select,input{touch-action:manipulation}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1);transform-origin:center center;will-change:transform}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-switch:active{transform:scale(.94)}
+.color-correction-toggle{
+  position:absolute;
+  top:12px;
+  left:12px;
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.62);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:3;
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+.color-correction-toggle:active{transform:scale(.94)}
+.eyedropper-icon{
+  position:relative;
+  display:block;
+  width:20px;
+  height:20px;
+  transform:rotate(-45deg);
+}
+.eyedropper-icon::before{
+  content:"";
+  position:absolute;
+  width:7px;
+  height:15px;
+  left:6px;
+  top:4px;
+  border:2px solid #fff;
+  border-radius:4px 4px 2px 2px;
+  background:transparent;
+}
+.eyedropper-icon::after{
+  content:"";
+  position:absolute;
+  width:4px;
+  height:5px;
+  left:7.5px;
+  top:0;
+  border:2px solid #fff;
+  border-radius:3px;
+  background:#fff;
+}
+.color-correction-toggle::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:50%;
+  border:2px solid transparent;
+  border-top-color:#f7d22b;
+  border-right-color:#4fc3f7;
+  border-bottom-color:#8e5bd8;
+  border-left-color:#ef5350;
+  transform:rotate(-28deg);
+  opacity:0;
+  transition:opacity .16s ease;
+}
+.color-correction-toggle[aria-pressed="true"]::before{opacity:1}
+.color-correction-toggle[aria-pressed="true"] .eyedropper-icon{z-index:1}
+
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:42px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer;transition:border-color .08s linear}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -260,7 +325,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r37</span></h1>
+<h1>WadaDrobe <span class="revision">r38</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -279,6 +344,7 @@ button,select,input{touch-action:manipulation}
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
+<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
 <div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
@@ -484,6 +550,7 @@ similarityMethod.addEventListener('change',()=>{render();updateMethodControls();
 const cameraVideo=document.getElementById('cameraVideo');
 const cameraSwitch=document.getElementById('cameraSwitch');
 let cameraFacing='environment';
+let colorCorrectionEnabled=true;
 const cameraCanvas=document.getElementById('cameraCanvas');
 const cameraTarget=document.getElementById('cameraTarget');
 const cameraStatus=document.getElementById('cameraStatus');
@@ -614,8 +681,9 @@ function sampleCameraColor(){
  let rgb=[avg(0),avg(1),avg(2)];
 
  // Silent camera normalization: compensate modestly for exposure and white-balance
- // drift before matching. This is deliberately conservative and never exposed
- // as a user setting.
+ // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
+ // the pre-r37 raw sampled RGB behavior.
+ if(colorCorrectionEnabled){
  const mean=(rgb[0]+rgb[1]+rgb[2])/3;
  const targetMean=128;
  const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
@@ -625,6 +693,7 @@ function sampleCameraColor(){
  const wbScale=correctedMean/Math.max(1,correctedMean);
  rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
  rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
+ }
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
  if(!displayedCameraMatch){
@@ -696,6 +765,19 @@ function captureCameraColor(){
 cameraTarget.addEventListener('click',captureCameraColor);
 startCamera();
 cameraSwitch.addEventListener('click',async e=>{e.stopPropagation();cameraFacing=cameraFacing==='environment'?'user':'environment';await startCamera();});
+const colorCorrectionToggle=document.getElementById('colorCorrectionToggle');
+colorCorrectionToggle.addEventListener('click',e=>{
+  e.stopPropagation();
+  colorCorrectionEnabled=!colorCorrectionEnabled;
+  colorCorrectionToggle.setAttribute('aria-pressed',String(colorCorrectionEnabled));
+  colorCorrectionToggle.setAttribute('aria-label',colorCorrectionEnabled?'Color correction on':'Color correction off');
+  colorCorrectionToggle.setAttribute('title',colorCorrectionEnabled?'Color correction on':'Color correction off');
+  displayedCameraMatch=null;
+  candidateCameraMatch=null;
+  candidateSince=0;
+  lastCameraMatch=null;
+  sampleCameraColor();
+});
 window.addEventListener('pagehide',stopCamera);
 </script>
 </body></html>
