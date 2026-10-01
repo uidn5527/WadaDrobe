@@ -58,7 +58,7 @@ body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!impo
   main>.camera-panel{
     grid-area:camera;
     margin:8px 18px 0 0;
-    padding:12px;
+    padding:0;
     height:100%;
     display:flex;
     flex-direction:column;
@@ -182,7 +182,7 @@ html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
 header{padding:8px 0 14px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
+h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25}
 section{margin:14px 0;padding:14px;border-radius:12px}
 label{display:block;font-weight:600;margin-top:10px}
@@ -243,7 +243,7 @@ button,select,input{touch-action:manipulation}
 #colorSelect[hidden]{display:none}
 
 /* Live camera color sampler */
-.camera-panel{background:#111;color:#fff;border-radius:12px;padding:14px;overflow:hidden}
+.camera-panel{background:#111;color:#fff;border-radius:12px;padding:0;overflow:hidden}
 .camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden;touch-action:none}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1);transform-origin:center center;will-change:transform}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -314,11 +314,15 @@ button,select,input{touch-action:manipulation}
 .color-correction-toggle[aria-pressed="true"] .eyedropper-icon{z-index:1}
 
 .camera-target{position:absolute;left:50%;top:50%;width:min(33.6vw,168px);height:min(33.6vw,168px);max-width:168px;max-height:168px;min-width:96px;min-height:96px;transform:translate(-50%,-50%);border-radius:50%;border:0 solid transparent;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto;cursor:pointer}
-.camera-live-ring,.camera-stable-ring{position:absolute;border-radius:50%;pointer-events:none;box-sizing:border-box}
-.camera-live-ring{inset:33.6px;border:8.4px solid transparent}
-.camera-stable-ring{inset:0;border:33.6px solid transparent}
-.camera-live-ring{transition:border-color .08s linear}
-.camera-stable-ring{transition:border-color .08s linear}
+.camera-live-ring,.camera-stable-ring{position:absolute;inset:0;border-radius:50%;pointer-events:none;box-sizing:border-box}
+.camera-live-ring{
+  --live-color:transparent;
+  background:radial-gradient(circle closest-side,transparent 0 calc(100% - 42px),var(--live-color) calc(100% - 42px) calc(100% - 33.6px),transparent calc(100% - 33.6px) 100%);
+}
+.camera-stable-ring{
+  --stable-color:transparent;
+  background:radial-gradient(circle closest-side,transparent 0 calc(100% - 33.6px),var(--stable-color) calc(100% - 33.6px) 100%);
+}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
@@ -326,11 +330,18 @@ button,select,input{touch-action:manipulation}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
 .camera-status{display:none}
-@media(max-width:600px){.camera-live-ring{inset:28.8px;border-width:7.2px}.camera-stable-ring{border-width:28.8px}}
+@media(max-width:600px){
+  .camera-live-ring{
+    background:radial-gradient(circle closest-side,transparent 0 calc(100% - 36px),var(--live-color) calc(100% - 36px) calc(100% - 28.8px),transparent calc(100% - 28.8px) 100%);
+  }
+  .camera-stable-ring{
+    background:radial-gradient(circle closest-side,transparent 0 calc(100% - 28.8px),var(--stable-color) calc(100% - 28.8px) 100%);
+  }
+}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">r40</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">r41</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -730,8 +741,8 @@ function sampleCameraColor(){
    }
  }
  lastCameraMatch=displayedCameraMatch;
- cameraLiveRing.style.borderColor=liveHex;
- cameraStableRing.style.borderColor=displayedCameraMatch.hex;
+ cameraLiveRing.style.setProperty('--live-color',liveHex);
+ cameraStableRing.style.setProperty('--stable-color',displayedCameraMatch.hex);
  cameraResultSwatch.style.background=displayedCameraMatch.hex;
  cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
  cameraResult.hidden=false;
@@ -752,8 +763,8 @@ async function startCamera(){
    candidateCameraMatch=null;
    candidateSince=0;
    lastCameraMatch=null;
-   cameraLiveRing.style.borderColor='transparent';
-   cameraStableRing.style.borderColor='transparent';
+   cameraLiveRing.style.setProperty('--live-color','transparent');
+   cameraStableRing.style.setProperty('--stable-color','transparent');
    await cameraVideo.play();
    cameraResult.hidden=false;
    cameraFrame=requestAnimationFrame(cameraLoop);
