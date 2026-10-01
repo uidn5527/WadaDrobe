@@ -3,12 +3,11 @@
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}main{max-width:1180px;margin:auto;padding:18px 16px 44px}
-h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row-reverse;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0}.panel h2{font-size:1.15rem;margin:0 0 12px}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{border:1px solid var(--border);border-radius:10px;padding:10px}.slot.active{border:2px solid var(--olive);padding:9px}.slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}.slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}.slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}.slot button,.camera-actions button{width:100%;min-height:42px;border:1px solid #aaa;border-radius:8px;background:#fff;font:inherit;cursor:pointer}.picker{width:100%;padding:9px;border:1px solid #bbb;border-radius:7px;background:#fff;font:inherit;margin-top:7px}
 .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}.combo{border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff}.blocks{display:flex;height:74px;border-radius:7px;overflow:hidden}.block{flex:1;position:relative;border-right:1px solid rgba(0,0,0,.35)}.block:last-child{border-right:0}.block.match{box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),inset 0 0 0 5px rgba(0,0,0,.35)}.block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{font-size:.78rem;color:var(--muted);margin-top:7px}.empty{color:var(--muted);padding:10px 0}
-@media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}.camera-stage{width:100%;max-width:520px;aspect-ratio:4/3}.camera-panel{border-radius:12px;overflow:hidden}}
-@media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.camera-panel{background:#111;color:#fff;border-radius:12px;padding:0;overflow:hidden}
+.camera-panel{background:#111;color:#fff;border-radius:12px;padding:0;overflow:hidden}
 .camera-stage{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:4/3;background:#000;border-radius:10px;overflow:hidden;touch-action:none}
 #cameraVideo{width:100%;height:100%;display:block;object-fit:cover;transform:scaleX(1);transform-origin:center center;will-change:transform}
 .camera-switch{position:absolute;top:12px;right:12px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -103,9 +102,11 @@ h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:
     background:radial-gradient(circle closest-side,transparent 0 calc(100% - 28.8px),var(--stable-color) calc(100% - 28.8px) 100%);
   }
 }
-.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+@media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}.camera-panel{border-radius:12px;overflow:hidden}}
+@media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
-<h1><span>WadaDrobe</span><span class="version">2C r18</span></h1>
+<h1><span>WadaDrobe</span><span class="version">2C r19</span></h1>
 <div class="top">
 <section class="panel input-panel"><h2>Your two colors</h2><div class="inputs">
 <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div><select class="picker" id="picker1"></select></div>
