@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe r42</title>
+<title>WadaDrobe r43</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -182,7 +182,7 @@ html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
 header{padding:8px 0 14px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
+h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25}
 section{margin:14px 0;padding:14px;border-radius:12px}
 label{display:block;font-weight:600;margin-top:10px}
@@ -339,7 +339,21 @@ button,select,input{touch-action:manipulation}
   }
 }
 </style><style>
-/* test05 fullscreen experiment — no effect in normal mode */
+.site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}
+
+/* test06 portrait-only section order: camera before color selection */
+@media (orientation: portrait){
+  main{display:flex;flex-direction:column}
+  main>h1{order:0}
+  main>.camera-panel{order:1}
+  main>.controls{order:2}
+  main>section:nth-of-type(3){order:3}
+  main>.similarity-controls{order:4}
+  main>section:nth-of-type(5){order:5}
+  main>section:nth-of-type(6){order:6}
+  main>footer{order:7}
+}
+/* test06 fullscreen experiment — no effect in normal mode */
 .site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
 .site-title-odd .brand{color:#505423}
 #fullscreenColorBands{display:none}
@@ -395,7 +409,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">r42</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-even"><span class="revision">r43</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls">
 <div class="color-picker">
