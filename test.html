@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test05</title>
+<title>WadaDrobe test06</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -339,7 +339,14 @@ button,select,input{touch-action:manipulation}
   }
 }
 </style><style>
-/* test05 fullscreen experiment — no effect in normal mode */
+.site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}
+
+/* test06 portrait-only section order: camera before color selection */
+@media (orientation: portrait){
+  main>.camera-panel{order:2}
+  main>.controls{order:1}
+}
+/* test06 fullscreen experiment — no effect in normal mode */
 .site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
 .site-title-odd .brand{color:#505423}
 #fullscreenColorBands{display:none}
@@ -395,7 +402,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test05</span></h1>
+<h1 class="site-title-even"><span class="revision">test06</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls">
 <div class="color-picker">
