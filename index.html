@@ -194,6 +194,7 @@ input,select,button{font-size:16px;min-height:44px}
 #colorFieldToggle{width:100%;min-height:48px;margin-top:12px;padding:11px 14px;border-radius:8px;font-weight:600;touch-action:manipulation}
 .color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .color-card{min-width:0;padding:10px;border-radius:10px}
+.color-card.selected-similar-color{border:2px solid #777;box-shadow:0 0 0 1px rgba(255,255,255,.9) inset}
 .color-card .swatch{height:72px;border-radius:8px}
 .name{overflow-wrap:anywhere;line-height:1.25}
 .hex{font-size:.82rem;overflow-wrap:anywhere}
@@ -259,7 +260,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1>WadaDrobe <span class="revision">r35</span></h1>
+<h1>WadaDrobe <span class="revision">r36</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -290,7 +291,7 @@ button,select,input{touch-action:manipulation}
 <option value="lab">CIELAB Euclidean</option>
 <option value="rgb">RGB Euclidean</option>
 </select>
-<label for="threshold">Similar colors: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="8" step="1" value="4"><div class="range-row"><small>0</small><small>8</small></div></section>
+<label for="threshold">Similar colors: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="7" step="1" value="4"><div class="range-row"><small>0</small><small>8</small></div></section>
 <section><h2 id="similarHeading">Visually similar colors</h2><div class="grid" id="similarColors"></div></section>
 <section><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
@@ -329,7 +330,7 @@ function distance(a,b){const method=document.getElementById('similarityMethod').
 const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
 const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key,c])=>[key,c.value]));
-function updateMethodControls(){threshold.min=0;threshold.max=8;threshold.step=1;threshold.value=Math.max(0,Math.min(8,Math.round(Number(threshold.value)||4)));document.querySelector('label[for=threshold]').childNodes[0].nodeValue='Similar colors: ';render();}
+function updateMethodControls(){threshold.min=0;threshold.max=7;threshold.step=1;threshold.value=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||4)));document.querySelector('label[for=threshold]').childNodes[0].nodeValue='Similar colors: ';render();}
 const colorSearch=document.getElementById('colorSearch');
 const familyOrder=['Reds','Oranges','Yellows','Greens','Blues','Purples','Pinks','Browns','Grays','Neutrals','Black & White','Other'];
 function colorFamily(name,hex){
@@ -373,11 +374,11 @@ function populateColorSelect(preferredColor=null){
 }
 populateColorSelect();
 function updateColorPickerButton(){const selected=select.value;selectedSwatch.style.background=map[selected]||'transparent';selectedSwatch.title=selected+' '+(map[selected]||'');selectedColorName.textContent=selected||'Choose a color';colorPickerButton.setAttribute('aria-label',selected?'Choose '+selected:'Choose a color');colorPickerMenu.querySelectorAll('.custom-select-option').forEach(o=>o.setAttribute('aria-selected',String(o.dataset.color===selected)));}
-function render(){const selected=select.value,count=Math.max(0,Math.min(8,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);const group=[selected,...similar];
+function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);const group=[selected,...similar];
  document.getElementById('selectedColor').innerHTML=`<div class="swatch clickable-color" role="button" tabindex="0" data-color="${selected}" title="Choose ${selected}" style="background:${map[selected]}"></div><div class="selected-color-meta"><div class="name">${selected}</div><div class="hex">${map[selected]}</div></div>`;
  document.getElementById('similarHeading').textContent='Visually similar colors';
- const grid=document.getElementById('similarColors');grid.innerHTML=group.map(n=>`<article class="color-card"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
- const similarityRank=Object.fromEntries([selected,...similar].map((name,index)=>[name,index]));const matches=COMBINATIONS.filter(c=>c.colors.some(x=>group.includes(x.name))).map(c=>{const keyCandidates=c.colors.filter(x=>group.includes(x.name));const key=keyCandidates.sort((a,b)=>(similarityRank[a.name]??Infinity)-(similarityRank[b.name]??Infinity))[0];return {c,key,ordered:key?[key,...c.colors.filter(x=>x!==key)]:c.colors,keyRank:key?similarityRank[key.name]:Infinity};}).sort((a,b)=>a.c.colors.length-b.c.colors.length||a.keyRank-b.keyRank||a.c.number-b.c.number);const box=document.getElementById('combinations');box.innerHTML=matches.map(({c,ordered})=>`<article class="combination"><div class="combination-title">Combination #${c.number}</div><div class="blocks">${ordered.map(x=>`<div class="block clickable-color" role="button" tabindex="0" data-color="${x.name}" title="Choose ${x.name}" style="background:${x.hex}"><span>${x.name}</span></div>`).join('')}</div></article>`).join('')||'<div class="empty">No combinations in the current catalog use this group.</div>';
+ const grid=document.getElementById('similarColors');grid.innerHTML=group.map((n,index)=>`<article class="color-card${index===0?' selected-similar-color':''}"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
+ const similarityRank=Object.fromEntries([selected,...similar].map((name,index)=>[name,index]));const matches=COMBINATIONS.filter(c=>c.colors.some(x=>group.includes(x.name))).map(c=>{const keyCandidates=c.colors.filter(x=>group.includes(x.name));const key=keyCandidates.sort((a,b)=>(similarityRank[a.name]??Infinity)-(similarityRank[b.name]??Infinity))[0];return {c,key,ordered:key?[key,...c.colors.filter(x=>x!==key)]:c.colors,keyRank:key?similarityRank[key.name]:Infinity};}).sort((a,b)=>a.keyRank-b.keyRank||a.c.colors.length-b.c.colors.length||a.c.number-b.c.number);const box=document.getElementById('combinations');box.innerHTML=matches.map(({c,ordered})=>`<article class="combination"><div class="combination-title">Combination #${c.number}</div><div class="blocks">${ordered.map(x=>`<div class="block clickable-color" role="button" tabindex="0" data-color="${x.name}" title="Choose ${x.name}" style="background:${x.hex}"><span>${x.name}</span></div>`).join('')}</div></article>`).join('')||'<div class="empty">No combinations in the current catalog use this group.</div>';
 }
 document.addEventListener('click',e=>{const swatch=e.target.closest('.clickable-color');if(swatch&&swatch.dataset.color){const chosen=swatch.dataset.color;colorSearch.value='';populateColorSelect(chosen);}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('clickable-color')){e.preventDefault();e.target.click();}});
