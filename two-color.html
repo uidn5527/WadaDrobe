@@ -3,21 +3,29 @@
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}main{max-width:1180px;margin:auto;padding:18px 16px 44px}
-h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row-reverse;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 4px;color:var(--olive);display:flex;flex-direction:row;align-items:baseline;justify-content:flex-start;gap:.45em}.version{font-size:.42em;font-weight:300;opacity:.5;color:var(--text)}.sub{margin:0 0 18px;color:var(--muted);font-size:.92rem}
 .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0}.panel h2{font-size:1.15rem;margin:0 0 12px}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{border:1px solid var(--border);border-radius:10px;padding:10px}.slot.active{border:2px solid var(--olive);padding:9px}.slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}.slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}.slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}.slot button,.camera-actions button{width:100%;min-height:42px;border:1px solid #aaa;border-radius:8px;background:#fff;font:inherit;cursor:pointer}.picker{width:100%;padding:9px;border:1px solid #bbb;border-radius:7px;background:#fff;font:inherit;margin-top:7px}
-.camera{background:#111;border-radius:12px;overflow:hidden;position:relative}.camera-stage{position:relative;aspect-ratio:4/3;background:#000;overflow:hidden}.camera video{width:100%;height:100%;object-fit:cover;display:block}.capture-ring{position:absolute;left:50%;top:50%;width:min(42vw,180px);height:min(42vw,180px);min-width:110px;min-height:110px;transform:translate(-50%,-50%);border-radius:50%;cursor:pointer;box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 20px rgba(0,0,0,.5)}.capture-rings{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:2}.capture-rings circle{vector-effect:non-scaling-stroke}.camera-label{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(0,0,0,.68);color:#fff;padding:6px 10px;border-radius:999px;font-size:.82rem;white-space:nowrap}.camera-controls{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:8px}.camera-controls button{background:rgba(0,0,0,.68);color:#fff;border-color:rgba(255,255,255,.4);backdrop-filter:blur(5px)}
 .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}.combo{border:1px solid var(--border);border-radius:10px;padding:10px;background:#fff}.blocks{display:flex;height:74px;border-radius:7px;overflow:hidden}.block{flex:1;position:relative;border-right:1px solid rgba(0,0,0,.35)}.block:last-child{border-right:0}.block.match{box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),inset 0 0 0 5px rgba(0,0,0,.35)}.block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{font-size:.78rem;color:var(--muted);margin-top:7px}.empty{color:var(--muted);padding:10px 0}
 @media(max-width:600px){.inputs{grid-template-columns:1fr 1fr}.slot-swatch{height:48px}.results-grid{grid-template-columns:1fr}.capture-ring{width:42vw;height:42vw}}
 @media screen and (orientation:landscape) and (min-width:700px){main{padding-left:42px;padding-right:42px}.top{display:grid;grid-template-columns:.42fr .58fr;gap:18px;align-items:stretch}.camera{grid-column:2;grid-row:1 / span 2}.input-panel{grid-column:1;grid-row:1}.result-panel{grid-column:1;grid-row:2}.results-panel{margin-top:18px}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
-<h1><span>WadaDrobe</span><span class="version">2C r16</span></h1>
+<h1><span>WadaDrobe</span><span class="version">2C r17</span></h1>
 <div class="top">
 <section class="panel input-panel"><h2>Your two colors</h2><div class="inputs">
 <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div><select class="picker" id="picker1"></select></div>
 <div class="slot" id="slot2"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Not selected</div><select class="picker" id="picker2"></select></div>
 </div></section>
-<section class="camera"><div class="camera-stage"><video id="video" playsinline autoplay muted></video><div class="camera-label" id="cameraLabel">Sample Color 1</div><div class="capture-ring" id="captureRing" aria-label="Capture current color"><svg class="capture-rings" viewBox="0 0 200 200" aria-hidden="true"><circle id="cameraStableRing" cx="100" cy="100" r="80" fill="none" stroke="#ffffff" stroke-width="40"/><circle id="cameraLiveRing" cx="100" cy="100" r="58" fill="none" stroke="#ffffff" stroke-width="10"/></svg></div><div class="camera-controls"><button id="switch" type="button">Switch camera</button><button id="reset" type="button">Reset samples</button></div></div></section>
+<section class="camera-panel">
+<div class="camera-stage">
+<video id="cameraVideo" playsinline autoplay muted></video>
+<button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
+<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
+<div class="camera-controls"><button id="reset" type="button">Reset samples</button></div>
+</div>
+<canvas id="cameraCanvas" hidden></canvas>
 <section class="panel result-panel"><h2>Accessory candidates</h2><div id="accessories" class="results-grid"><div class="empty">Choose two colors to see accessory candidates.</div></div></section>
 </div>
 <section class="panel results-panel"><h2>Matching combinations</h2><div id="results" class="results-grid"><div class="empty">Choose or sample both colors.</div></div></section>
@@ -76,27 +84,245 @@ document.addEventListener('DOMContentLoaded',function(){
   function selectColor(i,name,delta){selected[i]={name:name,delta:delta};document.getElementById('swatch'+(i+1)).style.background=map[name];document.getElementById('meta'+(i+1)).textContent=delta==null?name:name+' · camera ΔE00 '+delta.toFixed(1);activate(i===0?1:0);render()}
   function match(c,a,b){let best=null;for(let i=0;i<c.colors.length;i++)for(let j=0;j<c.colors.length;j++){if(i===j)continue;const d1=de(labMap[a.name],labMap[c.colors[i].name]),d2=de(labMap[b.name],labMap[c.colors[j].name]),w=Math.max(d1,d2),sum=d1+d2;if(!best||w<best.w||(w===best.w&&sum<best.sum))best={a:c.colors[i],b:c.colors[j],w:w,sum:sum}}return best}
   function render(){if(!selected[0]||!selected[1]){results.innerHTML='<div class="empty">Choose or sample both colors.</div>';accessories.innerHTML='<div class="empty">Choose two colors to see accessory candidates.</div>';return}const scored=COMBINATIONS.map(function(c){return {c:c,m:match(c,selected[0],selected[1])}}).filter(function(x){if(x.c.colors.length!==2)return true;const names=x.c.colors.map(function(col){return col.name});return names.indexOf(selected[0].name)!==-1&&names.indexOf(selected[1].name)!==-1}).sort(function(a,b){return a.m.w-b.m.w||a.m.sum-b.m.sum||a.c.colors.length-b.c.colors.length||a.c.number-b.c.number}).slice(0,12);displayedMatch=scored[0]||null;results.innerHTML=scored.map(function(x){return '<article class="combo"><div class="blocks">'+[x.m.a,x.m.b].concat(x.c.colors.filter(function(col){return col.name!==x.m.a.name&&col.name!==x.m.b.name})).map(function(col,idx){const hit=idx<2;return '<div class="block '+(hit?'match':'')+'" style="background:'+col.hex+'"><span>'+col.name+'</span></div>'}).join('')+'</div><div class="score">Combination #'+x.c.number+' · worst ΔE00 '+x.m.w.toFixed(1)+'</div></article>'}).join('');const acc={};scored.forEach(function(x){x.c.colors.forEach(function(col){if(col.name!==x.m.a.name&&col.name!==x.m.b.name&&!acc[col.name])acc[col.name]={hex:col.hex,score:x.m.w}})});const ar=Object.entries(acc).sort(function(a,b){return a[1].score-b[1].score}).slice(0,8);accessories.innerHTML=ar.map(function(x){return '<article class="combo"><div class="slot-swatch" style="background:'+x[1].hex+'"></div><strong>'+x[0]+'</strong></article>'}).join('')||'<div class="empty">No additional accessory colors found.</div>'}
-  async function startCamera(){try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Camera API unavailable');if(stream)stream.getTracks().forEach(function(t){t.stop()});stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();label.textContent='Sample Color '+(active+1);}catch(e){stream=null;label.textContent=e.name==='NotAllowedError'?'Camera permission required':'Camera unavailable';}}
-  function sample(){try{if(!stream||video.readyState<2){;return}const w=video.videoWidth,h=video.videoHeight,rr=captureRing.getBoundingClientRect(),vr=video.getBoundingClientRect();if(!w||!h)return;const scale=Math.max(vr.width/w,vr.height/h),cx=(rr.left+rr.width/2-vr.left+(w*scale-vr.width)/2)/scale,cy=(rr.top+rr.height/2-vr.top+(h*scale-vr.height)/2)/scale,s=Math.min(140,Math.max(32,Math.ceil(rr.width/scale*.8))),cv=document.createElement('canvas');cv.width=s;cv.height=s;const ctx=cv.getContext('2d');ctx.drawImage(video,cx-rr.width/scale*.4,cy-rr.height/scale*.4,rr.width/scale*.8,rr.height/scale*.8,0,0,s,s);const p=ctx.getImageData(0,0,s,s).data,vals=[];for(let i=0;i<p.length;i+=4)vals.push([p[i],p[i+1],p[i+2]]);function avg(k){const v=vals.map(function(q){return q[k]}).sort(function(a,b){return a-b}),lo=Math.floor(v.length*.1),hi=Math.ceil(v.length*.9);return v.slice(lo,hi).reduce(function(a,b){return a+b},0)/Math.max(1,hi-lo)}const m=nearest(rgbLab(avg(0),avg(1),avg(2)));selectColor(active,m.n,m.d);}catch(e){}}
-  function updateLiveRing(){
-    if(stream&&video.readyState>=2&&video.videoWidth&&video.videoHeight){
-      try{
-        const vw=video.getBoundingClientRect(),w=video.videoWidth,h=video.videoHeight;
-        const rr=captureRing.getBoundingClientRect();
-        const scale=Math.max(vw.width/w,vw.height/h);
-        const cx=(rr.left+rr.width/2-vw.left+(w*scale-vw.width)/2)/scale;
-        const cy=(rr.top+rr.height/2-vw.top+(h*scale-vw.height)/2)/scale;
-        const side=Math.min(80,Math.max(24,Math.ceil(rr.width/scale*.45)));
-        const cv=document.createElement('canvas');cv.width=side;cv.height=side;
-        const ctx=cv.getContext('2d');ctx.drawImage(video,cx-side/(2),cy-side/(2),side,side,0,0,side,side);
-        const d=ctx.getImageData(0,0,side,side).data;let r=0,g=0,b=0,n=d.length/4;
-        for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}
-        liveRing.setAttribute('stroke','rgb('+Math.round(r/n)+','+Math.round(g/n)+','+Math.round(b/n)+')');
-      }catch(e){}
-    }
-    liveFrame=requestAnimationFrame(updateLiveRing);
+  // Live camera sampler: sample the average RGB value inside the target circle,
+  // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
+  const cameraVideo=document.getElementById('cameraVideo');
+  const cameraSwitch=document.getElementById('cameraSwitch');
+  let cameraFacing='environment';
+  let colorCorrectionEnabled=true;
+  const cameraCanvas=document.getElementById('cameraCanvas');
+  const cameraTarget=document.getElementById('cameraTarget');
+  const cameraLiveRing=document.getElementById('cameraLiveRing');
+  const cameraStableRing=document.getElementById('cameraStableRing');
+  const cameraStatus=document.getElementById('cameraStatus');
+  const cameraResult=document.getElementById('cameraResult');
+  const cameraResultSwatch=document.getElementById('cameraResultSwatch');
+  const cameraResultText=document.getElementById('cameraResultText');
+  const cameraZoom=document.getElementById('cameraZoom');
+  const cameraStage=document.querySelector('.camera-stage');
+  let cameraZoomLevel=1;
+  let cameraZoomMin=1,cameraZoomMax=1,cameraZoomStep=.1;
+  let zoomHideTimer=null;
+  let pinchStartDistance=null,pinchStartZoom=1;
+  let lastWheelTime=0;
+  
+  function getCameraZoomCapabilities(){
+   const track=cameraStream?.getVideoTracks?.()[0];
+   const caps=track?.getCapabilities?.();
+   if(caps&&typeof caps.zoom==='object'){
+     cameraZoomMin=Number.isFinite(caps.zoom.min)?caps.zoom.min:1;
+     cameraZoomMax=Number.isFinite(caps.zoom.max)?caps.zoom.max:cameraZoomMin;
+     cameraZoomStep=Number.isFinite(caps.zoom.step)&&caps.zoom.step>0?caps.zoom.step:.1;
+   }else{cameraZoomMin=1;cameraZoomMax=4;cameraZoomStep=.1;}
+   cameraZoomLevel=Math.min(Math.max(cameraZoomLevel,cameraZoomMin),cameraZoomMax);
+   updateCameraZoomLabel();
   }
-  p1.addEventListener('change',function(){if(p1.value)selectColor(0,p1.value,null)});p2.addEventListener('change',function(){if(p2.value)selectColor(1,p2.value,null)});slots[0].addEventListener('click',function(){activate(0)});slots[1].addEventListener('click',function(){activate(1)});captureRing.addEventListener('click',sample);sw.addEventListener('click',async function(){facing=facing==='environment'?'user':'environment';await startCamera()});reset.addEventListener('click',function(){selected[0]=selected[1]=null;p1.value='';p2.value='';['1','2'].forEach(function(i){document.getElementById('swatch'+i).style.background='';document.getElementById('meta'+i).textContent='Not selected'});displayedMatch=null;liveRing.style.setProperty('--live-color','#ffffff');activate(0);render()});
+  function updateCameraZoomLabel(){
+   const value=cameraZoomLevel.toFixed(1).replace('.0','');
+   cameraZoom.textContent=value+'×';
+  }
+  function showCameraZoom(){
+   cameraZoom.classList.add('visible');
+   clearTimeout(zoomHideTimer);
+   zoomHideTimer=setTimeout(()=>cameraZoom.classList.remove('visible'),700);
+  }
+  async function setCameraZoom(level){
+   level=Math.min(cameraZoomMax,Math.max(cameraZoomMin,level));
+   const stepped=cameraZoomMin===1?Math.round(level/cameraZoomStep)*cameraZoomStep:cameraZoomMin+Math.round((level-cameraZoomMin)/cameraZoomStep)*cameraZoomStep;
+   cameraZoomLevel=Math.min(cameraZoomMax,Math.max(cameraZoomMin,stepped));
+   const track=cameraStream?.getVideoTracks?.()[0];
+   const caps=track?.getCapabilities?.();
+   if(track&&caps&&typeof caps.zoom==='object'){
+     try{await track.applyConstraints({advanced:[{zoom:cameraZoomLevel}]});}catch(err){}
+   }else{cameraVideo.style.transform='scaleX('+(cameraFacing==='user'?-cameraZoomLevel:cameraZoomLevel)+')';}
+   updateCameraZoomLabel();
+   showCameraZoom();
+   sampleCameraColor();
+  }
+  function distanceBetweenTouches(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+  cameraStage.addEventListener('touchstart',e=>{
+   if(e.touches.length===2){pinchStartDistance=distanceBetweenTouches(e.touches[0],e.touches[1]);pinchStartZoom=cameraZoomLevel;e.preventDefault();}
+  },{passive:false});
+  cameraStage.addEventListener('touchmove',e=>{
+   if(e.touches.length===2&&pinchStartDistance){
+     const ratio=distanceBetweenTouches(e.touches[0],e.touches[1])/pinchStartDistance;
+     setCameraZoom(pinchStartZoom*ratio);e.preventDefault();
+   }
+  },{passive:false});
+  cameraStage.addEventListener('touchend',e=>{if(e.touches.length<2)pinchStartDistance=null;},{passive:false});
+  cameraStage.addEventListener('wheel',e=>{
+   if(e.ctrlKey||e.metaKey||e.deltaY!==0){
+     const now=performance.now();if(now-lastWheelTime<25)return;lastWheelTime=now;e.preventDefault();
+     setCameraZoom(cameraZoomLevel*Math.exp(-e.deltaY*.0025));
+   }
+  },{passive:false});
+  let cameraStream=null,cameraFrame=null,lastCameraMatch=null;
+  let displayedCameraMatch=null,candidateCameraMatch=null,candidateSince=0;
+  const CAMERA_DEBOUNCE_MS=60;
+  const CAMERA_SWITCH_MARGIN=0.05;
+  
+  function rgbBytesToLab(r,g,b){
+   const rgb=[r/255,g/255,b/255].map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+   const x=(rgb[0]*.4124564+rgb[1]*.3575761+rgb[2]*.1804375)/.95047;
+   const y=(rgb[0]*.2126729+rgb[1]*.7151522+rgb[2]*.072175)/1;
+   const z=(rgb[0]*.0193339+rgb[1]*.119192+rgb[2]*.9503041)/1.08883;
+   const f=v=>v>0.008856?Math.cbrt(v):(7.787*v)+16/116;
+   const fx=f(x),fy=f(y),fz=f(z); return [116*fy-16,500*(fx-fy),200*(fy-fz)];
+  }
+  function ciede2000Lab(Lab1,Lab2){
+   const [L1,a1,b1]=Lab1,[L2,a2,b2]=Lab2, C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2;
+   const G=.5*(1-Math.sqrt(Math.pow(Cb,7)/(Math.pow(Cb,7)+Math.pow(25,7))));
+   const ap1=(1+G)*a1,ap2=(1+G)*a2,Cp1=Math.hypot(ap1,b1),Cp2=Math.hypot(ap2,b2);
+   const hp=(x,y)=>{let h=Math.atan2(y,x)*180/Math.PI;return h<0?h+360:h}; const h1=hp(ap1,b1),h2=hp(ap2,b2);
+   const dL=L2-L1,dC=Cp2-Cp1; let dh=h2-h1;if(Cp1*Cp2===0)dh=0;else if(dh>180)dh-=360;else if(dh<-180)dh+=360;
+   const dH=2*Math.sqrt(Cp1*Cp2)*Math.sin(dh*Math.PI/360), Lb=(L1+L2)/2,Cb2=(Cp1+Cp2)/2;
+   let hbar=h1+h2;if(Cp1*Cp2===0)hbar=h1+h2;else if(Math.abs(h1-h2)<=180)hbar=(h1+h2)/2;else hbar=(h1+h2+360)/2;if(hbar>=360)hbar-=360;
+   const T=1-.17*Math.cos((hbar-30)*Math.PI/180)+.24*Math.cos(2*hbar*Math.PI/180)+.32*Math.cos((3*hbar+6)*Math.PI/180)-.20*Math.cos((4*hbar-63)*Math.PI/180);
+   const Sl=1+.015*Math.pow(Lb-50,2)/Math.sqrt(20+Math.pow(Lb-50,2)), Sc=1+.045*Cb2, Sh=1+.015*Cb2*T;
+   const Rt=-2*Math.sqrt(Math.pow(Cb2,7)/(Math.pow(Cb2,7)+Math.pow(25,7)))*Math.sin((60*Math.exp(-Math.pow((hbar-275)/25,2)))*Math.PI/180);
+   return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
+  }
+  function nearestWadaFromLab(lab){
+   let best=null;
+   for(const [name,hex] of COLORS){const d=ciede2000Lab(lab,labMap[name]);if(!best||d<best.delta)best={name,hex,delta:d};}
+   return best;
+  }
+  function sampleCameraColor(){
+   if(!cameraStream||cameraVideo.readyState<2)return;
+   const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;
+   const targetRect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
+   const targetCx=targetRect.left+targetRect.width/2-videoRect.left;
+   const targetCy=targetRect.top+targetRect.height/2-videoRect.top;
+  
+   // Map the target from the displayed object-fit:cover video into intrinsic video coordinates.
+   const scale=Math.max(videoRect.width/iw,videoRect.height/ih);
+   const renderedW=iw*scale,renderedH=ih*scale;
+   const cropX=(renderedW-videoRect.width)/2,cropY=(renderedH-videoRect.height)/2;
+   let cx=(targetCx+cropX)/scale,cy=(targetCy+cropY)/scale;
+   if(cameraFacing==='user')cx=iw-cx;
+  
+   // Sample the actual visible interior of the target circle, excluding its white ring.
+   const border=parseFloat(getComputedStyle(cameraTarget).borderLeftWidth)||0;
+   const innerRadius=Math.max(6,(targetRect.width/2)-border);
+   const sourceRadius=Math.max(4,innerRadius/scale);
+   const sampleRadius=sourceRadius*.90;
+   const drawSize=Math.max(24,Math.min(180,Math.ceil(sampleRadius*2)));
+   cameraCanvas.width=drawSize;cameraCanvas.height=drawSize;
+   const ctx=cameraCanvas.getContext('2d',{willReadFrequently:true});
+   ctx.drawImage(cameraVideo,cx-sampleRadius,cy-sampleRadius,sampleRadius*2,sampleRadius*2,0,0,drawSize,drawSize);
+   const img=ctx.getImageData(0,0,drawSize,drawSize).data;
+   const samples=[];const c=drawSize/2,r=drawSize/2*.96;
+   for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++){
+     if(Math.hypot(x-c,y-c)<=r){const i=(y*drawSize+x)*4;samples.push([img[i],img[i+1],img[i+2]]);}
+   }
+   if(!samples.length)return;
+  
+   // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
+   const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
+   let rgb=[avg(0),avg(1),avg(2)];
+  
+   // Silent camera normalization: compensate modestly for exposure and white-balance
+   // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
+   // the pre-r37 raw sampled RGB behavior.
+   if(colorCorrectionEnabled){
+   const mean=(rgb[0]+rgb[1]+rgb[2])/3;
+   const targetMean=128;
+   const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
+   rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
+   const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
+   const wbStrength=.28;
+   const wbScale=correctedMean/Math.max(1,correctedMean);
+   rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
+   rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
+   }
+   const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+   const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
+   const now=performance.now();
+   if(!displayedCameraMatch){
+     displayedCameraMatch={...match,rgb};
+     candidateCameraMatch=null;
+     candidateSince=now;
+   }else if(match.name===displayedCameraMatch.name){
+     displayedCameraMatch={...match,rgb};
+     candidateCameraMatch=null;
+     candidateSince=0;
+   }else{
+     const displayedDelta=ciede2000Lab(lab,labMap[displayedCameraMatch.name]);
+     const meaningfullyBetter=match.delta < displayedDelta-CAMERA_SWITCH_MARGIN;
+     if(meaningfullyBetter){
+       if(candidateCameraMatch?.name!==match.name){
+         candidateCameraMatch=match;
+         candidateSince=now;
+       }else if(now-candidateSince>=CAMERA_DEBOUNCE_MS){
+         displayedCameraMatch={...match,rgb};
+         candidateCameraMatch=null;
+         candidateSince=0;
+       }
+     }else{
+       candidateCameraMatch=null;
+       candidateSince=0;
+     }
+   }
+   lastCameraMatch=displayedCameraMatch;
+   cameraLiveRing.style.setProperty('--live-color',liveHex);
+   cameraStableRing.style.setProperty('--stable-color',displayedCameraMatch.hex);
+   cameraResultSwatch.style.background=displayedCameraMatch.hex;
+   cameraResultText.textContent=`${displayedCameraMatch.name} · ΔE00 ${displayedCameraMatch.delta.toFixed(1)}`;
+   cameraResult.hidden=false;
+  }
+  function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);}
+  async function startCamera(){
+   if(!navigator.mediaDevices?.getUserMedia)return;
+   try{
+     if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+     cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
+     cameraVideo.srcObject=cameraStream;
+     cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';
+     getCameraZoomCapabilities();
+     const track=cameraStream.getVideoTracks()[0];
+     const caps=track?.getCapabilities?.();
+     if(caps&&typeof caps.zoom==='object'){try{await track.applyConstraints({advanced:[{zoom:cameraZoomLevel}]});}catch(err){}}
+     displayedCameraMatch=null;
+     candidateCameraMatch=null;
+     candidateSince=0;
+     lastCameraMatch=null;
+     cameraLiveRing.style.setProperty('--live-color','transparent');
+     cameraStableRing.style.setProperty('--stable-color','transparent');
+     await cameraVideo.play();
+     cameraResult.hidden=false;
+     cameraFrame=requestAnimationFrame(cameraLoop);
+   }catch(err){
+     cameraResult.hidden=false;
+     cameraResultText.textContent=err.name==='NotAllowedError'?'Camera access is required.':'Camera unavailable';
+   }
+  }
+  function stopCamera(){
+   if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;
+   if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+   cameraVideo.srcObject=null;
+  }
+  function captureCameraColor(){
+   if(!lastCameraMatch)return;
+   selectColor(active,lastCameraMatch.name,lastCameraMatch.delta);
+  }
+  cameraTarget.addEventListener('click',captureCameraColor);
+  startCamera();
+  cameraSwitch.addEventListener('click',async e=>{e.stopPropagation();cameraFacing=cameraFacing==='environment'?'user':'environment';await startCamera();});
+  const colorCorrectionToggle=document.getElementById('colorCorrectionToggle');
+  colorCorrectionToggle.addEventListener('click',e=>{
+    e.stopPropagation();
+    colorCorrectionEnabled=!colorCorrectionEnabled;
+    colorCorrectionToggle.setAttribute('aria-pressed',String(colorCorrectionEnabled));
+    colorCorrectionToggle.setAttribute('aria-label',colorCorrectionEnabled?'Color correction on':'Color correction off');
+    colorCorrectionToggle.setAttribute('title',colorCorrectionEnabled?'Color correction on':'Color correction off');
+    displayedCameraMatch=null;
+    candidateCameraMatch=null;
+    candidateSince=0;
+    lastCameraMatch=null;
+    sampleCameraColor();
+  });
+  window.addEventListener('pagehide',stopCamera);
+  p1.addEventListener('change',function(){if(p1.value)selectColor(0,p1.value,null)});p2.addEventListener('change',function(){if(p2.value)selectColor(1,p2.value,null)});slots[0].addEventListener('click',function(){activate(0)});slots[1].addEventListener('click',function(){activate(1)});captureRing.addEventListener('click',sample);sw.addEventListener('click',async function(){facing=facing==='environment'?'user':'environment';await startCamera()});reset.addEventListener('click',function(){selected[0]=selected[1]=null;p1.value='';p2.value='';['1','2'].forEach(function(i){document.getElementById('swatch'+i).style.background='';document.getElementById('meta'+i).textContent='Not selected'});displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;cameraLiveRing.style.setProperty('--live-color','transparent');cameraStableRing.style.setProperty('--stable-color','transparent');cameraResult.hidden=true;activate(0);render()});
   populate(p1);populate(p2);activate(0);render();startCamera();updateLiveRing();
 });
 </script></body></html>
