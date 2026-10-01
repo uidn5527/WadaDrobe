@@ -343,8 +343,14 @@ button,select,input{touch-action:manipulation}
 
 /* test06 portrait-only section order: camera before color selection */
 @media (orientation: portrait){
-  main>.camera-panel{order:2}
-  main>.controls{order:1}
+  main>h1{order:0}
+  main>.camera-panel{order:1}
+  main>.controls{order:2}
+  main>section:nth-of-type(3){order:3}
+  main>.similarity-controls{order:4}
+  main>section:nth-of-type(5){order:5}
+  main>section:nth-of-type(6){order:6}
+  main>footer{order:7}
 }
 /* test06 fullscreen experiment — no effect in normal mode */
 .site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
