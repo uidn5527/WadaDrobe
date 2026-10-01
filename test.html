@@ -343,6 +343,7 @@ button,select,input{touch-action:manipulation}
 
 /* test06 portrait-only section order: camera before color selection */
 @media (orientation: portrait){
+  main{display:flex;flex-direction:column}
   main>h1{order:0}
   main>.camera-panel{order:1}
   main>.controls{order:2}
