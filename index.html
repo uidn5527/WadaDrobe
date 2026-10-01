@@ -17,29 +17,12 @@ label{font-weight:650;display:block;margin-bottom:8px}select,input[type=range]{w
 footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border);padding-top:16px}@media(max-width:700px){.controls{grid-template-columns:1fr}.selected{align-items:stretch;flex-direction:column}.selected .swatch{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 #colorFieldToggle{margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:6px;background:#fff;color:#222;cursor:pointer;font:inherit}
 #colorFieldToggle:hover{background:#f0f0f0}
-#fullscreenColorBands{display:none}
-body.fullscreen-color-mode #fullscreenColorBands{
- display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9998;
- flex-direction:column;pointer-events:none;overflow:hidden
-}
-.fullscreen-color-band{
- flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;
- position:relative;padding:12px 24px;box-sizing:border-box
-}
-.fullscreen-color-band.main-band{flex:2.5 1 0}
-.fullscreen-band-name{
- font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
- font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;
- text-align:center;white-space:normal;max-width:90%;color:var(--fullscreen-text,rgba(255,255,255,.62));
- text-shadow:0 1px 3px rgba(0,0,0,.14)
-}
-.fullscreen-color-band:not(.main-band) .fullscreen-band-name{font-size:13px;font-weight:600}
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
 #fullscreenHint{display:none}
 #fullscreenColorName{display:none}
 body.fullscreen-color-mode #colorFieldToggle{visibility:hidden!important}
-body.fullscreen-color-mode #fullscreenColorName{display:none;visibility:visible!important;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.14)}
+body.fullscreen-color-mode #fullscreenColorName{display:block;visibility:visible!important;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.14)}
 body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!important;position:fixed;left:24px;top:24px;z-index:10000;color:var(--fullscreen-text,rgba(255,255,255,.62));font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .8s ease;text-shadow:0 1px 3px rgba(0,0,0,.14);opacity:1}
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
@@ -199,7 +182,7 @@ html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
 header{padding:8px 0 14px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd,.site-title-even{display:flex;align-items:baseline;gap:3px}.site-title-odd{justify-content:flex-start}.site-title-even{justify-content:flex-start}.site-title-even .revision{order:0}.site-title-even .brand{order:1}.site-title-odd .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
+h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px}.site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{color:#505423}.revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;vertical-align:middle;margin-left:0}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25}
 section{margin:14px 0;padding:14px;border-radius:12px}
 label{display:block;font-weight:600;margin-top:10px}
@@ -358,7 +341,7 @@ button,select,input{touch-action:manipulation}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">r44</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">r41</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -395,7 +378,6 @@ button,select,input{touch-action:manipulation}
 <section><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
 </main>
-<div id="fullscreenColorBands" aria-hidden="true"></div>
 <div id="fullscreenColorName" aria-hidden="true"></div>
 <div id="fullscreenHint" aria-hidden="true"></div>
 <script>
@@ -500,12 +482,12 @@ function positionFullscreenHint(){
  if(!fullscreenHint)return;
  const rect=fullscreenHint.getBoundingClientRect();
  const marginX=24,marginY=24,exclusionPadding=28;
- const nameRects=[...(fullscreenColorName?[fullscreenColorName]:[]),...document.querySelectorAll('.fullscreen-band-name')].filter(el=>el&&getComputedStyle(el).display!=='none').map(el=>el.getBoundingClientRect());
- const exclusion=nameRects.length?{
-   left:Math.min(...nameRects.map(r=>r.left))-exclusionPadding,
-   top:Math.min(...nameRects.map(r=>r.top))-exclusionPadding,
-   right:Math.max(...nameRects.map(r=>r.right))+exclusionPadding,
-   bottom:Math.max(...nameRects.map(r=>r.bottom))+exclusionPadding
+ const nameRect=fullscreenColorName?.getBoundingClientRect();
+ const exclusion=nameRect?{
+   left:nameRect.left-exclusionPadding,
+   top:nameRect.top-exclusionPadding,
+   right:nameRect.right+exclusionPadding,
+   bottom:nameRect.bottom+exclusionPadding
  }:null;
  const maxX=Math.max(marginX,window.innerWidth-rect.width-marginX);
  const maxY=Math.max(marginY,window.innerHeight-rect.height-marginY);
@@ -556,28 +538,10 @@ function stopFullscreenLanguageCycle(){
  fullscreenLanguageTimer=null;
  if(fullscreenHint)fullscreenHint.style.opacity='0';
 }
-function renderFullscreenColorBands(){
- if(!fullscreenColorBands)return;
- const selected=select.value;
- const count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0)));
- const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);
- const group=[selected,...similar];
- const topCount=Math.floor(similar.length/2);
- const top=similar.slice(0,topCount);
- const bottom=similar.slice(topCount);
- const ordered=[...top,selected,...bottom];
- const totalWeight=similar.length+2.5;
- fullscreenColorBands.innerHTML=ordered.map((name,index)=>{
-   const main=name===selected;
-   return '<div class="fullscreen-color-band'+(main?' main-band':'')+'" style="flex-basis:'+((main?2.5:1)/totalWeight*100)+'%;background:'+map[name]+'"><span class="fullscreen-band-name">'+name+'</span></div>';
- }).join('');
-}
 function enterFullscreenColorMode(){
  document.body.classList.add('fullscreen-color-mode');
  document.body.style.setProperty('--chosen-color',map[select.value]);
- renderFullscreenColorBands();
  fullscreenColorName.textContent=select.value;
- fullscreenColorName.style.display='none';
  setFullscreenHintColor(map[select.value]);
  startFullscreenLanguageCycle();
 }
@@ -585,18 +549,17 @@ function exitFullscreenColorMode(){
  if(document.body.classList.contains('fullscreen-color-mode')){
    document.body.classList.remove('fullscreen-color-mode');
    stopFullscreenLanguageCycle();
-   if(fullscreenColorBands)fullscreenColorBands.innerHTML='';
  }
 }
 colorFieldToggle?.addEventListener('click',e=>{e.stopPropagation();if(document.body.classList.contains('fullscreen-color-mode'))exitFullscreenColorMode();else enterFullscreenColorMode();});
 document.addEventListener('click',e=>{
  if(document.body.classList.contains('fullscreen-color-mode')&&e.target!==colorFieldToggle&&!colorFieldToggle?.contains(e.target))exitFullscreenColorMode();
 });
-select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();if(document.body.classList.contains('fullscreen-color-mode')){renderFullscreenColorBands();setFullscreenHintColor(map[select.value]);}});
+select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-color',map[select.value]);render();});
 colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
-colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();if(document.body.classList.contains('fullscreen-color-mode')){renderFullscreenColorBands();setFullscreenHintColor(map[chosen]);}});
+colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();});
 document.addEventListener('click',e=>{if(!colorPicker.contains(e.target)){colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');}});
-similarityMethod.addEventListener('change',()=>{render();updateMethodControls();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();if(document.body.classList.contains('fullscreen-color-mode'))renderFullscreenColorBands();});updateMethodControls();
+similarityMethod.addEventListener('change',()=>{render();updateMethodControls();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();});updateMethodControls();
 
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
