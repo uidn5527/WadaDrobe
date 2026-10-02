@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test11</title>
+<title>WadaDrobe test12</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -414,7 +414,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 }
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
 </style><style>
-/* test11 calibration experiment */
+/* test12 calibration experiment */
 .test11-camera-panel{overflow:visible}
 .test11-camera-calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 .test11-camera-side{min-width:0}
@@ -444,7 +444,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test11</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test12</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -736,17 +736,51 @@ const test11CorrectedRgb=document.getElementById('test11CorrectedRgb');
 const test11RawLab=document.getElementById('test11RawLab');
 const test11CorrectedLab=document.getElementById('test11CorrectedLab');
 
-// Derived from the ten physical-book measurements supplied for test11.
-// Rows map measured camera RGB -> digital Wada RGB reference.
-const TEST11_CAL_MATRIX=[
- [1.2565140160,-0.2609564998,-0.0470039455],
- [0.0841729011,1.7242271347,0.1229589292],
- [-0.2744091141,-0.1432869473,1.3589971471]
+// Local calibration model derived from the ten physical-book measurements supplied for test11.
+// Instead of a single global matrix, each measured book color is an anchor:
+// camera RGB -> Lab, then a distance-weighted interpolation of the measured
+// camera-to-reference Lab correction vectors. The correction fades toward zero
+// outside the calibrated region, preventing large extrapolated color shifts.
+const TEST12_CAL_ANCHORS=[
+  {name:'Cossack Green',raw:[103.6,116.4,73.2],ref:'#437742'},
+  {name:'Rainette Green',raw:[125.8,120.0,73.8],ref:'#788860'},
+  {name:'Nile Blue',raw:[151.2,153.8,139.0],ref:'#bce4e5'},
+  {name:'Olympic Blue',raw:[104.6,109.2,135.4],ref:'#5a82b3'},
+  {name:'Lilac',raw:[165.8,107.2,130.8],ref:'#b984af'},
+  {name:'Sudan Brown',raw:[152.3,88.8,51.5],ref:'#a36752'},
+  {name:'Apricot Orange',raw:[187.2,103.2,35.4],ref:'#f68c50'},
+  {name:'Orange Yellow',raw:[188.0,130.2,22.0],ref:'#fcb315'},
+  {name:'Sulphur Yellow',raw:[168.8,151.0,111.0],ref:'#f5ecc2'},
+  {name:'Scarlet',raw:[184.8,77.6,66.4],ref:'#cb2f43'}
 ];
-function test11ApplyCalibration(rgb){
- return TEST11_CAL_MATRIX.map(row=>Math.max(0,Math.min(255,
-   row[0]*rgb[0]+row[1]*rgb[1]+row[2]*rgb[2]
- )));
+for(const anchor of TEST12_CAL_ANCHORS){
+  anchor.rawLab=rgbBytesToLab(...anchor.raw);
+  const hex=anchor.ref.replace('#','');
+  anchor.refRgb=[parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)];
+  anchor.refLab=rgbBytesToLab(...anchor.refRgb);
+  anchor.deltaLab=anchor.refLab.map((v,i)=>v-anchor.rawLab[i]);
+}
+function test12ApplyCalibration(rgb){
+  const rawLab=rgbBytesToLab(...rgb);
+  const distances=TEST12_CAL_ANCHORS.map(anchor=>ciede2000Lab(rawLab,anchor.rawLab));
+  const nearest=Math.min(...distances);
+  // Local interpolation: close anchors dominate; distant anchors contribute little.
+  // Beyond the calibration set, reduce the correction rather than extrapolating.
+  const sigma=14;
+  const weights=distances.map(d=>Math.exp(-Math.pow(d/sigma,2)));
+  const weightSum=weights.reduce((a,v)=>a+v,0);
+  if(!weightSum)return rgb.map(v=>Math.max(0,Math.min(255,v)));
+  const correction=[0,0,0];
+  for(let i=0;i<TEST12_CAL_ANCHORS.length;i++){
+    const w=weights[i]/weightSum;
+    for(let j=0;j<3;j++)correction[j]+=w*TEST12_CAL_ANCHORS[i].deltaLab[j];
+  }
+  // Confidence falls off with distance from the nearest measured camera color.
+  // This makes the correction strong near calibration samples and conservative elsewhere.
+  const confidence=Math.exp(-Math.pow(nearest/28,2));
+  const correctedLab=rawLab.map((v,i)=>v+correction[i]*confidence);
+  const correctedRgb=test11LabToRgb(...correctedLab);
+  return correctedRgb.map(v=>Math.max(0,Math.min(255,v)));
 }
 function test11LabToRgb(L,a,b){
  const fy=(L+16)/116,fx=a/500+fy,fz=fy-b/200;
@@ -913,7 +947,7 @@ function sampleCameraColor(){
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rawRgb=[avg(0),avg(1),avg(2)];
- let rgb=colorCorrectionEnabled?test11ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
+ let rgb=colorCorrectionEnabled?test12ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
  test11UpdateLab(rawRgb,rgb);
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
