@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>WadaDrobe Color Accuracy Lab</title>
+<title>WadaDrobe Color Accuracy Lab — Phase 2</title>
 <style>
 :root{--bg:#f5f5f2;--card:#fff;--text:#202124;--muted:#666;--border:#d8d8d2;--accent:#505423}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -30,41 +30,54 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 .small{font-size:.82rem}.right{text-align:right}
 .status{margin-top:8px;color:var(--muted);font-size:.86rem}
 @media(max-width:700px){.grid2{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}main{padding:14px 11px 40px}.card{padding:13px}.target{width:min(42vw,140px);height:min(42vw,140px)}table{font-size:.78rem}}
+
+.phase2-target{display:grid;grid-template-columns:130px 1fr;gap:16px;align-items:center}
+.phase2-swatch{width:130px;height:130px;border-radius:12px;border:1px solid #888}
+.phase2-meta h3{margin:0 0 5px;font-size:1.45rem}
+.phase2-progress{font-weight:700;margin-top:8px}
+.progress-track{height:10px;background:#e4e4df;border-radius:999px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;width:0;background:#505423;transition:width .2s}
+.warning{background:#fff0f0;border-color:#d99}
+.warning strong{color:#9a2222}
+.success{background:#eef8ee;border-color:#b8d6b8}
+.sequence{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:14px}
+.sequence-item{font-size:.72rem;padding:6px 4px;border:1px solid #ddd;border-radius:7px;text-align:center;background:#fafaf8}
+.sequence-item.current{border-color:#505423;box-shadow:inset 0 0 0 2px #505423;font-weight:700}
+.sequence-item.done{background:#e9f0e9}
+.capture-state{font-weight:700}
+@media(max-width:700px){.phase2-target{grid-template-columns:96px 1fr}.phase2-swatch{width:96px;height:96px}.phase2-meta h3{font-size:1.2rem}.sequence{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <main>
 <header>
 <h1>WadaDrobe Color Accuracy Lab</h1>
-<p class="subtitle">A separate experiment for measuring how accurately the camera recognizes printed Sanzo Wada color samples.</p>
+<p class="subtitle">Phase 2 calibration collection — three photographs of each of 12 deliberately separated Wada colors.</p>
 </header>
 
 <section class="card notice">
-<strong>Phase 1 protocol</strong>
-<p style="margin-bottom:0">Choose the color printed in your Wada book, keep the lighting and phone position consistent, center the printed swatch inside the target, and take repeated measurements. This tool records the camera measurement and compares it with the selected Wada standard. It does not modify the main WadaDrobe app.</p>
+<strong>Phase 2 protocol</strong>
+<p style="margin-bottom:0">The app will choose the colors and their order for you. For each target, center that printed Wada swatch inside the circle and capture it three times. Keep the phone position, lighting, and sample orientation as consistent as possible. The sequence is deliberately arranged so consecutive colors are far apart in CIEDE2000 space, allowing the app to detect an accidental extra capture of the previous color.</p>
 </section>
 
 <section class="card">
-<h2>1. Reference color</h2>
-<div class="grid2">
-<div>
-<label for="colorSearch">Find a Wada color</label>
-<input id="colorSearch" type="search" placeholder="Type a color name…" autocomplete="off" style="width:100%;padding:10px;border:1px solid #aaa;border-radius:8px">
+<h2>Current target</h2>
+<div class="phase2-target">
+<div id="targetSwatch" class="phase2-swatch"></div>
+<div class="phase2-meta">
+<h3 id="targetName">—</h3>
+<div id="targetHex" class="hex">—</div>
+<div id="targetPosition" class="phase2-progress">Color 1 of 12</div>
+<div id="shotProgress" class="small">0 of 3 accepted</div>
+<div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
 </div>
-<div>
-<label for="colorSelect">Selected standard</label>
-<select id="colorSelect"></select>
 </div>
-</div>
-<div class="selected" style="margin-top:14px">
-<div id="referenceSwatch" class="swatch"></div>
-<div><div id="referenceName" class="name"></div><div id="referenceHex" class="hex"></div></div>
-</div>
+<div id="sequence" class="sequence"></div>
 </section>
 
 <section class="card">
-<h2>2. Camera measurement</h2>
-<p class="small">Use the rear camera to measure the printed book sample. Keep the phone, sample, and lighting as constant as possible between measurements.</p>
+<h2>Camera measurement</h2>
+<p class="small">Aim at the printed swatch. The live check compares the camera reading with the current target and the immediately previous target. If it still looks like the previous color, the capture will be rejected automatically.</p>
 <div class="camera">
 <div class="stage">
 <video id="video" playsinline autoplay muted></video>
@@ -75,28 +88,40 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <button id="switchCamera" type="button">Switch camera</button>
 </div>
 </div>
+<div id="captureState" class="status capture-state">Aim at the current target.</div>
 <div class="metric-grid" style="margin-top:12px">
 <div class="metric"><b>Sample RGB</b><span id="rgb">—</span></div>
 <div class="metric"><b>Nearest Wada</b><span id="nearest">—</span></div>
-<div class="metric"><b>ΔE00 to nearest</b><span id="nearestDelta">—</span></div>
-<div class="metric"><b>ΔE00 to reference</b><span id="referenceDelta">—</span></div>
+<div class="metric"><b>ΔE00 to target</b><span id="referenceDelta">—</span></div>
+<div class="metric"><b>ΔE00 to previous</b><span id="previousDelta">—</span></div>
 </div>
 <div class="button-row" style="margin-top:12px">
-<button id="record" class="primary" type="button">Record measurement</button>
-<button id="clear" type="button">Clear measurements</button>
+<button id="record" class="primary" type="button">Capture photo</button>
+<button id="clear" type="button">Start over</button>
 <button id="export" type="button">Export CSV</button>
 </div>
-<div id="status" class="status">No measurements recorded.</div>
+<div id="status" class="status">0 accepted measurements. 36 required.</div>
+</section>
+
+<section id="warningCard" class="card warning" style="display:none">
+<strong id="warningTitle">Capture rejected</strong>
+<p id="warningText" style="margin-bottom:0"></p>
+</section>
+
+<section id="completeCard" class="card success" style="display:none">
+<strong>Collection complete.</strong>
+<p style="margin-bottom:0">All 36 accepted measurements have been collected. Export the CSV and paste its contents here for the next calibration analysis.</p>
 </section>
 
 <section class="card">
-<h2>3. Measurements</h2>
-<div id="tableWrap" class="empty">Record a measurement to begin.</div>
+<h2>Accepted measurements</h2>
+<div id="tableWrap" class="empty">No measurements recorded yet.</div>
 </section>
 
 <section class="card">
-<h2>What this experiment tells us</h2>
-<p class="small">The most useful results are repeatability, the ΔE00 distance from the printed sample's intended Wada color, and whether the nearest Wada match is consistently the expected color. Because the book is a printed reproduction, treat it as a physical reference sample rather than a laboratory-grade colorimeter standard.</p>
+<h2>Why these colors?</h2>
+<p class="small">The 12 targets are intentionally spread across the Wada color space, and the sequence avoids placing similar colors next to one another. Ten targets repeat colors from the first physical-book dataset so the new measurements can be compared directly with the existing calibration anchors; black and white extend the calibration toward the luminance extremes.</p>
+<p class="small" style="margin-bottom:0">Only accepted measurements are exported. A rejected capture is not counted toward the three required photographs.</p>
 </section>
 </main>
 
@@ -104,25 +129,40 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <script>
 const COLORS=[["Pale Purplish Vinaceous","#fde2dd"],["Hermosa Pink","#f9c1ce"],["Corinthian Pink","#f8b6ba"],["Cameo Pink","#e0b3b6"],["Pale Cinammon-Pink","#f4deca"],["Fawn","#d1b0a7"],["Pale Ecru-Drab","#c5b7b0"],["Light Brown Drab","#b59392"],["Coral Red","#f58e84"],["Fresh Color","#f6917e"],["Grenadine Pink","#f48067"],["Eosine Pink","#f37f94"],["Spinel Red","#f27291"],["Old Rose","#d46d7a"],["Eugenia Red 1","#e2625e"],["Eugenia Red 2","#da525d"],["Raw Sienna","#bb7125"],["Vinaceous Tawny","#c56127"],["Jasper Red","#eb5324"],["Spectrum Red","#e31f26"],["Red Orange","#dd4027"],["Etruscan Red","#c55347"],["Burnt Sienna","#ae5224"],["Ocher Red","#ab544d"],["Scarlet","#cb2f43"],["Carmine","#cc1236"],["Indian Lake","#c53c69"],["Rosolanc Purple","#b73f74"],["Pomegranate Purple","#b71f57"],["Hydrangea Red","#a94151"],["Brick Red","#a84222"],["Carmine Red","#a62c37"],["Pompeian Red","#ab2439"],["Red","#a72144"],["Brown","#7c4226"],["Hay's Russet","#793327"],["Vandyke Red","#82241f"],["Pansy Purple","#7d133a"],["Pale Burnt Lake","#802626"],["Violet Red","#642d5e"],["Vistoris Lake","#6d4145"],["Sulphur Yellow","#f5ecc2"],["Sea-foam Yellow","#f0e6be"],["Pale Lemon Yellow","#ffefae"],["Naples Yellow","#fbe6a0"],["Ivory Buff","#ebd3a2"],["Seashell Pink","#fdd4bd"],["Light Pinkish Cinnamon","#fcc79b"],["Pinkish Cinnamon","#eeb480"],["Cinnamon Buff","#fdc57e"],["Cream Yellow","#fdbf68"],["Golden Yellow","#f3a257"],["Vinaceous Cinnamon","#eea78c"],["Ochraceous Salmon","#d8a37b"],["Isabella Color","#c5a56e"],["Maple","#c59f6b"],["Olive Buff","#c1c494"],["Ecru","#c2ae93"],["Yellow","#fff200"],["Lemon Yellow","#f8ed43"],["Apricot Yellow","#ffdd00"],["Pyrite Yellow","#cab356"],["Olive Ocher","#d6b43e"],["Yellow Ocher","#e2b540"],["Orange Yellow","#fcb315"],["Yellow Orange","#f99d1b"],["Apricot Orange","#f68c50"],["Orange","#f37420"],["Peach Red","#f15a30"],["English Red","#d96629"],["Cinnamon Rufous","#c27544"],["Orange Rufous","#c16b27"],["Sulphine Yellow","#c19f2c"],["Khaki / Tawny Olive","#bc892b"],["Citron Yellow","#b2b73e"],["Citrine","#a49531"],["Dull Citrine","#8d8559"],["Buffy Citrine","#96874d"],["Dark Citrine","#8b835b"],["Light Grayish Olive","#848061"],["Kronbergs Green","#84875e"],["Olive","#837e31"],["Orange Citrine","#986f2d"],["Sudan Brown","#a36752"],["Olive Green","#6b7140"],["Light Brownish Olive","#806e4b"],["Deep Grayish Olive","#635a3a"],["Pale Raw Umber","#71502f"],["Sepia","#644b1e"],["Madder Brown","#762c19"],["Mars Brown Tobacco","#653514"],["Vandyke Brown","#4b3317"],["Turquoise Green","#b5decc"],["Glaucous Green","#b4cdc2"],["Dark Greenish Glaucous","#b7c2a9"],["Pale Turtle Green","#c3cd9d"],["Yellow Green","#afd472"],["Light Green Yellow","#c7d14f"],["Light Green","#87c540"],["Olive Yellow","#a6a159"],["Artemisia Green","#709390"],["Andover Green","#6d7e77"],["Rainette Green","#788860"],["Chromium Green","#719470"],["Pistachio Green","#648f7b"],["Sea Green","#00b49b"],["Benzol Green","#00978d"],["Light Porcelain Green","#00908a"],["Green","#489b6e"],["Dull Viridian Green","#009465"],["Oil Green","#819238"],["Grape Green","#a2a865"],["Diamine Green","#008842"],["Cossack Green","#437742"],["Lincoln Green","#555832"],["Blackish Olive","#42533e"],["Deep Slate Olive","#253122"],["Pale King's Blue 1","#f0f3e7"],["Nile Blue","#bce4e5"],["Pale King's Blue 2","#a7d4e4"],["Light Glaucous Blue","#a5c8d1"],["Salvia Blue","#97acc8"],["Cobalt Green","#96d1aa"],["Calamine Blue","#78cdd0"],["Venice Green","#62c6bf"],["Pale Methyl Blue","#54afb4"],["Cerulean Blue","#0093a5"],["Peacock Blue","#00939b"],["Green Blue","#099197"],["Olympic Blue","#5a82b3"],["Blue","#006eb8"],["Antwarp Blue","#007190"],["Helvetia Blue","#005b8d"],["Dark Medici Blue","#547076"],["Dusky Green","#004f46"],["Deep Lyons Blue","#1c4286"],["Violet Blue","#40456a"],["Vandar Poel's Blue","#064f6e"],["Dark Tyrian Blue","#12354e"],["Dull Violet Black","#0d1c43"],["Deep Indigo","#051230"],["Deep Slate Green","#112f2c"],["Grayish Lavender 1","#b5b1d8"],["Grayish Lavender 2","#c0a9b3"],["Laelia Pink","#ca92a8"],["Lilac","#b984af"],["Eupatorium Purple","#bf5892"],["Light Mauve","#9a72aa"],["Aconite Violet","#a36aa5"],["Dull Blue Violet","#80719e"],["Dark Soft Violet","#66629c"],["Blue Violet","#6450a1"],["Violet Ultramarine","#522e91"],["Purple Drab","#84565b"],["Deep Violet Plumbeous","#70727c"],["Vernonia Purple","#8c4c62"],["Dark Slate Purple","#704357"],["Taupe Brown","#7a4456"],["Violet Carmine","#713b4c"],["Violet","#4f4086"],["Red Violet","#59256a"],["Cotinga Purple","#501345"],["Dusky Madder Violet","#4e1d4c"],["Dark Perilla Purple","#542e36"],["Dull Purplish Black","#443b35"],["White","#ffffff"],["Neutral Gray","#b6bfc1"],["Mineral Gray","#a2b0ad"],["Warm Gray","#a1a39a"],["Slate Color","#34454c"],["Black","#111314"]];
 const colorMap=Object.fromEntries(COLORS);
-const colorSearch=document.getElementById('colorSearch');
-const colorSelect=document.getElementById('colorSelect');
-const referenceSwatch=document.getElementById('referenceSwatch');
-const referenceName=document.getElementById('referenceName');
-const referenceHex=document.getElementById('referenceHex');
+
+// Fixed Phase 2 sequence. Adjacent reference colors are all at least ~31.9 ΔE00 apart.
+const TARGETS=["Lilac","Orange Yellow","Olympic Blue","Apricot Orange","Cossack Green","Nile Blue","Sudan Brown","White","Rainette Green","Black","Scarlet","Sulphur Yellow"];
+const SHOTS_PER_TARGET=3;
+const PREVIOUS_MARGIN=8;
+const MAX_TARGET_DELTA_FOR_REJECTION=45;
+
 const video=document.getElementById('video');
 const canvas=document.getElementById('canvas');
 const liveDot=document.getElementById('liveDot');
 const liveName=document.getElementById('liveName');
 const rgbEl=document.getElementById('rgb');
 const nearestEl=document.getElementById('nearest');
-const nearestDeltaEl=document.getElementById('nearestDelta');
 const referenceDeltaEl=document.getElementById('referenceDelta');
+const previousDeltaEl=document.getElementById('previousDelta');
 const tableWrap=document.getElementById('tableWrap');
 const status=document.getElementById('status');
+const captureState=document.getElementById('captureState');
+const warningCard=document.getElementById('warningCard');
+const warningTitle=document.getElementById('warningTitle');
+const warningText=document.getElementById('warningText');
+const completeCard=document.getElementById('completeCard');
+const targetSwatch=document.getElementById('targetSwatch');
+const targetName=document.getElementById('targetName');
+const targetHex=document.getElementById('targetHex');
+const targetPosition=document.getElementById('targetPosition');
+const shotProgress=document.getElementById('shotProgress');
+const progressFill=document.getElementById('progressFill');
+const sequenceEl=document.getElementById('sequence');
+const recordButton=document.getElementById('record');
 
 let facing='environment',stream=null,frame=null,lastSample=null;
+let targetIndex=0,shotsAccepted=0;
 const records=[];
-const target=document.querySelector('.target');
 
 function hexRgb(hex){const h=hex.slice(1);return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
 function rgbToLab(r,g,b){
@@ -151,24 +191,47 @@ const labMap=Object.fromEntries(COLORS.map(([n,h])=>[n,rgbToLab(...hexRgb(h))]))
 function nearestWada(lab){
  let best=null;for(const [name,hex] of COLORS){const d=ciede2000(lab,labMap[name]);if(!best||d<best.delta)best={name,hex,delta:d}}return best;
 }
-function populateSelect(filter=''){
- const f=filter.trim().toLowerCase(),old=colorSelect.value;
- colorSelect.innerHTML='';
- COLORS.forEach(([name,hex])=>{if(!f||name.toLowerCase().includes(f)){const o=document.createElement('option');o.value=name;o.textContent=name;colorSelect.appendChild(o)}});
- if([...colorSelect.options].some(o=>o.value===old))colorSelect.value=old;
- updateReference();
+function currentName(){return TARGETS[targetIndex]}
+function previousName(){return targetIndex>0?TARGETS[targetIndex-1]:null}
+function distances(sample){
+ const lab=rgbToLab(...sample.rgb);
+ const current=currentName();
+ const currentDelta=ciede2000(lab,labMap[current]);
+ const prev=previousName();
+ const previousDelta=prev?ciede2000(lab,labMap[prev]):null;
+ return {lab,current,currentDelta,prev,previousDelta,nearest:nearestWada(lab)};
 }
-function updateReference(){
- const name=colorSelect.value;if(!name)return;
- referenceSwatch.style.background=colorMap[name];referenceName.textContent=name;referenceHex.textContent=colorMap[name];
- if(lastSample)updateMetrics(lastSample);
+function previousMismatch(d){
+ return !!d.prev &&
+   d.previousDelta + PREVIOUS_MARGIN < d.currentDelta &&
+   d.currentDelta < MAX_TARGET_DELTA_FOR_REJECTION;
+}
+function updateTargetUI(){
+ const name=currentName(),hex=colorMap[name];
+ targetSwatch.style.background=hex;targetName.textContent=name;targetHex.textContent=hex;
+ targetPosition.textContent='Color '+(targetIndex+1)+' of '+TARGETS.length;
+ shotProgress.textContent=shotsAccepted+' of '+SHOTS_PER_TARGET+' accepted';
+ progressFill.style.width=((targetIndex*SHOTS_PER_TARGET+shotsAccepted)/(TARGETS.length*SHOTS_PER_TARGET)*100)+'%';
+ sequenceEl.innerHTML=TARGETS.map((n,i)=>{
+   const done=i<targetIndex||(i===targetIndex&&shotsAccepted===SHOTS_PER_TARGET);
+   const cur=i===targetIndex&&targetIndex<TARGETS.length;
+   return '<div class="sequence-item '+(done?'done ':'')+(cur?'current':'')+'">'+(i+1)+'. '+n+'</div>';
+ }).join('');
 }
 function updateMetrics(sample){
- const lab=rgbToLab(...sample.rgb),near=nearestWada(lab),refLab=labMap[colorSelect.value];
- liveDot.style.background=near.hex;liveName.textContent=near.name;
+ const d=distances(sample);
+ liveDot.style.background=d.nearest.hex;liveName.textContent=d.nearest.name;
  rgbEl.textContent=sample.rgb.map(v=>Math.round(v)).join(', ');
- nearestEl.textContent=near.name;nearestDeltaEl.textContent=near.delta.toFixed(2);
- referenceDeltaEl.textContent=ciede2000(lab,refLab).toFixed(2);
+ nearestEl.textContent=d.nearest.name;
+ referenceDeltaEl.textContent=d.currentDelta.toFixed(2);
+ previousDeltaEl.textContent=d.previousDelta==null?'—':d.previousDelta.toFixed(2);
+ if(previousMismatch(d)){
+   captureState.textContent='Previous-color warning: '+d.prev+' detected. Do not capture yet.';
+   captureState.style.color='#9a2222';
+ }else{
+   captureState.textContent='Ready to capture '+d.current+'.';
+   captureState.style.color='';
+ }
 }
 function sample(){
  if(!stream||video.readyState<2)return;
@@ -179,45 +242,74 @@ function sample(){
  ctx.drawImage(video,x,y,side,side,0,0,size,size);
  const data=ctx.getImageData(0,0,size,size).data,vals=[];
  const c=size/2,r=size*.44;
- for(let yy=0;yy<size;yy++)for(let xx=0;xx<size;xx++){if(Math.hypot(xx-c,yy-c)<=r){const i=(yy*size+xx)*4;vals.push([data[i],data[i+1],data[i+2]])}}
+ for(let yy=0;yy<size;yy++)for(let xx=0;xx<size;xx++){
+   if(Math.hypot(xx-c,yy-c)<=r){const i=(yy*size+xx)*4;vals.push([data[i],data[i+1],data[i+2]])}
+ }
  const avg=ch=>{const a=vals.map(v=>v[ch]).sort((a,b)=>a-b),lo=Math.floor(a.length*.1),hi=Math.ceil(a.length*.9);return a.slice(lo,hi).reduce((s,v)=>s+v,0)/Math.max(1,hi-lo)};
- lastSample={rgb:[avg(0),avg(1),avg(2)]};updateMetrics(lastSample);
+ lastSample={rgb:[avg(0),avg(1),avg(2)]};
+ updateMetrics(lastSample);
 }
 function loop(){sample();if(stream)frame=requestAnimationFrame(loop)}
 async function startCamera(){
  try{
   if(stream)stream.getTracks().forEach(t=>t.stop());
   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:false});
-  video.srcObject=stream;await video.play();frame=requestAnimationFrame(loop);liveName.textContent='Aim at a printed Wada swatch';
+  video.srcObject=stream;await video.play();frame=requestAnimationFrame(loop);liveName.textContent='Aim at the current printed Wada swatch';
  }catch(e){liveName.textContent=e.name==='NotAllowedError'?'Camera permission required':'Camera unavailable'}
 }
 function renderTable(){
- if(!records.length){tableWrap.innerHTML='<div class="empty">Record a measurement to begin.</div>';status.textContent='No measurements recorded.';return}
- const rows=records.map((r,i)=>'<tr><td>'+ (i+1)+'</td><td><span class="swatch-mini" style="background:'+r.referenceHex+'"></span>'+r.reference+'</td><td class="mono">'+r.rgb.map(v=>Math.round(v)).join(', ')+'</td><td>'+r.nearest+'</td><td>'+r.nearestDelta.toFixed(2)+'</td><td>'+r.referenceDelta.toFixed(2)+'</td></tr>').join('');
- tableWrap.innerHTML='<div style="overflow:auto"><table><thead><tr><th>#</th><th>Reference</th><th>RGB</th><th>Nearest</th><th>ΔE00 nearest</th><th>ΔE00 reference</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
- const ref=colorSelect.value,rs=records.filter(r=>r.reference===ref),avg=rs.reduce((s,r)=>s+r.referenceDelta,0)/rs.length;
- status.textContent=records.length+' measurement'+(records.length===1?'':'s')+' recorded. '+rs.length+' for '+ref+'. Average ΔE00 to reference: '+avg.toFixed(2)+'.';
+ if(!records.length){tableWrap.innerHTML='<div class="empty">No measurements recorded yet.</div>';return}
+ const rows=records.map((r,i)=>'<tr><td>'+ (i+1)+'</td><td>'+r.targetNumber+'</td><td>'+r.shot+'</td><td><span class="swatch-mini" style="background:'+r.referenceHex+'"></span>'+r.reference+'</td><td class="mono">'+r.rgb.map(v=>Math.round(v)).join(', ')+'</td><td>'+r.nearest+'</td><td>'+r.referenceDelta.toFixed(2)+'</td></tr>').join('');
+ tableWrap.innerHTML='<div style="overflow:auto"><table><thead><tr><th>#</th><th>Target</th><th>Shot</th><th>Reference</th><th>RGB</th><th>Nearest</th><th>ΔE00 target</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function refreshStatus(){
+ const total=TARGETS.length*SHOTS_PER_TARGET;
+ status.textContent=records.length+' accepted measurement'+(records.length===1?'':'s')+'. '+total+' required.';
 }
 function recordMeasurement(){
- if(!lastSample)return;
- const lab=rgbToLab(...lastSample.rgb),near=nearestWada(lab),ref=colorSelect.value;
- records.push({reference:ref,referenceHex:colorMap[ref],rgb:lastSample.rgb,nearest:near.name,nearestDelta:near.delta,referenceDelta:ciede2000(lab,labMap[ref]),time:new Date().toISOString()});
- renderTable();
-};
-target.addEventListener('click',recordMeasurement);
-document.getElementById('record').onclick=recordMeasurement;
-document.getElementById('clear').onclick=()=>{records.length=0;renderTable()};
+ if(!lastSample||targetIndex>=TARGETS.length)return;
+ const d=distances(lastSample);
+ if(previousMismatch(d)){
+   warningCard.style.display='block';warningTitle.textContent='Capture rejected';
+   warningText.textContent='This looks more like the previous target, '+d.prev+', than the required '+d.current+'. Move to '+d.current+' and capture again. This photo was not counted.';
+   return;
+ }
+ warningCard.style.display='none';
+ const shot=shotsAccepted+1,ref=d.current;
+ records.push({
+   timestamp:new Date().toISOString(),targetNumber:targetIndex+1,shot,
+   reference:ref,referenceHex:colorMap[ref],rgb:lastSample.rgb,
+   nearest:d.nearest.name,nearestDelta:d.nearest.delta,referenceDelta:d.currentDelta
+ });
+ shotsAccepted++;
+ if(shotsAccepted>=SHOTS_PER_TARGET){
+   if(targetIndex===TARGETS.length-1){
+     targetIndex=TARGETS.length;shotsAccepted=0;completeCard.style.display='block';recordButton.disabled=true;
+     captureState.textContent='Collection complete.';
+   }else{
+     targetIndex++;shotsAccepted=0;
+     captureState.textContent='New target: '+currentName()+'.';
+   }
+ }
+ renderTable();refreshStatus();updateTargetUI();
+}
+function resetSession(){
+ records.length=0;targetIndex=0;shotsAccepted=0;lastSample=null;
+ warningCard.style.display='none';completeCard.style.display='none';recordButton.disabled=false;
+ renderTable();refreshStatus();updateTargetUI();
+}
+document.querySelector('.target').addEventListener('click',recordMeasurement);
+recordButton.onclick=recordMeasurement;
+document.getElementById('clear').onclick=resetSession;
 document.getElementById('export').onclick=()=>{
  if(!records.length)return;
- const header=['timestamp','reference_wada','reference_hex','r','g','b','nearest_wada','delta_e00_nearest','delta_e00_reference'];
- const lines=[header.join(',')].concat(records.map(r=>[r.time,r.reference,r.referenceHex,...r.rgb.map(v=>Math.round(v)),r.nearest,r.nearestDelta.toFixed(4),r.referenceDelta.toFixed(4)].map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')));
- const blob=new Blob([lines.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='wadadrobe-color-accuracy-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);
+ const header=['timestamp','target_number','shot_number','reference_wada','reference_hex','r','g','b','nearest_wada','delta_e00_nearest','delta_e00_target'];
+ const lines=[header.join(',')].concat(records.map(r=>[r.timestamp,r.targetNumber,r.shot,r.reference,r.referenceHex,...r.rgb.map(v=>Math.round(v)),r.nearest,r.nearestDelta.toFixed(4),r.referenceDelta.toFixed(4)].map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')));
+ const blob=new Blob([lines.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='wadadrobe-color-accuracy-phase2-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);
 };
-colorSearch.oninput=()=>populateSelect(colorSearch.value);
-colorSelect.onchange=updateReference;
 document.getElementById('switchCamera').onclick=async()=>{facing=facing==='environment'?'user':'environment';await startCamera()};
-populateSelect();
-startCamera();
+updateTargetUI();refreshStatus();startCamera();
 window.addEventListener('pagehide',()=>{if(frame)cancelAnimationFrame(frame);if(stream)stream.getTracks().forEach(t=>t.stop())});
 </script>
 </body>
