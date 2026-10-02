@@ -207,6 +207,15 @@ function previousMismatch(d){
    d.currentDelta < MAX_TARGET_DELTA_FOR_REJECTION;
 }
 function updateTargetUI(){
+ if(targetIndex>=TARGETS.length){
+   targetName.textContent='Collection complete';
+   targetHex.textContent='36 accepted measurements';
+   targetPosition.textContent='All 12 colors completed';
+   shotProgress.textContent='3 of 3 accepted for every target';
+   progressFill.style.width='100%';
+   sequenceEl.innerHTML=TARGETS.map((n,i)=>'<div class="sequence-item done">'+(i+1)+'. '+n+'</div>').join('');
+   return;
+ }
  const name=currentName(),hex=colorMap[name];
  targetSwatch.style.background=hex;targetName.textContent=name;targetHex.textContent=hex;
  targetPosition.textContent='Color '+(targetIndex+1)+' of '+TARGETS.length;
@@ -214,7 +223,7 @@ function updateTargetUI(){
  progressFill.style.width=((targetIndex*SHOTS_PER_TARGET+shotsAccepted)/(TARGETS.length*SHOTS_PER_TARGET)*100)+'%';
  sequenceEl.innerHTML=TARGETS.map((n,i)=>{
    const done=i<targetIndex||(i===targetIndex&&shotsAccepted===SHOTS_PER_TARGET);
-   const cur=i===targetIndex&&targetIndex<TARGETS.length;
+   const cur=i===targetIndex;
    return '<div class="sequence-item '+(done?'done ':'')+(cur?'current':'')+'">'+(i+1)+'. '+n+'</div>';
  }).join('');
 }
