@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test09</title>
+<title>WadaDrobe test10</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -416,7 +416,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test09</span></h1>
+<h1 class="site-title-even"><span class="revision">test10</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -435,7 +435,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 <div class="camera-stage">
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
-<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
+<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Camera calibration on" title="Camera calibration on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
 <div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
@@ -669,6 +669,27 @@ const cameraVideo=document.getElementById('cameraVideo');
 const cameraSwitch=document.getElementById('cameraSwitch');
 let cameraFacing='environment';
 let colorCorrectionEnabled=true;
+// Experimental camera calibration derived from the 10-color physical-book dataset.
+// Mapping: measured Lab -> estimated digital Wada Lab.
+const CAMERA_CAL_MATRIX=[
+ [2.5831593758,0.8529604920,-0.0379481028],
+ [-0.1232460238,1.4052122184,-0.0758343647],
+ [-0.0173835930,-0.0060616642,1.3524200261]
+];
+const CAMERA_CAL_OFFSET=[-54.9948465339,-50.6379983674,-5.3286193294];
+function applyCameraCalibration(lab){
+ const out=[0,0,0];
+ for(let row=0;row<3;row++)out[row]=CAMERA_CAL_OFFSET[row]+CAMERA_CAL_MATRIX[row][0]*lab[0]+CAMERA_CAL_MATRIX[row][1]*lab[1]+CAMERA_CAL_MATRIX[row][2]*lab[2];
+ return [Math.max(0,Math.min(100,out[0])),Math.max(-128,Math.min(127,out[1])),Math.max(-128,Math.min(127,out[2]))];
+}
+function labToRgbBytes(lab){
+ const [L,a,b]=lab,fy=(L+16)/116,fx=fy+a/500,fz=fy-b/200;
+ const fInv=t=>{const t3=t*t*t;return t3>.008856?t3:(t-16/116)/7.787};
+ const X=fInv(fx)*.95047,Y=fInv(fy),Z=fInv(fz)*1.08883;
+ const r=3.2404542*X-1.5371385*Y-0.4985314*Z,g=-.969266*X+1.8760108*Y+.041556*Z,bl=.0556434*X-.2040259*Y+1.0572252*Z;
+ const enc=v=>{v=Math.max(0,Math.min(1,v));return v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055};
+ return [enc(r)*255,enc(g)*255,enc(bl)*255];
+}
 const cameraCanvas=document.getElementById('cameraCanvas');
 const cameraTarget=document.getElementById('cameraTarget');
 const cameraLiveRing=document.getElementById('cameraLiveRing');
@@ -800,22 +821,12 @@ function sampleCameraColor(){
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rgb=[avg(0),avg(1),avg(2)];
 
- // Silent camera normalization: compensate modestly for exposure and white-balance
- // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
- // the pre-r37 raw sampled RGB behavior.
- if(colorCorrectionEnabled){
- const mean=(rgb[0]+rgb[1]+rgb[2])/3;
- const targetMean=128;
- const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
- rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
- const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
- const wbStrength=.28;
- const wbScale=correctedMean/Math.max(1,correctedMean);
- rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
- rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
- }
- const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
- const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
+ const rawLab=rgbBytesToLab(...rgb);
+ let lab=rawLab;
+ if(colorCorrectionEnabled)lab=applyCameraCalibration(rawLab);
+ const correctedRgb=labToRgbBytes(lab);
+ const liveHex='#'+correctedRgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+ const match=nearestWadaFromLab(lab);
  const now=performance.now();
  if(!displayedCameraMatch){
    displayedCameraMatch={...match,rgb};
@@ -894,8 +905,8 @@ colorCorrectionToggle.addEventListener('click',e=>{
   e.stopPropagation();
   colorCorrectionEnabled=!colorCorrectionEnabled;
   colorCorrectionToggle.setAttribute('aria-pressed',String(colorCorrectionEnabled));
-  colorCorrectionToggle.setAttribute('aria-label',colorCorrectionEnabled?'Color correction on':'Color correction off');
-  colorCorrectionToggle.setAttribute('title',colorCorrectionEnabled?'Color correction on':'Color correction off');
+  colorCorrectionToggle.setAttribute('aria-label',colorCorrectionEnabled?'Camera calibration on':'Camera calibration off');
+  colorCorrectionToggle.setAttribute('title',colorCorrectionEnabled?'Camera calibration on':'Camera calibration off');
   displayedCameraMatch=null;
   candidateCameraMatch=null;
   candidateSince=0;
