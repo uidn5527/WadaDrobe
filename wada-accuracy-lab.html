@@ -20,7 +20,7 @@ button.primary{background:#202124;color:#fff;border-color:#202124}.button-row{di
 .camera{background:#111;border-radius:12px;overflow:hidden;position:relative}
 .stage{position:relative;width:min(82%,760px);margin:0 auto;aspect-ratio:4/3;background:#000;overflow:hidden}
 video{width:100%;height:100%;object-fit:cover;display:block}
-.target{position:absolute;left:50%;top:50%;width:min(34vw,150px);height:min(34vw,150px);transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 25px rgba(0,0,0,.5);pointer-events:none}
+.target{position:absolute;left:50%;top:50%;width:20%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 25px rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);cursor:pointer}
 .camera-bar{padding:10px 12px;color:#fff;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
 .camera-result{display:flex;align-items:center;gap:8px}.dot{width:22px;height:22px;border-radius:50%;border:1px solid #fff;flex:none}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.metric{background:#f6f6f3;border-radius:8px;padding:9px}.metric b{display:block;font-size:.75rem;color:var(--muted);margin-bottom:3px}.metric span{font-family:ui-monospace,monospace}
@@ -122,6 +122,7 @@ const status=document.getElementById('status');
 
 let facing='environment',stream=null,frame=null,lastSample=null;
 const records=[];
+const target=document.querySelector('.target');
 
 function hexRgb(hex){const h=hex.slice(1);return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
 function rgbToLab(r,g,b){
@@ -197,12 +198,14 @@ function renderTable(){
  const ref=colorSelect.value,rs=records.filter(r=>r.reference===ref),avg=rs.reduce((s,r)=>s+r.referenceDelta,0)/rs.length;
  status.textContent=records.length+' measurement'+(records.length===1?'':'s')+' recorded. '+rs.length+' for '+ref+'. Average ΔE00 to reference: '+avg.toFixed(2)+'.';
 }
-document.getElementById('record').onclick=()=>{
+function recordMeasurement(){
  if(!lastSample)return;
  const lab=rgbToLab(...lastSample.rgb),near=nearestWada(lab),ref=colorSelect.value;
  records.push({reference:ref,referenceHex:colorMap[ref],rgb:lastSample.rgb,nearest:near.name,nearestDelta:near.delta,referenceDelta:ciede2000(lab,labMap[ref]),time:new Date().toISOString()});
  renderTable();
 };
+target.addEventListener('click',recordMeasurement);
+document.getElementById('record').onclick=recordMeasurement;
 document.getElementById('clear').onclick=()=>{records.length=0;renderTable()};
 document.getElementById('export').onclick=()=>{
  if(!records.length)return;
