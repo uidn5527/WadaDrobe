@@ -216,32 +216,35 @@ document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))doc
 
 function groupFor(name,count){if(!name)return[];return [name,...COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b)).slice(0,count)];}
 function membership(rank,count){if(count===0)return rank===0?1:0;return 1-(rank/(count+1));}
+function maxAcceptableDistance(count){
+ const method=document.getElementById('similarityMethod').value;
+ const curves={
+   ciede2000:[3,4,5,6.5,8,10,12,15],
+   lab:[4,6,8,10,12,15,18,22],
+   rgb:[5,8,12,16,20,25,30,38]
+ };
+ return curves[method][Math.max(0,Math.min(7,count))];
+}
 function comboCandidates(){
  if(!selected[0]||!selected[1])return[];
  const count=Number(document.getElementById('threshold').value);
+ const maxDistance=maxAcceptableDistance(count);
 
- // Continuous perceptual assignment:
+ // Continuous perceptual assignment with a controlled eligibility boundary:
  // - Every eligible 2-, 3-, and 4-color combination is evaluated.
  // - Color 1 and Color 2 are assigned to distinct positions.
  // - Both possible assignments are tested for 2-color palettes.
- // - The slider is a soft breadth control, not a membership gate. Lower
- //   settings strongly favor colors close to each main color; higher settings
- //   progressively reduce that breadth penalty and allow farther matches to
- //   compete on their actual perceptual distance.
+ // - The slider controls a method-aware maximum acceptable distance.
+ // - Candidates that pass are ranked continuously by their weaker match,
+ //   then combined distance and balance.
  const names=COLORS.map(x=>x[0]);
  const rankFor=(target)=>{
    const ordered=names.filter(n=>n!==target).sort((a,b)=>distance(target,a)-distance(target,b));
    return Object.fromEntries([[target,0],...ordered.map((n,i)=>[n,i+1])]);
  };
  const r1=rankFor(selected[0]),r2=rankFor(selected[1]);
- const breadth=1+count;
- const breadthPenalty=(rank)=>{
-   const transition=breadth+.5;
-   return 1+0.85/(1+Math.exp((rank-transition)/1.35));
- };
- const adjusted=(d,rank)=>d*breadthPenalty(rank);
-
  const candidates=[];
+
  for(const c of COMBINATIONS){
    if(c.colors.length<2||c.colors.length>4)continue;
    let best=null;
@@ -250,18 +253,17 @@ function comboCandidates(){
        if(i===j)continue;
        const a=c.colors[i],b=c.colors[j];
        const d1=distance(selected[0],a.name),d2=distance(selected[1],b.name);
+       if(d1>maxDistance||d2>maxDistance)continue;
        const rank1=r1[a.name]??names.length,rank2=r2[b.name]??names.length;
-       const ad1=adjusted(d1,rank1),ad2=adjusted(d2,rank2);
-       const worst=Math.max(ad1,ad2);
-       const total=ad1+ad2;
-       const balance=Math.abs(ad1-ad2);
-       const rawWorst=Math.max(d1,d2);
-       const rawTotal=d1+d2;
-       const score=worst;
+       const worst=Math.max(d1,d2);
+       const total=d1+d2;
+       const balance=Math.abs(d1-d2);
+       const rawWorst=worst;
        const assignment={
          a:{x:a,i,rank:rank1},
          b:{x:b,j,rank:rank2},
-         d1,d2,ad1,ad2,worst,total,balance,rawWorst,rawTotal,score
+         d1,d2,worst,total,balance,rawWorst,
+         score:worst
        };
        if(!best||
           assignment.worst<best.worst||
@@ -273,14 +275,15 @@ function comboCandidates(){
    }
    if(best)candidates.push({c,best});
  }
+
  candidates.sort((a,b)=>
    a.best.worst-b.best.worst||
    a.best.total-b.best.total||
    a.best.balance-b.best.balance||
-   a.best.rawWorst-b.best.rawWorst||
    a.c.number-b.c.number
  );
- return candidates;
+
+ return candidates.slice(0,12);
 }
 function renderLikes(slot,group){
  const box=document.getElementById('likes'+slot);
@@ -395,7 +398,7 @@ cameraStage.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey||e.deltaY!==0){
 function rgbBytesToLab(r,g,b){return srgbToLab('#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''))}
 function ciedeLab(l1,l2){const [L1,a1,b1]=l1,[L2,a2,b2]=l2,C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2,G=.5*(1-Math.sqrt(Math.pow(Cb,7)/(Math.pow(Cb,7)+Math.pow(25,7)))),ap1=(1+G)*a1,ap2=(1+G)*a2,Cp1=Math.hypot(ap1,b1),Cp2=Math.hypot(ap2,b2),hp=(x,y)=>{let h=Math.atan2(y,x)*180/Math.PI;return h<0?h+360:h},h1=hp(ap1,b1),h2=hp(ap2,b2),dL=L2-L1,dC=Cp2-Cp1;let dh=h2-h1;if(Cp1*Cp2===0)dh=0;else if(dh>180)dh-=360;else if(dh<-180)dh+=360;const dH=2*Math.sqrt(Cp1*Cp2)*Math.sin(dh*Math.PI/360),Lb=(L1+L2)/2,Cb2=(Cp1+Cp2)/2;let hb;if(Cp1*Cp2===0)hb=h1+h2;else if(Math.abs(h1-h2)<=180)hb=(h1+h2)/2;else hb=(h1+h2+360)/2;if(hb>=360)hb-=360;const T=1-.17*Math.cos((hb-30)*Math.PI/180)+.24*Math.cos(2*hb*Math.PI/180)+.32*Math.cos((3*hb+6)*Math.PI/180)-.20*Math.cos((4*hb-63)*Math.PI/180),Sl=1+.015*Math.pow(Lb-50,2)/Math.sqrt(20+Math.pow(Lb-50,2)),Sc=1+.045*Cb2,Sh=1+.015*Cb2*T,Rt=-2*Math.sqrt(Math.pow(Cb2,7)/(Math.pow(Cb2,7)+Math.pow(25,7)))*Math.sin(60*Math.exp(-Math.pow((hb-275)/25,2))*Math.PI/180);return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh))}
 function nearestCamera(lab){let best=null;for(const [n,h] of COLORS){const d=ciedeLab(lab,labMap[n]);if(!best||d<best.delta)best={name:n,hex:h,delta:d}}return best}
-function sampleCameraColor(){if(!cameraStream||cameraVideo.readyState<2)return;const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;const tr=cameraTarget.getBoundingClientRect(),vr=cameraVideo.getBoundingClientRect(),tcx=tr.left+tr.width/2-vr.left,tcy=tr.top+tr.height/2-vr.top,scale=Math.max(vr.width/iw,vr.height/ih),rw=iw*scale,rh=ih*scale,cx0=(tcx+(rw-vr.width)/2)/scale,cy0=(tcy+(rh-vr.height)/2)/scale;let cx=cx0,cy=cy0;if(cameraFacing==='user')cx=iw-cx;const sourceRadius=Math.max(4,(tr.width/2)/scale)*.90,drawSize=Math.max(24,Math.min(180,Math.ceil(sourceRadius*2)));cameraCanvas.width=drawSize;cameraCanvas.height=drawSize;const ctx=cameraCanvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(cameraVideo,cx-sourceRadius,cy-sourceRadius,sourceRadius*2,sourceRadius*2,0,0,drawSize,drawSize);const img=ctx.getImageData(0,0,drawSize,drawSize).data,samples=[],cc=drawSize/2,rr=drawSize/2*.96;for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++)if(Math.hypot(x-cc,y-cc)<=rr){const i=(y*drawSize+x)*4;samples.push([img[i],img[i+1],img[i+2]])}if(!samples.length)return;const avg=ch=>{const v=samples.map(p=>p[ch]).sort((a,b)=>a-b),lo=Math.floor(v.length*.1),hi=Math.ceil(v.length*.9);return v.slice(lo,hi).reduce((a,x)=>a+x,0)/Math.max(1,hi-lo)};let rgb=[avg(0),avg(1),avg(2)];if(colorCorrectionEnabled){const mean=(rgb[0]+rgb[1]+rgb[2])/3,g=Math.max(.82,Math.min(1.22,128/Math.max(32,mean)));rgb=rgb.map(v=>Math.max(0,Math.min(255,v*g)));const m=(rgb[0]+rgb[1]+rgb[2])/3;rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v+(m-v)*.28*.35))))}const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),lab=rgbBytesToLab(...rgb),match=nearestCamera(lab),now=performance.now();if(!displayedCameraMatch){displayedCameraMatch={...match,rgb};candidateCameraMatch=null;candidateSince=now}else if(match.name===displayedCameraMatch.name){displayedCameraMatch={...match,rgb};candidateCameraMatch=null}else{const dd=ciedeLab(lab,labMap[displayedCameraMatch.name]);if(match.delta<dd-CAMERA_SWITCH_MARGIN){if(candidateCameraMatch?.name!==match.name){candidateCameraMatch=match;candidateSince=now}else if(now-candidateSince>=CAMERA_DEBOUNCE_MS){displayedCameraMatch={...match,rgb};candidateCameraMatch=null;candidateSince=0}}else{candidateCameraMatch=null}}lastCameraMatch=displayedCameraMatch;cameraLiveRing.style.setProperty('--live-color',liveHex);cameraStableRing.style.setProperty('--stable-color',displayedCameraMatch.hex);cameraResultSwatch.style.background=displayedCameraMatch.hex;cameraResultText.textContent=displayedCameraMatch.name+' · ΔE00 '+displayedCameraMatch.delta.toFixed(1);cameraResult.hidden=false}
+function sampleCameraColor(){if(!cameraStream||cameraVideo.readyState<2)return;const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;const tr=cameraTarget.getBoundingClientRect(),vr=cameraVideo.getBoundingClientRect(),tcx=tr.left+tr.width/2-vr.left,tcy=tr.top+tr.height/2-vr.top,scale=Math.max(vr.width/iw,vr.height/ih),rw=iw*scale,rh=ih*scale,cx0=(tcx+(rw-vr.width)/2)/scale,cy0=(tcy+(rh-vr.height)/2)/scale;let cx=cx0,cy=cy0;if(cameraFacing==='user')cx=iw-cx;const sourceRadius=Math.max(4,(tr.width/2)/scale)*.90,drawSize=Math.max(24,Math.min(180,Math.ceil(sourceRadius*2)));cameraCanvas.width=drawSize;cameraCanvas.height=drawSize;const ctx=cameraCanvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(cameraVideo,cx-sourceRadius,cy-sourceRadius,sourceRadius*2,sourceRadius*2,0,0,drawSize,drawSize);const img=ctx.getImageData(0,0,drawSize,drawSize).data,samples=[],cc=drawSize/2,rr=drawSize/2*.96;for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++)if(Math.hypot(x-cc,y-cc)<=rr){const i=(y*drawSize+x)*4;samples.push([img[i],img[i+1],img[i+2]])}if(!samples.length)return;const avg=ch=>{const v=samples.map(p=>p[ch]).sort((a,b)=>a-b),lo=Math.floor(v.length*.1),hi=Math.ceil(v.length*.9);return v.slice(lo,hi).reduce((a,x)=>a+x,0)/Math.max(1,hi-lo)};let rgb=[avg(0),avg(1),avg(2)];if(colorCorrectionEnabled){const mean=(rgb[0]+rgb[1]+rgb[2])/3,g=Math.max(.82,Math.min(1.22,128/Math.max(32,mean)));rgb=rgb.map(v=>Math.max(0,Math.min(255,v*g)));const m=(rgb[0]+rgb[1]+rgb[2])/3;rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v+(m-v)*.28*.35))))}const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),lab=rgbBytesToLab(...rgb),match=nearestCamera(lab),now=performance.now();if(!displayedCameraMatch){displayedCameraMatch={...match,rgb};candidateCameraMatch=null;candidateSince=now}else if(match.name===displayedCameraMatch.name){displayedCameraMatch={...match,rgb};candidateCameraMatch=null}else{const dd=ciedeLab(lab,labMap[displayedCameraMatch.name]);if(match.delta<dd-CAMERA_SWITCH_MARGIN){if(candidateCameraMatch?.name!==match.name){candidateCameraMatch=match;candidateSince=now}else if(now-candidateSince>=CAMERA_DEBOUNCE_MS){displayedCameraMatch={...match,rgb};candidateCameraMatch=null;candidateSince=0}}else{candidateCameraMatch=null}}lastCameraMatch=displayedCameraMatch;cameraLiveRing.style.setProperty('--live-color',liveHex);cameraStableRing.style.setProperty('--stable-color',displayedCameraMatch.hex);cameraResultSwatch.style.background=displayedCameraMatch.hex;cameraResultText.textContent=displayedCameraMatch.name;cameraResult.hidden=false}
 function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop)}
 async function startCamera(){if(!navigator.mediaDevices?.getUserMedia)return;try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});cameraVideo.srcObject=cameraStream;cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';getCameraZoomCapabilities();const t=cameraStream.getVideoTracks()[0],caps=t?.getCapabilities?.();if(caps&&typeof caps.zoom==='object'){try{await t.applyConstraints({advanced:[{zoom:cameraZoomLevel}]})}catch(e){}}displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;await cameraVideo.play();cameraFrame=requestAnimationFrame(cameraLoop)}catch(e){cameraResult.hidden=false;cameraResultText.textContent=e.name==='NotAllowedError'?'Camera access is required.':'Camera unavailable'}}
 function stopCamera(){if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraVideo.srcObject=null}
