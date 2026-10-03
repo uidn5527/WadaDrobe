@@ -425,9 +425,12 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 .test11-space-note{margin:0 0 10px;font-size:.78rem;line-height:1.35}
 .test11-space-wrap{position:relative;width:100%;max-width:360px;margin:0 auto;background:#111;border-radius:8px;overflow:hidden}
 #test11LabCanvas{display:block;width:100%;height:auto}
-.test11-marker{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);z-index:2;box-sizing:border-box;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 1px 4px rgba(0,0,0,.45);pointer-events:none}
+.test11-marker{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);z-index:3;box-sizing:border-box;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 1px 4px rgba(0,0,0,.45);pointer-events:none}
 .test11-marker.raw{border:3px solid #fff;background:transparent}
 .test11-marker.corrected{border:3px solid #111;background:#fff}
+.test11-wada-marker{position:absolute;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);z-index:2;border:2px solid #111;box-shadow:0 0 0 1px rgba(255,255,255,.95),0 1px 3px rgba(0,0,0,.45);pointer-events:none}
+.test11-wada-badge{position:absolute;z-index:4;transform:translate(-50%,-100%);font:500 8px/1.05 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;background:rgba(255,255,255,.88);border:1px solid rgba(0,0,0,.25);border-radius:3px;padding:2px 3px;white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.test11-wada-badge.main{font-weight:700}
 .test11-legend{display:flex;gap:16px;justify-content:center;margin:9px 0;font-size:.78rem;font-weight:650}
 .test11-dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .test11-dot.raw{border:2px solid #111;background:#fff}
@@ -478,8 +481,9 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 <canvas id="test11LabCanvas" width="260" height="220"></canvas>
 <div id="test11RawMarker" class="test11-marker raw" title="Raw camera color"></div>
 <div id="test11CorrectedMarker" class="test11-marker corrected" title="Calibrated color"></div>
+<div id="test11WadaMarkers" aria-hidden="true"></div>
 </div>
-<div class="test11-legend"><span><i class="test11-dot raw"></i>Raw</span><span><i class="test11-dot corrected"></i>Corrected</span></div>
+<div class="test11-legend"><span><i class="test11-dot raw"></i>Raw</span><span><i class="test11-dot corrected"></i>Corrected</span><span><i class="test11-dot wada"></i>Wada</span></div>
 <div class="test11-values">
 <div><b>Raw RGB</b><span id="test11RawRgb">—</span></div>
 <div><b>Corrected RGB</b><span id="test11CorrectedRgb">—</span></div>
@@ -817,39 +821,80 @@ function test11LabToRgb(L,a,b){
  const encode=v=>{v=Math.max(0,Math.min(1,v));return v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055};
  return [encode(lr)*255,encode(lg)*255,encode(lb)*255];
 }
-function test11DrawLabSpace(){
- const w=test11LabCanvas.width,h=test11LabCanvas.height;
- const ctx=test11LabCtx,cell=4;
+let test13LabView={amin:-80,amax:80,bmin:-80,bmax:80};
+function test13NearestWadaSet(lab,count=4){
+ return COLORS.map(([name,hex])=>({
+   name,hex,lab:labMap[name],
+   delta:ciede2000Lab(lab,labMap[name])
+ })).sort((x,y)=>x.delta-y.delta).slice(0,count);
+}
+function test13DrawLabSpace(points=[]){
+ const w=test11LabCanvas.width,h=test11LabCanvas.height,ctx=test11LabCtx,cell=4,L=65;
+ let amin=-80,amax=80,bmin=-80,bmax=80;
+ if(points.length){
+   const as=points.map(p=>p.lab[1]),bs=points.map(p=>p.lab[2]);
+   const ar=Math.max(6,(Math.max(...as)-Math.min(...as)));
+   const br=Math.max(6,(Math.max(...bs)-Math.min(...bs)));
+   const ap=ar*.42+5,bp=br*.42+5;
+   amin=Math.min(-80,Math.min(...as)-ap);amax=Math.max(80,Math.max(...as)+ap);
+   bmin=Math.min(-80,Math.min(...bs)-bp);bmax=Math.max(80,Math.max(...bs)+bp);
+   // If the group is compact, allow the viewport to zoom in while retaining
+   // a modest minimum span so the labels remain readable.
+   const targetA=Math.max(24,ar+2*ap),targetB=Math.max(24,br+2*bp);
+   if(amax-amin>targetA){const ca=(Math.min(...as)+Math.max(...as))/2;amin=ca-targetA/2;amax=ca+targetA/2;}
+   if(bmax-bmin>targetB){const cb=(Math.min(...bs)+Math.max(...bs))/2;bmin=cb-targetB/2;bmax=cb+targetB/2;}
+ }
+ test13LabView={amin,amax,bmin,bmax};
  ctx.clearRect(0,0,w,h);
- const L=65;
+ const mapA=a=>(a-amin)/(amax-amin),mapB=b=>(bmax-b)/(bmax-bmin);
  for(let py=0;py<h;py+=cell){
    for(let px=0;px<w;px+=cell){
-     const a=(px/(w-1))*160-80;
-     const b=80-(py/(h-1))*160;
+     const a=amin+(px/(w-1))*(amax-amin),b=bmax-(py/(h-1))*(bmax-bmin);
      const rgb=test11LabToRgb(L,a,b);
      ctx.fillStyle='rgb('+rgb.map(v=>Math.round(v)).join(',')+')';
      ctx.fillRect(px,py,cell,cell);
    }
  }
- ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=1;
- ctx.beginPath();ctx.moveTo(w/2,0);ctx.lineTo(w/2,h);ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();
- ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='10px system-ui';ctx.fillText('-a',4,h/2-5);ctx.fillText('+a',w-20,h/2-5);ctx.fillText('+b',w/2+5,12);ctx.fillText('-b',w/2+5,h-5);
+ ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=1;
+ const a0=mapA(0),b0=mapB(0);
+ if(a0>=0&&a0<=1){ctx.beginPath();ctx.moveTo(a0*w,0);ctx.lineTo(a0*w,h);ctx.stroke();}
+ if(b0>=0&&b0<=1){ctx.beginPath();ctx.moveTo(0,b0*h);ctx.lineTo(w,b0*h);ctx.stroke();}
+ ctx.fillStyle='rgba(0,0,0,.72)';ctx.font='9px system-ui';
+ ctx.fillText('−a',4,h-5);ctx.fillText('+a',w-18,h-5);ctx.fillText('+b',4,11);ctx.fillText('−b',4,h-16);
 }
-function test11UpdateLab(rawRgb,correctedRgb){
+function test13UpdateLab(rawRgb,correctedRgb){
  const rawLab=rgbBytesToLab(...rawRgb),correctedLab=rgbBytesToLab(...correctedRgb);
+ const wadaSet=test13NearestWadaSet(correctedLab,4);
+ const points=[{type:'raw',lab:rawLab},{type:'corrected',lab:correctedLab},...wadaSet.map((wada,i)=>({type:'wada',rank:i+1,lab:wada.lab,name:wada.name,hex:wada.hex,delta:wada.delta}))];
+ test13DrawLabSpace(points);
  const mapPoint=lab=>({
-   x:Math.max(0,Math.min(100,(lab[1]+80)/160*100)),
-   y:Math.max(0,Math.min(100,(80-lab[2])/160*100))
+   x:Math.max(0,Math.min(100,(lab[1]-test13LabView.amin)/(test13LabView.amax-test13LabView.amin)*100)),
+   y:Math.max(0,Math.min(100,(test13LabView.bmax-lab[2])/(test13LabView.bmax-test13LabView.bmin)*100))
  });
  const rp=mapPoint(rawLab),cp=mapPoint(correctedLab);
  test11RawMarker.style.left=rp.x+'%';test11RawMarker.style.top=rp.y+'%';
  test11CorrectedMarker.style.left=cp.x+'%';test11CorrectedMarker.style.top=cp.y+'%';
+ const markerHost=document.getElementById('test11WadaMarkers');
+ markerHost.innerHTML='';
+ wadaSet.forEach((wada,i)=>{
+   const p=mapPoint(wada.lab);
+   const marker=document.createElement('div');
+   marker.className='test11-wada-marker';
+   marker.style.left=p.x+'%';marker.style.top=p.y+'%';
+   marker.style.background=wada.hex;
+   marker.title=(i===0?'Closest Wada: ':'Wada #'+(i+1)+': ')+wada.name+' (ΔE00 '+wada.delta.toFixed(2)+')';
+   const badge=document.createElement('div');
+   badge.className='test11-wada-badge'+(i===0?' main':'');
+   badge.style.left=p.x+'%';badge.style.top=Math.max(9,p.y-3)+'%';
+   badge.textContent=(i===0?'Wada: ':'#'+i+' ')+wada.name;
+   markerHost.appendChild(marker);markerHost.appendChild(badge);
+ });
  test11RawRgb.textContent=rawRgb.map(v=>Math.round(v)).join(', ');
  test11CorrectedRgb.textContent=correctedRgb.map(v=>Math.round(v)).join(', ');
  test11RawLab.textContent=rawLab.map(v=>v.toFixed(1)).join(', ');
  test11CorrectedLab.textContent=correctedLab.map(v=>v.toFixed(1)).join(', ');
 }
-test11DrawLabSpace();
+test13DrawLabSpace();
 
 const cameraStage=document.querySelector('.camera-stage');
 let cameraZoomLevel=1;
@@ -973,7 +1018,7 @@ function sampleCameraColor(){
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rawRgb=[avg(0),avg(1),avg(2)];
  let rgb=colorCorrectionEnabled?test13ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
- test11UpdateLab(rawRgb,rgb);
+ test13UpdateLab(rawRgb,rgb);
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
