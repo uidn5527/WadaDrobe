@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r22 — r44 baseline</title><style>
+<title>WadaDrobe 2C r23 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-end;gap:3px}
+h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
 .revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;color:var(--text)}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25;margin:0 0 12px}
 section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
-.two-inputs{display:grid;grid-template-columns:1fr;gap:12px}
+.two-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .slot{border:1px solid var(--border);border-radius:10px;padding:10px}
 .slot.active{border:2px solid var(--olive);padding:9px}
 .slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}
@@ -94,7 +94,6 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 }
 @media(min-width:700px){
  main{padding:24px}
- .two-inputs{grid-template-columns:1fr 1fr}
 }
 @media(max-width:420px){
  main{padding:10px}
@@ -107,7 +106,18 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1><span class="revision">2C r22</span><span>WadaDrobe</span></h1>
+<h1><span>WadaDrobe</span><span class="revision">2C r23</span></h1>
+
+<section id="cameraPanel">
+<div class="camera-stage">
+<video id="cameraVideo" playsinline autoplay muted></video>
+<button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
+<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring"></span><span id="cameraStableRing" class="camera-stable-ring"></span></div>
+<div id="cameraZoom" class="camera-zoom">1.0×</div>
+<div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
+</div><canvas id="cameraCanvas" hidden></canvas>
+</section>
 
 <section>
 <h2>Choose your two main colors</h2>
@@ -119,17 +129,6 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
     <div class="color-picker"><input class="color-search" id="search2" type="search" placeholder="Search colors…" autocomplete="off"><div class="custom-select" id="picker2" role="combobox" aria-expanded="false" aria-haspopup="listbox"><button class="custom-select-button" id="pickerButton2" type="button"><span class="selected-picker-swatch" id="pickerSwatch2"></span><span class="selected-picker-name" id="pickerName2">Choose a color</span><span class="custom-select-chevron">⌄</span></button><div class="custom-select-menu" id="pickerMenu2" role="listbox" hidden></div></div></div>
   </div>
 </div>
-</section>
-
-<section id="cameraPanel">
-<div class="camera-stage">
-<video id="cameraVideo" playsinline autoplay muted></video>
-<button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
-<button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring"></span><span id="cameraStableRing" class="camera-stable-ring"></span></div>
-<div id="cameraZoom" class="camera-zoom">1.0×</div>
-<div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
-</div><canvas id="cameraCanvas" hidden></canvas>
 </section>
 
 <section class="similarity-controls">
@@ -145,7 +144,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 <div class="similar-group"><h3>Color 2 group</h3><div id="likes2" class="like-grid"><div class="empty">Choose Color 2.</div></div></div>
 </div></section>
 
-<section><h2>Matching combinations</h2><p id="combinationExplanation" style="margin:0 0 10px;color:var(--muted);font-size:.86rem">Combinations are admitted when two distinct colors can serve as fuzzy matches for the two main colors. The slider controls both the like-color pool and how permissive the fuzzy match can be.</p><div id="results"><div class="empty">Choose or sample both colors.</div></div></section>
+<section><h2>Matching combinations</h2><p id="combinationExplanation" style="margin:0 0 10px;color:var(--muted);font-size:.86rem">Two-color palettes require an exact pairing between the two like-groups. Three- and four-color palettes use distinct fuzzy matches; the slider controls both the like-color pool and the permissiveness of those matches.</p><div id="results"><div class="empty">Choose or sample both colors.</div></div></section>
 <footer style="color:var(--muted);font-size:.8rem;line-height:1.4">2-color matching is based on CIEDE2000 by default. Camera sampling, matching, and color correction run locally in your browser.</footer>
 </main>
 <div id="fullscreenTwo" aria-hidden="true"></div>
@@ -188,13 +187,35 @@ document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))doc
 function groupFor(name,count){if(!name)return[];return [name,...COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b)).slice(0,count)];}
 function membership(rank,count){if(count===0)return rank===0?1:0;return 1-(rank/(count+1));}
 function comboCandidates(){
- if(!selected[0]||!selected[1])return[];
+ if(!selected[0]||!selected[1])return{exact2:[],fuzzy:[]};
  const count=Number(document.getElementById('threshold').value);
  const g1=groupFor(selected[0],count),g2=groupFor(selected[1],count);
  const r1=Object.fromEntries(g1.map((n,i)=>[n,i])),r2=Object.fromEntries(g2.map((n,i)=>[n,i]));
- const permissiveness=.34 + .06*count;
- const out=[];
+
+ // Two-color palettes follow the strict rule: both colors must be members
+ // of the two respective like-groups, with distinct positions.
+ const exact2=[];
  for(const c of COMBINATIONS){
+   if(c.colors.length!==2)continue;
+   const p0=c.colors[0].name,p1=c.colors[1].name;
+   const direct=(r1[p0]!==undefined&&r2[p1]!==undefined);
+   const swapped=(r1[p1]!==undefined&&r2[p0]!==undefined);
+   if(direct||swapped){
+     const a=direct?{x:c.colors[0],i:0,rank:r1[p0]}:{x:c.colors[1],i:1,rank:r1[p1]};
+     const b=direct?{x:c.colors[1],i:1,rank:r2[p1]}:{x:c.colors[0],i:0,rank:r2[p0]};
+     exact2.push({c,best:{a,b,score:1,totalD:distance(selected[0],a.x.name)+distance(selected[1],b.x.name),d1:distance(selected[0],a.x.name),d2:distance(selected[1],b.x.name)}});
+   }
+ }
+
+ // Three- and four-color palettes use fuzzy membership. The slider controls
+ // both the size of the pools and how much of the pool is considered usable.
+ // The old gate (0.34 + 0.06*count) effectively admitted only the first
+ // two members at the default setting, which could eliminate the entire
+ // 3-/4-color catalog. The new gate relaxes progressively as the pool grows.
+ const permissiveness=count===0?1:Math.max(.125,.30-.025*count);
+ const fuzzy=[];
+ for(const c of COMBINATIONS){
+   if(c.colors.length<3||c.colors.length>4)continue;
    const opts1=c.colors.map((x,i)=>({x,i,rank:r1[x.name]})).filter(o=>o.rank!==undefined);
    const opts2=c.colors.map((x,i)=>({x,i,rank:r2[x.name]})).filter(o=>o.rank!==undefined);
    let best=null;
@@ -202,13 +223,14 @@ function comboCandidates(){
      if(a.i===b.i)continue;
      const mu1=membership(a.rank,count),mu2=membership(b.rank,count),worst=Math.min(mu1,mu2),avg=(mu1+mu2)/2;
      const d1=distance(selected[0],a.x.name),d2=distance(selected[1],b.x.name);
-     const score=worst*0.72+avg*0.28;
+     const score=worst*.72+avg*.28;
      if(!best||score>best.score||score===best.score&&(d1+d2)<best.totalD)best={a,b,mu1,mu2,worst,avg,score,totalD:d1+d2,d1,d2};
    }
-   if(best&&best.worst>=permissiveness)out.push({c,best});
+   if(best&&best.worst>=permissiveness)fuzzy.push({c,best});
  }
- out.sort((a,b)=>b.best.score-a.best.score||Math.max(a.best.d1,a.best.d2)-Math.max(b.best.d1,b.best.d2)||a.c.number-b.c.number);
- return out;
+ fuzzy.sort((a,b)=>b.best.score-a.best.score||Math.max(a.best.d1,a.best.d2)-Math.max(b.best.d1,b.best.d2)||a.c.number-b.c.number);
+ exact2.sort((a,b)=>a.best.totalD-b.best.totalD||a.c.number-b.c.number);
+ return{exact2,fuzzy};
 }
 function renderLikes(slot,group){
  const box=document.getElementById('likes'+slot);
@@ -223,11 +245,14 @@ function render(){
  const box=document.getElementById('results');
  if(!selected[0]||!selected[1]){box.innerHTML='<div class="empty">Choose or sample both colors.</div>';return;}
  const matches=comboCandidates();
- if(!matches.length){box.innerHTML='<div class="empty">No 3- or 4-color combinations meet the current fuzzy-match requirement, and no exact 2-color pairing is available.</div>';return;}
- box.innerHTML=matches.map(({c,best})=>{
+ const all=[...matches.exact2,...matches.fuzzy];
+ if(!all.length){box.innerHTML='<div class="empty">No catalog combinations meet the current matching rules.</div>';return;}
+ box.innerHTML=all.map(({c,best})=>{
    const ordered=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)];
    const labels=ordered.map((x,i)=>'<div class="block '+(i===0?'match1':i===1?'match2':'')+'" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
-   return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span><span class="score">match '+Math.round(best.score*100)+'% · Δ '+best.d1.toFixed(1)+' / '+best.d2.toFixed(1)+'</span></div><div class="blocks">'+labels+'</div></article>';
+   const kind=c.colors.length===2?'exact 2-color':'fuzzy '+c.colors.length+'-color';
+   const score=c.colors.length===2?'exact match':'match '+Math.round(best.score*100)+'% · Δ '+best.d1.toFixed(1)+' / '+best.d2.toFixed(1);
+   return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span><span class="score">'+kind+' · '+score+'</span></div><div class="blocks">'+labels+'</div></article>';
  }).join('');
 }
 document.getElementById('threshold').addEventListener('input',render);
@@ -251,7 +276,7 @@ function paneBands(slot){
 function enterFull(){
  if(!selected[0]||!selected[1])return;
  const root=document.getElementById('fullscreenTwo');
- root.innerHTML='<div class="full-pane left" id="fullLeft"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 2</div>'+paneBands(2)+'</div><div class="full-pane right" id="fullRight"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 1</div>'+paneBands(1)+'</div>';
+ root.innerHTML='<div class="full-pane left" id="fullLeft"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 1</div>'+paneBands(1)+'</div><div class="full-pane right" id="fullRight"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 2</div>'+paneBands(2)+'</div>';
  document.body.classList.add('fullscreen-two');
  const panes=[...document.querySelectorAll('.full-pane')];
  panes.forEach(p=>{const main=p.querySelector('.full-band.main');main.style.setProperty('--full-text',hexText(main.style.background));});
@@ -287,7 +312,7 @@ function sampleCameraColor(){if(!cameraStream||cameraVideo.readyState<2)return;c
 function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop)}
 async function startCamera(){if(!navigator.mediaDevices?.getUserMedia)return;try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});cameraVideo.srcObject=cameraStream;cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';getCameraZoomCapabilities();const t=cameraStream.getVideoTracks()[0],caps=t?.getCapabilities?.();if(caps&&typeof caps.zoom==='object'){try{await t.applyConstraints({advanced:[{zoom:cameraZoomLevel}]})}catch(e){}}displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;await cameraVideo.play();cameraFrame=requestAnimationFrame(cameraLoop)}catch(e){cameraResult.hidden=false;cameraResultText.textContent=e.name==='NotAllowedError'?'Camera access is required.':'Camera unavailable'}}
 function stopCamera(){if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraVideo.srcObject=null}
-cameraTarget.addEventListener('click',()=>{if(lastCameraMatch)chooseColor(activeSlot,lastCameraMatch.name)});
+cameraStage.addEventListener('click',e=>{if(e.target.closest('button'))return;if(activeSlot!==0&&activeSlot!==1)activeSlot=0;if(lastCameraMatch)chooseColor(activeSlot,lastCameraMatch.name)});
 cameraSwitch.addEventListener('click',async e=>{e.stopPropagation();cameraFacing=cameraFacing==='environment'?'user':'environment';await startCamera()});
 document.getElementById('colorCorrectionToggle').addEventListener('click',e=>{e.stopPropagation();colorCorrectionEnabled=!colorCorrectionEnabled;e.currentTarget.setAttribute('aria-pressed',String(colorCorrectionEnabled));e.currentTarget.setAttribute('title',colorCorrectionEnabled?'Color correction on':'Color correction off');displayedCameraMatch=null;candidateCameraMatch=null;sampleCameraColor()});
 window.addEventListener('pagehide',stopCamera);startCamera();
