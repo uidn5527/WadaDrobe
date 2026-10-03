@@ -215,63 +215,37 @@ for(let slot=1;slot<=2;slot++){
 document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))document.querySelectorAll('.custom-select-menu').forEach(m=>m.hidden=true);});
 
 function groupFor(name,count){if(!name)return[];return [name,...COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b)).slice(0,count)];}
+function neighborhoodRadius(name,count){
+ if(!name||count<=0)return 0;
+ const nearest=COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b));
+ const boundary=nearest[count-1];
+ if(!boundary)return Infinity;
+ return distance(name,boundary)+(0.05*count*count);
+}
 function comboCandidates(){
  if(!selected[0]||!selected[1])return[];
  const count=Number(document.getElementById('threshold').value);
- const g1=groupFor(selected[0],count);
- const g2=groupFor(selected[1],count);
- const inG1=new Map(g1.map((name,rank)=>[name,rank]));
- const inG2=new Map(g2.map((name,rank)=>[name,rank]));
+ const radius1=neighborhoodRadius(selected[0],count);
+ const radius2=neighborhoodRadius(selected[1],count);
  const candidates=[];
-
- // A combination qualifies when it contains one distinct color from the
- // Color 1 neighborhood and another distinct color from the Color 2
- // neighborhood. Every possible valid assignment is evaluated; the best
- // assignment determines that combination's ranking.
  for(const c of COMBINATIONS){
    if(c.colors.length<2||c.colors.length>4)continue;
    let best=null;
-
    for(let i=0;i<c.colors.length;i++){
-     const a=c.colors[i];
-     if(!inG1.has(a.name))continue;
-
+     const a=c.colors[i],d1=distance(selected[0],a.name);
+     if(d1>radius1)continue;
      for(let j=0;j<c.colors.length;j++){
        if(i===j)continue;
-       const b=c.colors[j];
-       if(!inG2.has(b.name))continue;
-
-       const d1=distance(selected[0],a.name);
-       const d2=distance(selected[1],b.name);
-       const worst=Math.max(d1,d2);
-       const total=d1+d2;
-       const balance=Math.abs(d1-d2);
-
-       const assignment={
-         a:{x:a,i,rank:inG1.get(a.name)},
-         b:{x:b,i:j,rank:inG2.get(b.name)},
-         d1,d2,worst,total,balance
-       };
-
-       if(!best||
-          assignment.worst<best.worst||
-          assignment.worst===best.worst&&assignment.total<best.total||
-          assignment.worst===best.worst&&assignment.total===best.total&&assignment.balance<best.balance){
-         best=assignment;
-       }
+       const b=c.colors[j],d2=distance(selected[1],b.name);
+       if(d2>radius2)continue;
+       const worst=Math.max(d1,d2),total=d1+d2,balance=Math.abs(d1-d2);
+       const assignment={a:{x:a,i},b:{x:b,i:j},d1,d2,worst,total,balance};
+       if(!best||assignment.total<best.total||assignment.total===best.total&&assignment.worst<best.worst||assignment.total===best.total&&assignment.worst===best.worst&&assignment.balance<best.balance)best=assignment;
      }
    }
-
    if(best)candidates.push({c,best});
  }
-
- candidates.sort((a,b)=>
-   a.best.total-b.best.total||
-   a.best.worst-b.best.worst||
-   a.best.balance-b.best.balance||
-   a.c.number-b.c.number
- );
-
+ candidates.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);
  return candidates.slice(0,12);
 }
 function renderLikes(slot,group){
