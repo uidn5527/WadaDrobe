@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>WadaDrobe Color Accuracy Lab — Phase 2</title>
+<title>WadaDrobe Color Accuracy Lab — Phase 3</title>
 <style>
 :root{--bg:#f5f5f2;--card:#fff;--text:#202124;--muted:#666;--border:#d8d8d2;--accent:#505423}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -52,12 +52,12 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <main>
 <header>
 <h1>WadaDrobe Color Accuracy Lab</h1>
-<p class="subtitle">Phase 2 calibration collection — three photographs of each of 12 deliberately separated Wada colors.</p>
+<p class="subtitle">Phase 3 calibration collection — three photographs of each of 16 calibration-optimized Wada colors, with deliberate page tilts between captures.</p>
 </header>
 
 <section class="card notice">
-<strong>Phase 2 protocol</strong>
-<p style="margin-bottom:0">The app will choose the colors and their order for you. For each target, center that printed Wada swatch inside the circle and capture it three times. Keep the phone position, lighting, and sample orientation as consistent as possible. The sequence is deliberately arranged so consecutive colors are far apart in CIEDE2000 space, allowing the app to detect an accidental extra capture of the previous color.</p>
+<strong>Phase 3 protocol</strong>
+<p style="margin-bottom:0">The app will choose the colors and their order for you. For each target, center that printed Wada swatch inside the circle and capture it three times. Keep the phone position and sampling distance reasonably consistent, but deliberately tilt the book to three slightly different angles/lighting conditions for each color. The sequence is deliberately arranged so consecutive colors are far apart in CIEDE2000 space, allowing the app to detect an accidental extra capture of the previous color.</p>
 </section>
 
 <section class="card">
@@ -67,7 +67,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <div class="phase2-meta">
 <h3 id="targetName">—</h3>
 <div id="targetHex" class="hex">—</div>
-<div id="targetPosition" class="phase2-progress">Color 1 of 12</div>
+<div id="targetPosition" class="phase2-progress">Color 1 of 16</div>
 <div id="shotProgress" class="small">0 of 3 accepted</div>
 <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
 </div>
@@ -77,7 +77,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 
 <section class="card">
 <h2>Camera measurement</h2>
-<p class="small">Aim at the printed swatch. The live check compares the camera reading with the current target and the immediately previous target. If it still looks like the previous color, the capture will be rejected automatically.</p>
+<p class="small">Aim at the printed swatch. For each target, make three captures at deliberately different page tilts. The live check compares the camera reading with the current target and the immediately previous target. If it still looks like the previous color, the capture will be rejected automatically.</p>
 <div class="camera">
 <div class="stage">
 <video id="video" playsinline autoplay muted></video>
@@ -99,7 +99,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <button id="clear" type="button">Start over</button>
 <button id="export" type="button">Export CSV</button>
 </div>
-<div id="status" class="status">0 accepted measurements. 36 required.</div>
+<div id="status" class="status">0 accepted measurements. 48 required.</div>
 </section>
 
 <section id="warningCard" class="card warning" style="display:none">
@@ -109,7 +109,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 
 <section id="completeCard" class="card success" style="display:none">
 <strong>Collection complete.</strong>
-<p style="margin-bottom:0">All 36 accepted measurements have been collected. Export the CSV and paste its contents here for the next calibration analysis.</p>
+<p style="margin-bottom:0">All 48 accepted measurements have been collected. Export the CSV and paste its contents here for the next calibration analysis.</p>
 </section>
 
 <section class="card">
@@ -119,18 +119,23 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 
 <section class="card">
 <h2>Why these colors?</h2>
-<p class="small">The 12 targets are intentionally spread across the Wada color space, and the sequence avoids placing similar colors next to one another. Ten targets repeat colors from the first physical-book dataset so the new measurements can be compared directly with the existing calibration anchors; black and white extend the calibration toward the luminance extremes.</p>
+<p class="small">The 16 targets are intentionally spread across the Wada color space, and the sequence avoids placing similar colors next to one another. Phase 3 targets are selected to provide broad, independent coverage of hue, chroma, and luminance rather than simply repeating the Phase 2 set. The three captures of each target are intentionally taken with the book tilted to produce three slightly different lighting conditions. Black and white provide luminance-boundary anchors.</p>
 <p class="small" style="margin-bottom:0">Only accepted measurements are exported. A rejected capture is not counted toward the three required photographs.</p>
 </section>
 </main>
 
 <canvas id="canvas" hidden></canvas>
 <script>
-const COLORS=[["Pale Purplish Vinaceous","#fde2dd"],["Hermosa Pink","#f9c1ce"],["Corinthian Pink","#f8b6ba"],["Cameo Pink","#e0b3b6"],["Pale Cinammon-Pink","#f4deca"],["Fawn","#d1b0a7"],["Pale Ecru-Drab","#c5b7b0"],["Light Brown Drab","#b59392"],["Coral Red","#f58e84"],["Fresh Color","#f6917e"],["Grenadine Pink","#f48067"],["Eosine Pink","#f37f94"],["Spinel Red","#f27291"],["Old Rose","#d46d7a"],["Eugenia Red 1","#e2625e"],["Eugenia Red 2","#da525d"],["Raw Sienna","#bb7125"],["Vinaceous Tawny","#c56127"],["Jasper Red","#eb5324"],["Spectrum Red","#e31f26"],["Red Orange","#dd4027"],["Etruscan Red","#c55347"],["Burnt Sienna","#ae5224"],["Ocher Red","#ab544d"],["Scarlet","#cb2f43"],["Carmine","#cc1236"],["Indian Lake","#c53c69"],["Rosolanc Purple","#b73f74"],["Pomegranate Purple","#b71f57"],["Hydrangea Red","#a94151"],["Brick Red","#a84222"],["Carmine Red","#a62c37"],["Pompeian Red","#ab2439"],["Red","#a72144"],["Brown","#7c4226"],["Hay's Russet","#793327"],["Vandyke Red","#82241f"],["Pansy Purple","#7d133a"],["Pale Burnt Lake","#802626"],["Violet Red","#642d5e"],["Vistoris Lake","#6d4145"],["Sulphur Yellow","#f5ecc2"],["Sea-foam Yellow","#f0e6be"],["Pale Lemon Yellow","#ffefae"],["Naples Yellow","#fbe6a0"],["Ivory Buff","#ebd3a2"],["Seashell Pink","#fdd4bd"],["Light Pinkish Cinnamon","#fcc79b"],["Pinkish Cinnamon","#eeb480"],["Cinnamon Buff","#fdc57e"],["Cream Yellow","#fdbf68"],["Golden Yellow","#f3a257"],["Vinaceous Cinnamon","#eea78c"],["Ochraceous Salmon","#d8a37b"],["Isabella Color","#c5a56e"],["Maple","#c59f6b"],["Olive Buff","#c1c494"],["Ecru","#c2ae93"],["Yellow","#fff200"],["Lemon Yellow","#f8ed43"],["Apricot Yellow","#ffdd00"],["Pyrite Yellow","#cab356"],["Olive Ocher","#d6b43e"],["Yellow Ocher","#e2b540"],["Orange Yellow","#fcb315"],["Yellow Orange","#f99d1b"],["Apricot Orange","#f68c50"],["Orange","#f37420"],["Peach Red","#f15a30"],["English Red","#d96629"],["Cinnamon Rufous","#c27544"],["Orange Rufous","#c16b27"],["Sulphine Yellow","#c19f2c"],["Khaki / Tawny Olive","#bc892b"],["Citron Yellow","#b2b73e"],["Citrine","#a49531"],["Dull Citrine","#8d8559"],["Buffy Citrine","#96874d"],["Dark Citrine","#8b835b"],["Light Grayish Olive","#848061"],["Kronbergs Green","#84875e"],["Olive","#837e31"],["Orange Citrine","#986f2d"],["Sudan Brown","#a36752"],["Olive Green","#6b7140"],["Light Brownish Olive","#806e4b"],["Deep Grayish Olive","#635a3a"],["Pale Raw Umber","#71502f"],["Sepia","#644b1e"],["Madder Brown","#762c19"],["Mars Brown Tobacco","#653514"],["Vandyke Brown","#4b3317"],["Turquoise Green","#b5decc"],["Glaucous Green","#b4cdc2"],["Dark Greenish Glaucous","#b7c2a9"],["Pale Turtle Green","#c3cd9d"],["Yellow Green","#afd472"],["Light Green Yellow","#c7d14f"],["Light Green","#87c540"],["Olive Yellow","#a6a159"],["Artemisia Green","#709390"],["Andover Green","#6d7e77"],["Rainette Green","#788860"],["Chromium Green","#719470"],["Pistachio Green","#648f7b"],["Sea Green","#00b49b"],["Benzol Green","#00978d"],["Light Porcelain Green","#00908a"],["Green","#489b6e"],["Dull Viridian Green","#009465"],["Oil Green","#819238"],["Grape Green","#a2a865"],["Diamine Green","#008842"],["Cossack Green","#437742"],["Lincoln Green","#555832"],["Blackish Olive","#42533e"],["Deep Slate Olive","#253122"],["Pale King's Blue 1","#f0f3e7"],["Nile Blue","#bce4e5"],["Pale King's Blue 2","#a7d4e4"],["Light Glaucous Blue","#a5c8d1"],["Salvia Blue","#97acc8"],["Cobalt Green","#96d1aa"],["Calamine Blue","#78cdd0"],["Venice Green","#62c6bf"],["Pale Methyl Blue","#54afb4"],["Cerulean Blue","#0093a5"],["Peacock Blue","#00939b"],["Green Blue","#099197"],["Olympic Blue","#5a82b3"],["Blue","#006eb8"],["Antwarp Blue","#007190"],["Helvetia Blue","#005b8d"],["Dark Medici Blue","#547076"],["Dusky Green","#004f46"],["Deep Lyons Blue","#1c4286"],["Violet Blue","#40456a"],["Vandar Poel's Blue","#064f6e"],["Dark Tyrian Blue","#12354e"],["Dull Violet Black","#0d1c43"],["Deep Indigo","#051230"],["Deep Slate Green","#112f2c"],["Grayish Lavender 1","#b5b1d8"],["Grayish Lavender 2","#c0a9b3"],["Laelia Pink","#ca92a8"],["Lilac","#b984af"],["Eupatorium Purple","#bf5892"],["Light Mauve","#9a72aa"],["Aconite Violet","#a36aa5"],["Dull Blue Violet","#80719e"],["Dark Soft Violet","#66629c"],["Blue Violet","#6450a1"],["Violet Ultramarine","#522e91"],["Purple Drab","#84565b"],["Deep Violet Plumbeous","#70727c"],["Vernonia Purple","#8c4c62"],["Dark Slate Purple","#704357"],["Taupe Brown","#7a4456"],["Violet Carmine","#713b4c"],["Violet","#4f4086"],["Red Violet","#59256a"],["Cotinga Purple","#501345"],["Dusky Madder Violet","#4e1d4c"],["Dark Perilla Purple","#542e36"],["Dull Purplish Black","#443b35"],["White","#ffffff"],["Neutral Gray","#b6bfc1"],["Mineral Gray","#a2b0ad"],["Warm Gray","#a1a39a"],["Slate Color","#34454c"],["Black","#111314"]];
+const COLORS=[["Pale Purplish Vinaceous","#fde2dd"],["Hermosa Pink","#f9c1ce"],["Corinthian Pink","#f8b6ba"],["Cameo Pink","#e0b3b6"],["Pale Cinammon-Pink","#f4deca"],["Fawn","#d1b0a7"],["Pale Ecru-Drab","#c5b7b0"],["Light Brown Drab","#b59392"],["Coral Red","#f58e84"],["Fresh Color","#f6917e"],["Grenadine Pink","#f48067"],["Eosine Pink","#f37f94"],["Spinel Red","#f27291"],["Old Rose","#d46d7a"],["Eugenia Red 1","#e2625e"],["Eugenia Red 2","#da525d"],["Raw Sienna","#bb7125"],["Vinaceous Tawny","#c56127"],["Jasper Red","#eb5324"],["Spectrum Red","#e31f26"],["Red Orange","#dd4027"],["Etruscan Red","#c55347"],["Burnt Sienna","#ae5224"],["Ocher Red","#ab544d"],["Scarlet","#cb2f43"],["Carmine","#cc1248"],["Indian Lake","#c53c69"],["Rosolanc Purple","#b73f74"],["Pomegranate Purple","#b71f57"],["Hydrangea Red","#a94151"],["Brick Red","#a84222"],["Carmine Red","#a62c37"],["Pompeian Red","#ab2439"],["Red","#a72144"],["Brown","#7c4226"],["Hay's Russet","#793327"],["Vandyke Red","#82241f"],["Pansy Purple","#7d133a"],["Pale Burnt Lake","#802626"],["Violet Red","#642d5e"],["Vistoris Lake","#6d4145"],["Sulphur Yellow","#f5ecc2"],["Sea-foam Yellow","#f0e6be"],["Pale Lemon Yellow","#ffefae"],["Naples Yellow","#fbe6a0"],["Ivory Buff","#ebd3a2"],["Seashell Pink","#fdd4bd"],["Light Pinkish Cinnamon","#fcc79b"],["Pinkish Cinnamon","#eeb480"],["Cinnamon Buff","#fdc57e"],["Cream Yellow","#fdbf68"],["Golden Yellow","#f3a257"],["Vinaceous Cinnamon","#eea78c"],["Ochraceous Salmon","#d8a37b"],["Isabella Color","#c5a56e"],["Maple","#c59f6b"],["Olive Buff","#c1c494"],["Ecru","#c2ae93"],["Yellow","#fff200"],["Lemon Yellow","#f8ed43"],["Apricot Yellow","#ffdd00"],["Pyrite Yellow","#cab356"],["Olive Ocher","#d6b43e"],["Yellow Ocher","#e2b540"],["Orange Yellow","#fcb315"],["Yellow Orange","#f99d1b"],["Apricot Orange","#f68c50"],["Orange","#f37420"],["Peach Red","#f15a30"],["English Red","#d96629"],["Cinnamon Rufous","#c27544"],["Orange Rufous","#c16b27"],["Sulphine Yellow","#c19f2c"],["Khaki / Tawny Olive","#bc892b"],["Citron Yellow","#b2b73e"],["Citrine","#a49531"],["Dull Citrine","#8d8559"],["Buffy Citrine","#96874d"],["Dark Citrine","#8b835b"],["Light Grayish Olive","#848061"],["Kronbergs Green","#84875e"],["Olive","#837e31"],["Orange Citrine","#986f2d"],["Sudan Brown","#a48752"],["Olive Green","#6b7140"],["Light Brownish Olive","#806e4b"],["Deep Grayish Olive","#635a3a"],["Pale Raw Umber","#71502f"],["Sepia","#644b1e"],["Madder Brown","#762c19"],["Mars Brown Tobacco","#653514"],["Vandyke Brown","#4b3317"],["Turquoise Green","#b5decc"],["Glaucous Green","#b4cdc2"],["Dark Greenish Glaucous","#b7c2a9"],["Pale Turtle Green","#c3cd9d"],["Yellow Green","#afd472"],["Light Green Yellow","#c7d14f"],["Light Green","#87c540"],["Olive Yellow","#a6a159"],["Artemisia Green","#709390"],["Andover Green","#6d7e77"],["Rainette Green","#788860"],["Chromium Green","#719470"],["Pistachio Green","#648f7b"],["Sea Green","#00b49b"],["Benzol Green","#00978d"],["Light Porcelain Green","#00908a"],["Green","#489b6e"],["Dull Viridian Green","#009465"],["Oil Green","#819238"],["Grape Green","#a2a865"],["Diamine Green","#008842"],["Cossack Green","#437742"],["Lincoln Green","#555832"],["Blackish Olive","#42533e"],["Deep Slate Olive","#253122"],["Pale King's Blue 1","#f0f3e7"],["Nile Blue","#bce4e5"],["Pale King's Blue 2","#a7d4e4"],["Light Glaucous Blue","#a5c8d1"],["Salvia Blue","#97acc8"],["Cobalt Green","#96d1aa"],["Calamine Blue","#78cdd0"],["Venice Green","#62c6bf"],["Pale Methyl Blue","#54afb4"],["Cerulean Blue","#0093a5"],["Peacock Blue","#00939b"],["Green Blue","#099197"],["Olympic Blue","#5a82b3"],["Blue","#006eb8"],["Antwarp Blue","#007190"],["Helvetia Blue","#005b8d"],["Dark Medici Blue","#547076"],["Dusky Green","#004f46"],["Deep Lyons Blue","#1c4286"],["Violet Blue","#40456a"],["Vandar Poel's Blue","#064f6e"],["Dark Tyrian Blue","#12354e"],["Dull Violet Black","#0d1c43"],["Deep Indigo","#051230"],["Deep Slate Green","#112f2c"],["Grayish Lavender 1","#b5b1d8"],["Grayish Lavender 2","#c0a9b3"],["Laelia Pink","#ca92a8"],["Lilac","#b984af"],["Eupatorium Purple","#bf5892"],["Light Mauve","#9a72aa"],["Aconite Violet","#a48aa5"],["Dull Blue Violet","#80719e"],["Dark Soft Violet","#66629c"],["Blue Violet","#6450a1"],["Violet Ultramarine","#522e91"],["Purple Drab","#84565b"],["Deep Violet Plumbeous","#70727c"],["Vernonia Purple","#8c4c62"],["Dark Slate Purple","#704357"],["Taupe Brown","#7a4456"],["Violet Carmine","#713b4c"],["Violet","#4f4086"],["Red Violet","#59256a"],["Cotinga Purple","#501345"],["Dusky Madder Violet","#4e1d4c"],["Dark Perilla Purple","#542e48"],["Dull Purplish Black","#443b35"],["White","#ffffff"],["Neutral Gray","#b6bfc1"],["Mineral Gray","#a2b0ad"],["Warm Gray","#a1a39a"],["Slate Color","#34454c"],["Black","#111314"]];
 const colorMap=Object.fromEntries(COLORS);
 
-// Fixed Phase 2 sequence. Adjacent reference colors are all at least ~31.9 ΔE00 apart.
-const TARGETS=["Lilac","Orange Yellow","Olympic Blue","Apricot Orange","Cossack Green","Nile Blue","Sudan Brown","White","Rainette Green","Black","Scarlet","Sulphur Yellow"];
+// Fixed Phase 3 sequence. Adjacent reference colors are all at least ~31.9 ΔE00 apart.
+const TARGETS = [
+ ["Nile Blue","#bce4e5"],["Scarlet","#cb2f43"],["Cossack Green","#437742"],["Apricot Orange","#f68c50"],
+ ["Pale King's Blue 2","#a7d4e4"],["Orange Yellow","#fcb315"],["Sudan Brown","#a48752"],["Rainette Green","#788860"],
+ ["Sulphur Yellow","#f5ecc2"],["Olympic Blue","#5a82b3"],["Carmine","#cc1248"],["Deep Grayish Olive","#635a3a"],
+ ["Pistachio Green","#648f7b"],["Peach Red","#f15a30"],["Ecru","#c2ae93"],["Pale Raw Umber","#71502f"]
+];
 const SHOTS_PER_TARGET=3;
 const PREVIOUS_MARGIN=8;
 const MAX_TARGET_DELTA_FOR_REJECTION=45;
@@ -176,11 +181,11 @@ function ciede2000(a,b){
  const [L1,a1,b1]=a,[L2,a2,b2]=b,C1=Math.hypot(a1,b1),C2=Math.hypot(a2,b2),Cb=(C1+C2)/2;
  const G=.5*(1-Math.sqrt(Math.pow(Cb,7)/(Math.pow(Cb,7)+Math.pow(25,7))));
  const ap1=(1+G)*a1,ap2=(1+G)*a2,Cp1=Math.hypot(ap1,b1),Cp2=Math.hypot(ap2,b2);
- const hue=(x,y)=>{let h=Math.atan2(y,x)*180/Math.PI;return h<0?h+360:h};
+ const hue=(x,y)=>{let h=Math.atan2(y,x)*180/Math.PI;return h<0?h+480:h};
  const h1=hue(ap1,b1),h2=hue(ap2,b2),dL=L2-L1,dC=Cp2-Cp1;
- let dh=h2-h1;if(Cp1*Cp2===0)dh=0;else if(dh>180)dh-=360;else if(dh<-180)dh+=360;
- const dH=2*Math.sqrt(Cp1*Cp2)*Math.sin(dh*Math.PI/360),Lb=(L1+L2)/2,Cb2=(Cp1+Cp2)/2;
- let hb=h1+h2;if(Cp1*Cp2===0)hb=h1+h2;else if(Math.abs(h1-h2)<=180)hb=(h1+h2)/2;else hb=(h1+h2+360)/2;if(hb>=360)hb-=360;
+ let dh=h2-h1;if(Cp1*Cp2===0)dh=0;else if(dh>180)dh-=480;else if(dh<-180)dh+=480;
+ const dH=2*Math.sqrt(Cp1*Cp2)*Math.sin(dh*Math.PI/480),Lb=(L1+L2)/2,Cb2=(Cp1+Cp2)/2;
+ let hb=h1+h2;if(Cp1*Cp2===0)hb=h1+h2;else if(Math.abs(h1-h2)<=180)hb=(h1+h2)/2;else hb=(h1+h2+480)/2;if(hb>=480)hb-=480;
  const T=1-.17*Math.cos((hb-30)*Math.PI/180)+.24*Math.cos(2*hb*Math.PI/180)+.32*Math.cos((3*hb+6)*Math.PI/180)-.20*Math.cos((4*hb-63)*Math.PI/180);
  const Sl=1+.015*Math.pow(Lb-50,2)/Math.sqrt(20+Math.pow(Lb-50,2)),Sc=1+.045*Cb2,Sh=1+.015*Cb2*T;
  const Rt=-2*Math.sqrt(Math.pow(Cb2,7)/(Math.pow(Cb2,7)+Math.pow(25,7)))*Math.sin((60*Math.exp(-Math.pow((hb-275)/25,2)))*Math.PI/180);
@@ -208,7 +213,7 @@ function previousMismatch(d){
 function updateTargetUI(){
  if(targetIndex>=TARGETS.length){
    targetName.textContent='Collection complete';
-   targetHex.textContent='36 accepted measurements';
+   targetHex.textContent='48 accepted measurements';
    targetPosition.textContent='All 12 colors completed';
    shotProgress.textContent='3 of 3 accepted for every target';
    progressFill.style.width='100%';
