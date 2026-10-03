@@ -21,7 +21,7 @@ button.primary{background:#202124;color:#fff;border-color:#202124}.button-row{di
 .stage{position:relative;width:min(82%,760px);margin:0 auto;aspect-ratio:4/3;background:#000;overflow:hidden}
 video{width:100%;height:100%;object-fit:cover;display:block}
 .target{position:absolute;left:50%;top:50%;width:20%;aspect-ratio:1;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.9);border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.7),0 0 25px rgba(0,0,0,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);cursor:pointer}
-.camera-bar{padding:10px 12px;color:#fff;display:flex;align-items:center;min-height:44px}.capture-target-label{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;background:rgba(0,0,0,.68);color:#fff;border-radius:999px;padding:7px 12px;font-weight:700;font-size:.9rem;white-space:nowrap;pointer-events:none;max-width:90%;overflow:hidden;text-overflow:ellipsis}
+.camera-bar{padding:10px 12px;color:#fff;display:flex;align-items:center;min-height:44px}.capture-debug{position:absolute;left:10px;bottom:10px;z-index:4;background:rgba(0,0,0,.72);color:#fff;border-radius:8px;padding:6px 8px;font:11px ui-monospace,monospace;max-width:calc(100% - 20px);pointer-events:none}.capture-target-label{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:3;background:rgba(0,0,0,.68);color:#fff;border-radius:999px;padding:7px 12px;font-weight:700;font-size:.9rem;white-space:nowrap;pointer-events:none;max-width:90%;overflow:hidden;text-overflow:ellipsis}
 .camera-result{display:flex;align-items:center;gap:8px}.dot{width:22px;height:22px;border-radius:50%;border:1px solid #fff;flex:none}
 .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.metric{background:#f6f6f3;border-radius:8px;padding:9px}.metric b{display:block;font-size:.75rem;color:var(--muted);margin-bottom:3px}.metric span{font-family:ui-monospace,monospace}
 table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left;border-bottom:1px solid #ddd;padding:9px 6px;vertical-align:top}th{color:#555;font-weight:650}
@@ -55,7 +55,7 @@ table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left
 <p class="subtitle">Phase 3.1 calibration collection — three photographs of each of 16 calibration-optimized Wada colors, with deliberate page tilts between captures.</p>
 </header>
 
-<section class="card notice">
+<section class="card notice" style="display:none">
 <strong>Phase 3.1 protocol</strong>
 <p style="margin-bottom:0">The app will choose the colors and their order for you. For each target, center that printed Wada swatch inside the circle and capture it three times. Keep the phone position and sampling distance reasonably consistent, but deliberately tilt the book to three slightly different angles/lighting conditions for each color. The sequence is deliberately arranged so consecutive colors are far apart in CIEDE2000 space, allowing the app to detect an accidental extra capture of the previous color.</p>
 </section>
@@ -165,6 +165,8 @@ const progressFill=document.getElementById('progressFill');
 const sequenceEl=document.getElementById('sequence');
 const recordButton=document.getElementById('record');
 const captureTargetLabel=document.getElementById('captureTargetLabel');
+const captureDebug=document.getElementById('captureDebug');
+function setCaptureDebug(msg){captureDebug.textContent='debug: '+msg;}
 
 let facing='environment',stream=null,frame=null,lastSample=null;
 let targetIndex=0,shotsAccepted=0;
@@ -250,8 +252,8 @@ function updateMetrics(sample){
  }
 }
 function sample(){
- if(!stream||video.readyState<2)return false;
- const w=video.videoWidth,h=video.videoHeight;if(!w||!h)return false;
+ if(!stream||video.readyState<2){setCaptureDebug('sample blocked: camera/frame not ready (readyState='+video.readyState+')');return false;}
+ const w=video.videoWidth,h=video.videoHeight;if(!w||!h){setCaptureDebug('sample blocked: video dimensions unavailable');return false;}
  const size=Math.min(240,Math.max(80,Math.floor(Math.min(w,h)*.34)));
  canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d',{willReadFrequently:true});
  const side=Math.min(w,h)*.34,x=(w-side)/2,y=(h-side)/2;
@@ -264,6 +266,7 @@ function sample(){
  const avg=ch=>{const a=vals.map(v=>v[ch]).sort((a,b)=>a-b),lo=Math.floor(a.length*.1),hi=Math.ceil(a.length*.9);return a.slice(lo,hi).reduce((s,v)=>s+v,0)/Math.max(1,hi-lo)};
  lastSample={rgb:[avg(0),avg(1),avg(2)]};
  updateMetrics(lastSample);
+ setCaptureDebug('sampled RGB '+lastSample.rgb.map(v=>Math.round(v)).join(','));
  return true;
 }
 function loop(){sample();if(stream)frame=requestAnimationFrame(loop)}
@@ -283,7 +286,8 @@ function refreshStatus(){
  const total=TARGETS.length*SHOTS_PER_TARGET;
  status.textContent=records.length+' accepted measurement'+(records.length===1?'':'s')+'. '+total+' required.';
 }
-function recordMeasurement(){
+function recordMeasurement(source='unknown'){
+ setCaptureDebug('input='+source+' | readyState='+video.readyState+' | stream='+(!!stream)+' | samples='+records.length);
  if(targetIndex>=TARGETS.length)return;
  sample();
  if(!lastSample)return;
@@ -318,9 +322,9 @@ function resetSession(){
  renderTable();refreshStatus();updateTargetUI();
 }
 const targetCircle=document.querySelector('.target');
-targetCircle.addEventListener('click',recordMeasurement);
-targetCircle.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')e.preventDefault();recordMeasurement();});
-recordButton.addEventListener('click',recordMeasurement);
+targetCircle.addEventListener('click',()=>recordMeasurement('circle-click'));
+targetCircle.addEventListener('pointerup',e=>{setCaptureDebug('pointerup '+e.pointerType); if(e.pointerType!=='mouse')e.preventDefault(); recordMeasurement('circle-pointerup');});
+recordButton.addEventListener('click',()=>recordMeasurement('button-click'));
 document.getElementById('clear').onclick=resetSession;
 document.getElementById('export').onclick=()=>{
  if(!records.length)return;
