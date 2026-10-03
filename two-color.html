@@ -1,19 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r23 — r44 baseline</title><style>
+<title>WadaDrobe 2C r24 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
-h1{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
+.site-title-even{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .revision{order:0}.site-title-even .brand{order:1}
 .revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;color:var(--text)}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25;margin:0 0 12px}
 section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
 .two-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .slot{border:1px solid var(--border);border-radius:10px;padding:10px}
-.slot.active{border:2px solid var(--olive);padding:9px}
+.slot.active{border:2px solid var(--olive);padding:9px;box-shadow:0 0 0 1px rgba(80,84,35,.12)}.slot:focus{outline:3px solid rgba(49,95,140,.25);outline-offset:2px}.shared-picker{margin-top:12px}
 .slot-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}
 .slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}
 .slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}
@@ -106,7 +106,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1><span>WadaDrobe</span><span class="revision">2C r23</span></h1>
+<h1 class="site-title-even"><span class="revision">2C r24</span><span class="brand">WadaDrobe</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -122,11 +122,14 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 <section>
 <h2>Choose your two main colors</h2>
 <div class="two-inputs">
-  <div class="slot active" id="slot1"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div>
-    <div class="color-picker"><input class="color-search" id="search1" type="search" placeholder="Search colors…" autocomplete="off"><div class="custom-select" id="picker1" role="combobox" aria-expanded="false" aria-haspopup="listbox"><button class="custom-select-button" id="pickerButton1" type="button"><span class="selected-picker-swatch" id="pickerSwatch1"></span><span class="selected-picker-name" id="pickerName1">Choose a color</span><span class="custom-select-chevron">⌄</span></button><div class="custom-select-menu" id="pickerMenu1" role="listbox" hidden></div></div></div>
-  </div>
-  <div class="slot" id="slot2"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Not selected</div>
-    <div class="color-picker"><input class="color-search" id="search2" type="search" placeholder="Search colors…" autocomplete="off"><div class="custom-select" id="picker2" role="combobox" aria-expanded="false" aria-haspopup="listbox"><button class="custom-select-button" id="pickerButton2" type="button"><span class="selected-picker-swatch" id="pickerSwatch2"></span><span class="selected-picker-name" id="pickerName2">Choose a color</span><span class="custom-select-chevron">⌄</span></button><div class="custom-select-menu" id="pickerMenu2" role="listbox" hidden></div></div></div>
+  <div class="slot active" id="slot1" role="button" tabindex="0" aria-pressed="true"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div></div>
+  <div class="slot" id="slot2" role="button" tabindex="0" aria-pressed="false"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Not selected</div></div>
+</div>
+<div class="color-picker shared-picker">
+  <input class="color-search" id="search" type="search" placeholder="Search colors…" autocomplete="off">
+  <div class="custom-select" id="picker" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+    <button class="custom-select-button" id="pickerButton" type="button"><span class="selected-picker-swatch" id="pickerSwatch"></span><span class="selected-picker-name" id="pickerName">Choose a color for the active frame</span><span class="custom-select-chevron">⌄</span></button>
+    <div class="custom-select-menu" id="pickerMenu" role="listbox" hidden></div>
   </div>
 </div>
 </section>
@@ -168,19 +171,47 @@ function colorFamily(name){const n=name.toLowerCase();if(/red|scarlet|coral/.tes
 const records=COLORS.map(([name,hex])=>({name,hex,family:colorFamily(name)}));
 const selected=[null,null];let activeSlot=0;let currentLikes=[[],[]];
 
-function buildPicker(slot,query=''){
- const menu=document.getElementById('pickerMenu'+slot), current=selected[slot-1];menu.innerHTML='';
+function buildPicker(query=''){
+ const menu=document.getElementById('pickerMenu'), current=selected[activeSlot-1];menu.innerHTML='';
  const groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));records.filter(c=>c.name.toLowerCase().includes(query.trim().toLowerCase())).forEach(c=>groups[c.family].push(c));
  familyOrder.forEach(f=>{if(!groups[f].length)return;const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;menu.appendChild(label);groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>{const b=document.createElement('button');b.type='button';b.className='custom-select-option';b.dataset.color=c.name;b.setAttribute('role','option');b.setAttribute('aria-selected',String(c.name===current));b.innerHTML='<span class="custom-option-swatch" style="background:'+c.hex+'"></span><span>'+c.name+'</span>';menu.appendChild(b);});});
 }
-function updatePicker(slot){const n=selected[slot-1],sw=document.getElementById('pickerSwatch'+slot),name=document.getElementById('pickerName'+slot);sw.style.background=n?map[n]:'transparent';name.textContent=n||'Choose a color';document.getElementById('meta'+slot).textContent=n?(map[n]+' · selected'):'Not selected';document.getElementById('swatch'+slot).style.background=n?map[n]:'transparent';buildPicker(slot,document.getElementById('search'+slot).value);}
-function setActive(slot){activeSlot=slot;document.getElementById('slot1').classList.toggle('active',slot===1);document.getElementById('slot2').classList.toggle('active',slot===2);}
-function chooseColor(slot,name){if(!map[name])return;selected[slot-1]=name;setActive(slot);updatePicker(slot);document.getElementById('pickerMenu'+slot).hidden=true;document.getElementById('picker'+slot).setAttribute('aria-expanded','false');render();}
+function updatePicker(){
+ const n=selected[activeSlot-1],sw=document.getElementById('pickerSwatch'),name=document.getElementById('pickerName');
+ sw.style.background=n?map[n]:'transparent';
+ name.textContent=n||'Choose a color for the active frame';
+ for(let slot=1;slot<=2;slot++){const sn=selected[slot-1];document.getElementById('meta'+slot).textContent=sn?(map[sn]+' · selected'):'Not selected';document.getElementById('swatch'+slot).style.background=sn?map[sn]:'transparent';}
+ buildPicker(document.getElementById('search').value);
+}
+function setActive(slot){
+ activeSlot=(slot===2)?2:1;
+ document.getElementById('slot1').classList.toggle('active',activeSlot===1);
+ document.getElementById('slot2').classList.toggle('active',activeSlot===2);
+ document.getElementById('slot1').setAttribute('aria-pressed',String(activeSlot===1));
+ document.getElementById('slot2').setAttribute('aria-pressed',String(activeSlot===2));
+ updatePicker();
+}
+function chooseColor(slot,name){
+ if(!map[name]||(slot!==1&&slot!==2))return;
+ selected[slot-1]=name;
+ setActive(slot);
+ document.getElementById('pickerMenu').hidden=true;
+ document.getElementById('picker').setAttribute('aria-expanded','false');
+ render();
+}
+document.getElementById('pickerButton').addEventListener('click',()=>{
+ const menu=document.getElementById('pickerMenu'),open=menu.hidden;
+ document.querySelectorAll('.custom-select-menu').forEach(m=>m.hidden=true);
+ document.querySelectorAll('.custom-select').forEach(x=>x.setAttribute('aria-expanded','false'));
+ menu.hidden=!open;
+ document.getElementById('picker').setAttribute('aria-expanded',String(open));
+});
+document.getElementById('search').addEventListener('input',()=>buildPicker(document.getElementById('search').value));
+document.getElementById('pickerMenu').addEventListener('click',e=>{const b=e.target.closest('.custom-select-option');if(b)chooseColor(activeSlot,b.dataset.color);});
 for(let slot=1;slot<=2;slot++){
- document.getElementById('pickerButton'+slot).addEventListener('click',()=>{setActive(slot);const menu=document.getElementById('pickerMenu'+slot),open=menu.hidden;document.querySelectorAll('.custom-select-menu').forEach(m=>m.hidden=true);document.querySelectorAll('.custom-select').forEach(x=>x.setAttribute('aria-expanded','false'));menu.hidden=!open;document.getElementById('picker'+slot).setAttribute('aria-expanded',String(open));});
- document.getElementById('search'+slot).addEventListener('input',()=>buildPicker(slot,document.getElementById('search'+slot).value));
- document.getElementById('pickerMenu'+slot).addEventListener('click',e=>{const b=e.target.closest('.custom-select-option');if(b)chooseColor(slot,b.dataset.color);});
- document.getElementById('slot'+slot).addEventListener('click',()=>setActive(slot));
+ const el=document.getElementById('slot'+slot);
+ el.addEventListener('click',()=>setActive(slot));
+ el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setActive(slot);}});
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))document.querySelectorAll('.custom-select-menu').forEach(m=>m.hidden=true);});
 
@@ -257,7 +288,7 @@ function render(){
 }
 document.getElementById('threshold').addEventListener('input',render);
 document.getElementById('similarityMethod').addEventListener('change',render);
-buildPicker(1);buildPicker(2);render();
+updatePicker();render();
 
 function hexText(hex){const h=hex.slice(1),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),lum=(.2126*r+.7152*g+.0722*b)/255;return lum>.58?'rgba(0,0,0,.56)':'rgba(255,255,255,.62)';}
 let fullTimer=null,fullIndex=0;
@@ -312,7 +343,7 @@ function sampleCameraColor(){if(!cameraStream||cameraVideo.readyState<2)return;c
 function cameraLoop(){sampleCameraColor();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop)}
 async function startCamera(){if(!navigator.mediaDevices?.getUserMedia)return;try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},audio:false});cameraVideo.srcObject=cameraStream;cameraVideo.style.transform=cameraFacing==='user'?'scaleX(-1)':'scaleX(1)';getCameraZoomCapabilities();const t=cameraStream.getVideoTracks()[0],caps=t?.getCapabilities?.();if(caps&&typeof caps.zoom==='object'){try{await t.applyConstraints({advanced:[{zoom:cameraZoomLevel}]})}catch(e){}}displayedCameraMatch=null;candidateCameraMatch=null;candidateSince=0;lastCameraMatch=null;await cameraVideo.play();cameraFrame=requestAnimationFrame(cameraLoop)}catch(e){cameraResult.hidden=false;cameraResultText.textContent=e.name==='NotAllowedError'?'Camera access is required.':'Camera unavailable'}}
 function stopCamera(){if(cameraFrame)cancelAnimationFrame(cameraFrame);cameraFrame=null;if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraVideo.srcObject=null}
-cameraStage.addEventListener('click',e=>{if(e.target.closest('button'))return;if(activeSlot!==0&&activeSlot!==1)activeSlot=0;if(lastCameraMatch)chooseColor(activeSlot,lastCameraMatch.name)});
+cameraStage.addEventListener('click',e=>{if(e.target.closest('button'))return;if(activeSlot!==1&&activeSlot!==2)setActive(1);if(lastCameraMatch)chooseColor(activeSlot,lastCameraMatch.name);});
 cameraSwitch.addEventListener('click',async e=>{e.stopPropagation();cameraFacing=cameraFacing==='environment'?'user':'environment';await startCamera()});
 document.getElementById('colorCorrectionToggle').addEventListener('click',e=>{e.stopPropagation();colorCorrectionEnabled=!colorCorrectionEnabled;e.currentTarget.setAttribute('aria-pressed',String(colorCorrectionEnabled));e.currentTarget.setAttribute('title',colorCorrectionEnabled?'Color correction on':'Color correction off');displayedCameraMatch=null;candidateCameraMatch=null;sampleCameraColor()});
 window.addEventListener('pagehide',stopCamera);startCamera();
