@@ -227,7 +227,7 @@ function updateTargetUI(){
  const name=currentName(),hex=colorMap[name];
  targetSwatch.style.background=hex;targetName.textContent=name;targetHex.textContent=hex;
  targetPosition.textContent='Color '+(targetIndex+1)+' of '+TARGETS.length;
- captureTargetLabel.textContent='Capture: '+(targetIndex<TARGETS.length?currentName():'Complete');
+ captureTargetLabel.textContent='Capture: '+(targetIndex<TARGETS.length?currentName():'Complete')+' · '+shotsAccepted+' of '+SHOTS_PER_TARGET;
  shotProgress.textContent=shotsAccepted+' of '+SHOTS_PER_TARGET+' accepted';
  progressFill.style.width=((targetIndex*SHOTS_PER_TARGET+shotsAccepted)/(TARGETS.length*SHOTS_PER_TARGET)*100)+'%';
  sequenceEl.innerHTML=TARGETS.map((n,i)=>{
