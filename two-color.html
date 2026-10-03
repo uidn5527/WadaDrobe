@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r36 — r44 baseline</title><style>
+<title>WadaDrobe 2C r37 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -70,10 +70,9 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 .blocks{display:flex;gap:0;overflow:hidden;border-radius:6px}
 .block{flex:1 1 0;width:0;min-width:0;height:64px;position:relative;border-right:1px solid rgba(0,0,0,.35);cursor:pointer}
 .block:last-child{border-right:0}
-.match-pair{display:flex;flex:2 1 0;min-width:0;border:3px solid #000;border-radius:6px;overflow:hidden;cursor:pointer}
+.match-pair{display:flex;flex:2 1 0;min-width:0;overflow:hidden;cursor:pointer}
 .match-pair .block{flex:1 1 0;width:0;border-right:1px solid rgba(0,0,0,.35)}
 .match-pair .block:last-child{border-right:0}
-.block.match1,.block.match2,.block.match-both{z-index:1}
 .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{color:var(--muted);padding:12px 2px}
 #fullscreenTwo{display:none}
@@ -107,7 +106,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">2C r36</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r37</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -266,7 +265,7 @@ function render(){
  box.innerHTML=all.map(({c,best})=>{
    const ordered=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)];
    const pairColors=ordered.slice(0,2);
-   const pair=pairColors.map((x,i)=>'<div class="block '+(i===0?'match1':'match2')+'" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
+   const pair=pairColors.map((x,i)=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
    const remaining=ordered.slice(2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
    return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span></div><div class="blocks"><div class="match-pair" title="Left color → Color 1 · Right color → Color 2">'+pair+'</div>'+remaining+'</div></article>';
  }).join('');
