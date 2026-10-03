@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r31 — r44 baseline</title><style>
+<title>WadaDrobe 2C r32 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -106,7 +106,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r31</span></h1>
+<h1 class="site-title-even"><span class="revision">2C r32</span><span class="brand">WadaDrobe</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -215,55 +215,44 @@ for(let slot=1;slot<=2;slot++){
 document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))document.querySelectorAll('.custom-select-menu').forEach(m=>m.hidden=true);});
 
 function groupFor(name,count){if(!name)return[];return [name,...COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b)).slice(0,count)];}
-function maxAcceptableDistance(count){
- const method=document.getElementById('similarityMethod').value;
- const curves={
-   ciede2000:[3,4,5,6.5,8,10,12,15],
-   lab:[4,6,8,10,12,15,18,22],
-   rgb:[5,8,12,16,20,25,30,38]
- };
- return curves[method][Math.max(0,Math.min(7,count))];
-}
 function comboCandidates(){
  if(!selected[0]||!selected[1])return[];
  const count=Number(document.getElementById('threshold').value);
- const maxDistance=maxAcceptableDistance(count);
-
- // Continuous perceptual assignment with a controlled eligibility boundary:
- // - Every eligible 2-, 3-, and 4-color combination is evaluated.
- // - Color 1 and Color 2 are assigned to distinct positions.
- // - Both possible assignments are tested for 2-color palettes.
- // - The slider controls a method-aware maximum acceptable distance.
- // - Candidates that pass are ranked continuously by their weaker match,
- //   then combined distance and balance.
- const names=COLORS.map(x=>x[0]);
- const rankFor=(target)=>{
-   const ordered=names.filter(n=>n!==target).sort((a,b)=>distance(target,a)-distance(target,b));
-   return Object.fromEntries([[target,0],...ordered.map((n,i)=>[n,i+1])]);
- };
- const r1=rankFor(selected[0]),r2=rankFor(selected[1]);
+ const g1=groupFor(selected[0],count);
+ const g2=groupFor(selected[1],count);
+ const inG1=new Map(g1.map((name,rank)=>[name,rank]));
+ const inG2=new Map(g2.map((name,rank)=>[name,rank]));
  const candidates=[];
 
+ // A combination qualifies when it contains one distinct color from the
+ // Color 1 neighborhood and another distinct color from the Color 2
+ // neighborhood. Every possible valid assignment is evaluated; the best
+ // assignment determines that combination's ranking.
  for(const c of COMBINATIONS){
    if(c.colors.length<2||c.colors.length>4)continue;
    let best=null;
+
    for(let i=0;i<c.colors.length;i++){
+     const a=c.colors[i];
+     if(!inG1.has(a.name))continue;
+
      for(let j=0;j<c.colors.length;j++){
        if(i===j)continue;
-       const a=c.colors[i],b=c.colors[j];
-       const d1=distance(selected[0],a.name),d2=distance(selected[1],b.name);
-       if(d1>maxDistance||d2>maxDistance)continue;
-       const rank1=r1[a.name]??names.length,rank2=r2[b.name]??names.length;
+       const b=c.colors[j];
+       if(!inG2.has(b.name))continue;
+
+       const d1=distance(selected[0],a.name);
+       const d2=distance(selected[1],b.name);
        const worst=Math.max(d1,d2);
        const total=d1+d2;
        const balance=Math.abs(d1-d2);
-       const rawWorst=worst;
+
        const assignment={
-         a:{x:a,i,rank:rank1},
-         b:{x:b,j,rank:rank2},
-         d1,d2,worst,total,balance,rawWorst,
-         score:worst
+         a:{x:a,i,rank:inG1.get(a.name)},
+         b:{x:b,j,rank:inG2.get(b.name)},
+         d1,d2,worst,total,balance
        };
+
        if(!best||
           assignment.worst<best.worst||
           assignment.worst===best.worst&&assignment.total<best.total||
@@ -272,6 +261,7 @@ function comboCandidates(){
        }
      }
    }
+
    if(best)candidates.push({c,best});
  }
 
@@ -301,7 +291,7 @@ function render(){
  box.innerHTML=all.map(({c,best})=>{
    const ordered=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)];
    const labels=ordered.map((x,i)=>'<div class="block '+(i===0?'match1':i===1?'match2':'')+'" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
-   const kind=c.colors.length+'-color perceptual match';
+   const kind=c.colors.length+'-color neighborhood match';
    const score='Δ '+best.d1.toFixed(1)+' / '+best.d2.toFixed(1);
    return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span><span class="score">'+kind+' · '+score+'</span></div><div class="blocks">'+labels+'</div></article>';
  }).join('');
