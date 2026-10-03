@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test12</title>
+<title>WadaDrobe test13</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -414,7 +414,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 }
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
 </style><style>
-/* test12 calibration experiment */
+/* test13 calibration experiment */
 .test11-camera-panel{overflow:visible}
 .test11-camera-calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 .test11-camera-side{min-width:0}
@@ -741,42 +741,67 @@ const test11CorrectedLab=document.getElementById('test11CorrectedLab');
 // camera RGB -> Lab, then a distance-weighted interpolation of the measured
 // camera-to-reference Lab correction vectors. The correction fades toward zero
 // outside the calibrated region, preventing large extrapolated color shifts.
-const TEST12_CAL_ANCHORS=[
-  {name:'Cossack Green',raw:[103.6,116.4,73.2],ref:'#437742'},
-  {name:'Rainette Green',raw:[125.8,120.0,73.8],ref:'#788860'},
-  {name:'Nile Blue',raw:[151.2,153.8,139.0],ref:'#bce4e5'},
-  {name:'Olympic Blue',raw:[104.6,109.2,135.4],ref:'#5a82b3'},
-  {name:'Lilac',raw:[165.8,107.2,130.8],ref:'#b984af'},
-  {name:'Sudan Brown',raw:[152.3,88.8,51.5],ref:'#a36752'},
-  {name:'Apricot Orange',raw:[187.2,103.2,35.4],ref:'#f68c50'},
-  {name:'Orange Yellow',raw:[188.0,130.2,22.0],ref:'#fcb315'},
-  {name:'Sulphur Yellow',raw:[168.8,151.0,111.0],ref:'#f5ecc2'},
-  {name:'Scarlet',raw:[184.8,77.6,66.4],ref:'#cb2f43'}
+const TEST13_CAL_ANCHORS=[
+  // Session 1: the ten original physical-book calibration colors.
+  {name:'Cossack Green · S1',raw:[103.6,116.4,73.2],ref:'#437742'},
+  {name:'Rainette Green · S1',raw:[125.8,120.0,73.8],ref:'#788860'},
+  {name:'Nile Blue · S1',raw:[151.2,153.8,139.0],ref:'#bce4e5'},
+  {name:'Olympic Blue · S1',raw:[104.6,109.2,135.4],ref:'#5a82b3'},
+  {name:'Lilac · S1',raw:[165.8,107.2,130.8],ref:'#b984af'},
+  {name:'Sudan Brown · S1',raw:[152.3,88.8,51.5],ref:'#a36752'},
+  {name:'Apricot Orange · S1',raw:[187.2,103.2,35.4],ref:'#f68c50'},
+  {name:'Orange Yellow · S1',raw:[188.0,130.2,22.0],ref:'#fcb315'},
+  {name:'Sulphur Yellow · S1',raw:[168.8,151.0,111.0],ref:'#f5ecc2'},
+  {name:'Scarlet · S1',raw:[184.8,77.6,66.4],ref:'#cb2f43'},
+
+  // Session 2: independent repeated measurements of the same colors.
+  // Keeping them as separate anchors lets the model recognize a session-dependent
+  // camera/lighting shift instead of averaging the two sessions together.
+  {name:'Lilac · S2',raw:[172.3333,116.6667,134.3333],ref:'#b984af'},
+  {name:'Orange Yellow · S2',raw:[189.6667,131.3333,28.3333],ref:'#fcb315'},
+  {name:'Olympic Blue · S2',raw:[99.6667,107.6667,137.3333],ref:'#5a82b3'},
+  {name:'Apricot Orange · S2',raw:[167.3333,91.3333,34.3333],ref:'#f68c50'},
+  {name:'Cossack Green · S2',raw:[83.6667,100.0,61.6667],ref:'#437742'},
+  {name:'Nile Blue · S2',raw:[137.6667,141.0,127.6667],ref:'#bce4e5'},
+  {name:'Sudan Brown · S2',raw:[149.3333,84.3333,46.3333],ref:'#a36752'},
+  {name:'Rainette Green · S2',raw:[116.6667,110.6667,66.6667],ref:'#788860'},
+  {name:'Scarlet · S2',raw:[160.0,39.6667,30.0],ref:'#cb2f43'},
+  {name:'Sulphur Yellow · S2',raw:[175.0,160.0,125.6667],ref:'#f5ecc2'},
+
+  // Luminance boundary anchors from Session 2. These are included only as
+  // conservative edge references, not as a global tone curve.
+  {name:'Black · S2',raw:[30.3333,28.3333,18.6667],ref:'#111314'},
+  {name:'White · S2',raw:[172.6667,165.6667,152.6667],ref:'#ffffff'}
 ];
-for(const anchor of TEST12_CAL_ANCHORS){
+for(const anchor of TEST13_CAL_ANCHORS){
   anchor.rawLab=rgbBytesToLab(...anchor.raw);
   const hex=anchor.ref.replace('#','');
   anchor.refRgb=[parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)];
   anchor.refLab=rgbBytesToLab(...anchor.refRgb);
   anchor.deltaLab=anchor.refLab.map((v,i)=>v-anchor.rawLab[i]);
 }
-function test12ApplyCalibration(rgb){
+function test13ApplyCalibration(rgb){
   const rawLab=rgbBytesToLab(...rgb);
-  const distances=TEST12_CAL_ANCHORS.map(anchor=>ciede2000Lab(rawLab,anchor.rawLab));
+  const distances=TEST13_CAL_ANCHORS.map(anchor=>ciede2000Lab(rawLab,anchor.rawLab));
   const nearest=Math.min(...distances);
-  // Local interpolation: close anchors dominate; distant anchors contribute little.
-  // Beyond the calibration set, reduce the correction rather than extrapolating.
+
+  // Session-aware local interpolation. The two measurement sessions are kept
+  // as separate observations so the model can respond to a changed camera /
+  // lighting state without imposing one global correction matrix.
   const sigma=14;
   const weights=distances.map(d=>Math.exp(-Math.pow(d/sigma,2)));
   const weightSum=weights.reduce((a,v)=>a+v,0);
   if(!weightSum)return rgb.map(v=>Math.max(0,Math.min(255,v)));
+
   const correction=[0,0,0];
-  for(let i=0;i<TEST12_CAL_ANCHORS.length;i++){
+  for(let i=0;i<TEST13_CAL_ANCHORS.length;i++){
     const w=weights[i]/weightSum;
-    for(let j=0;j<3;j++)correction[j]+=w*TEST12_CAL_ANCHORS[i].deltaLab[j];
+    for(let j=0;j<3;j++)correction[j]+=w*TEST13_CAL_ANCHORS[i].deltaLab[j];
   }
-  // Confidence falls off with distance from the nearest measured camera color.
-  // This makes the correction strong near calibration samples and conservative elsewhere.
+
+  // Keep the same conservative distance falloff as test12. The added anchors
+  // improve coverage of the second observed camera/lighting state without
+  // turning distant regions into unconstrained extrapolation.
   const confidence=Math.exp(-Math.pow(nearest/28,2));
   const correctedLab=rawLab.map((v,i)=>v+correction[i]*confidence);
   const correctedRgb=test11LabToRgb(...correctedLab);
@@ -947,7 +972,7 @@ function sampleCameraColor(){
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rawRgb=[avg(0),avg(1),avg(2)];
- let rgb=colorCorrectionEnabled?test12ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
+ let rgb=colorCorrectionEnabled?test13ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
  test11UpdateLab(rawRgb,rgb);
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
