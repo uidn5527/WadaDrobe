@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test15</title>
+<title>WadaDrobe test16</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -414,7 +414,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 }
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
 </style><style>
-/* test14 calibration experiment */
+/* test16 calibration experiment */
 .test11-camera-panel{overflow:visible}
 .test11-camera-calibration{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
 .test11-camera-side{min-width:0}
@@ -447,7 +447,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">test14</span></h1>
+<h1 class="site-title-even"><span class="revision">test16</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls">
 <div class="color-picker">
@@ -476,21 +476,21 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 </div>
 <div class="test11-space-panel">
 <h2>Camera color calibration</h2>
-<p class="test11-space-note">CIELAB a*b* plane at constant L*. The markers show the raw sampled color and the color after the 10-color calibration.</p>
+<p class="test11-space-note">CIELAB a*b* plane at constant L*. The raw camera point stays centered; five comparison colors move around it.</p>
 <div class="test11-space-wrap">
 <canvas id="test11LabCanvas" width="260" height="220"></canvas>
 <div id="test11RawMarker" class="test11-marker raw" title="Raw camera color"></div>
 <div id="test11CorrectedMarker" class="test11-marker corrected" title="Calibrated color"></div>
 <div id="test11WadaMarkers" aria-hidden="true"></div>
 </div>
-<div class="test11-legend"><span><i class="test11-dot raw"></i>Raw</span><span><i class="test11-dot corrected"></i>Corrected</span><span><i class="test11-dot wada"></i>Wada</span></div>
+<div class="test11-legend"><span><i class="test11-dot raw"></i>Raw center</span><span><i class="test11-dot corrected"></i>Corrected</span><span><i class="test11-dot wada"></i>Nearest Wada</span></div>
 <div class="test11-values">
 <div><b>Raw RGB</b><span id="test11RawRgb">—</span></div>
 <div><b>Corrected RGB</b><span id="test11CorrectedRgb">—</span></div>
 <div><b>Raw Lab</b><span id="test11RawLab">—</span></div>
 <div><b>Corrected Lab</b><span id="test11CorrectedLab">—</span></div>
 </div>
-<div class="test11-calibration-note">Calibration: 3×3 RGB matrix derived from the ten measured physical Wada samples and their digital reference colors.</div>
+<div class="test11-calibration-note">Calibration: local Lab correction using the earlier sessions plus 48 new measurements across 16 colors and three deliberate lighting tilts. Violet Ultramarine measurements are treated as Violet.</div>
 </div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -745,67 +745,101 @@ const test11CorrectedLab=document.getElementById('test11CorrectedLab');
 // camera RGB -> Lab, then a distance-weighted interpolation of the measured
 // camera-to-reference Lab correction vectors. The correction fades toward zero
 // outside the calibrated region, preventing large extrapolated color shifts.
-const TEST13_CAL_ANCHORS=[
-  // Session 1: the ten original physical-book calibration colors.
-  {name:'Cossack Green · S1',raw:[103.6,116.4,73.2],ref:'#437742'},
-  {name:'Rainette Green · S1',raw:[125.8,120.0,73.8],ref:'#788860'},
-  {name:'Nile Blue · S1',raw:[151.2,153.8,139.0],ref:'#bce4e5'},
-  {name:'Olympic Blue · S1',raw:[104.6,109.2,135.4],ref:'#5a82b3'},
-  {name:'Lilac · S1',raw:[165.8,107.2,130.8],ref:'#b984af'},
-  {name:'Sudan Brown · S1',raw:[152.3,88.8,51.5],ref:'#a36752'},
-  {name:'Apricot Orange · S1',raw:[187.2,103.2,35.4],ref:'#f68c50'},
-  {name:'Orange Yellow · S1',raw:[188.0,130.2,22.0],ref:'#fcb315'},
-  {name:'Sulphur Yellow · S1',raw:[168.8,151.0,111.0],ref:'#f5ecc2'},
-  {name:'Scarlet · S1',raw:[184.8,77.6,66.4],ref:'#cb2f43'},
-
-  // Session 2: independent repeated measurements of the same colors.
-  // Keeping them as separate anchors lets the model recognize a session-dependent
-  // camera/lighting shift instead of averaging the two sessions together.
-  {name:'Lilac · S2',raw:[172.3333,116.6667,134.3333],ref:'#b984af'},
-  {name:'Orange Yellow · S2',raw:[189.6667,131.3333,28.3333],ref:'#fcb315'},
-  {name:'Olympic Blue · S2',raw:[99.6667,107.6667,137.3333],ref:'#5a82b3'},
-  {name:'Apricot Orange · S2',raw:[167.3333,91.3333,34.3333],ref:'#f68c50'},
-  {name:'Cossack Green · S2',raw:[83.6667,100.0,61.6667],ref:'#437742'},
-  {name:'Nile Blue · S2',raw:[137.6667,141.0,127.6667],ref:'#bce4e5'},
-  {name:'Sudan Brown · S2',raw:[149.3333,84.3333,46.3333],ref:'#a36752'},
-  {name:'Rainette Green · S2',raw:[116.6667,110.6667,66.6667],ref:'#788860'},
-  {name:'Scarlet · S2',raw:[160.0,39.6667,30.0],ref:'#cb2f43'},
-  {name:'Sulphur Yellow · S2',raw:[175.0,160.0,125.6667],ref:'#f5ecc2'},
-
-  // Luminance boundary anchors from Session 2. These are included only as
-  // conservative edge references, not as a global tone curve.
-  {name:'Black · S2',raw:[30.3333,28.3333,18.6667],ref:'#111314'},
-  {name:'White · S2',raw:[172.6667,165.6667,152.6667],ref:'#ffffff'}
+const TEST16_CAL_ANCHORS=[
+  {name:'Cossack Green · S1',raw:[103.6,116.4,73.2],ref:'#437742',group:'Cossack Green'},
+  {name:'Rainette Green · S1',raw:[125.8,120.0,73.8],ref:'#788860',group:'Rainette Green'},
+  {name:'Nile Blue · S1',raw:[151.2,153.8,139.0],ref:'#bce4e5',group:'Nile Blue'},
+  {name:'Olympic Blue · S1',raw:[104.6,109.2,135.4],ref:'#5a82b3',group:'Olympic Blue'},
+  {name:'Lilac · S1',raw:[165.8,107.2,130.8],ref:'#b984af',group:'Lilac'},
+  {name:'Sudan Brown · S1',raw:[152.3,88.8,51.5],ref:'#a36752',group:'Sudan Brown'},
+  {name:'Apricot Orange · S1',raw:[187.2,103.2,35.4],ref:'#f68c50',group:'Apricot Orange'},
+  {name:'Orange Yellow · S1',raw:[188.0,130.2,22.0],ref:'#fcb315',group:'Orange Yellow'},
+  {name:'Sulphur Yellow · S1',raw:[168.8,151.0,111.0],ref:'#f5ecc2',group:'Sulphur Yellow'},
+  {name:'Scarlet · S1',raw:[184.8,77.6,66.4],ref:'#cb2f43',group:'Scarlet'},
+  {name:'Lilac · S2',raw:[172.3333,116.6667,134.3333],ref:'#b984af',group:'Lilac'},
+  {name:'Orange Yellow · S2',raw:[189.6667,131.3333,28.3333],ref:'#fcb315',group:'Orange Yellow'},
+  {name:'Olympic Blue · S2',raw:[99.6667,107.6667,137.3333],ref:'#5a82b3',group:'Olympic Blue'},
+  {name:'Apricot Orange · S2',raw:[167.3333,91.3333,34.3333],ref:'#f68c50',group:'Apricot Orange'},
+  {name:'Cossack Green · S2',raw:[83.6667,100.0,61.6667],ref:'#437742',group:'Cossack Green'},
+  {name:'Nile Blue · S2',raw:[137.6667,141.0,127.6667],ref:'#bce4e5',group:'Nile Blue'},
+  {name:'Sudan Brown · S2',raw:[149.3333,84.3333,46.3333],ref:'#a36752',group:'Sudan Brown'},
+  {name:'Rainette Green · S2',raw:[116.6667,110.6667,66.6667],ref:'#788860',group:'Rainette Green'},
+  {name:'Scarlet · S2',raw:[160.0,39.6667,30.0],ref:'#cb2f43',group:'Scarlet'},
+  {name:'Sulphur Yellow · S2',raw:[175.0,160.0,125.6667],ref:'#f5ecc2',group:'Sulphur Yellow'},
+  {name:'Black · S2',raw:[30.3333,28.3333,18.6667],ref:'#111314',group:'Black'},
+  {name:'White · S2',raw:[172.6667,165.6667,152.6667],ref:'#ffffff',group:'White'},
+  {name:'Black · P3.10 T1',raw:[23,25,25],ref:'#111314',group:'Black'},
+  {name:'Black · P3.10 T2',raw:[37,38,38],ref:'#111314',group:'Black'},
+  {name:'Black · P3.10 T3',raw:[19,21,21],ref:'#111314',group:'Black'},
+  {name:'Pale Lemon Yellow · P3.10 T1',raw:[166,154,127],ref:'#ffefae',group:'Pale Lemon Yellow'},
+  {name:'Pale Lemon Yellow · P3.10 T2',raw:[157,145,120],ref:'#ffefae',group:'Pale Lemon Yellow'},
+  {name:'Pale Lemon Yellow · P3.10 T3',raw:[163,152,126],ref:'#ffefae',group:'Pale Lemon Yellow'},
+  {name:'Red · P3.10 T1',raw:[157,36,45],ref:'#a72144',group:'Red'},
+  {name:'Red · P3.10 T2',raw:[155,35,43],ref:'#a72144',group:'Red'},
+  {name:'Red · P3.10 T3',raw:[155,51,54],ref:'#a72144',group:'Red'},
+  {name:'Turquoise Green · P3.10 T1',raw:[143,144,128],ref:'#b5decc',group:'Turquoise Green'},
+  {name:'Turquoise Green · P3.10 T2',raw:[169,170,156],ref:'#b5decc',group:'Turquoise Green'},
+  {name:'Turquoise Green · P3.10 T3',raw:[149,152,134],ref:'#b5decc',group:'Turquoise Green'},
+  {name:'Brown · P3.10 T1',raw:[129,79,56],ref:'#7c4226',group:'Brown'},
+  {name:'Brown · P3.10 T2',raw:[127,71,45],ref:'#7c4226',group:'Brown'},
+  {name:'Brown · P3.10 T3',raw:[133,83,59],ref:'#7c4226',group:'Brown'},
+  {name:'Blue · P3.10 T1',raw:[38,79,136],ref:'#006eb8',group:'Blue'},
+  {name:'Blue · P3.10 T2',raw:[30,78,139],ref:'#006eb8',group:'Blue'},
+  {name:'Blue · P3.10 T3',raw:[43,83,141],ref:'#006eb8',group:'Blue'},
+  {name:'White · P3.10 T1',raw:[183,183,174],ref:'#ffffff',group:'White'},
+  {name:'White · P3.10 T2',raw:[177,176,168],ref:'#ffffff',group:'White'},
+  {name:'White · P3.10 T3',raw:[178,177,169],ref:'#ffffff',group:'White'},
+  {name:'Red Orange · P3.10 T1',raw:[167,46,15],ref:'#dd4027',group:'Red Orange'},
+  {name:'Red Orange · P3.10 T2',raw:[169,46,14],ref:'#dd4027',group:'Red Orange'},
+  {name:'Red Orange · P3.10 T3',raw:[167,44,10],ref:'#dd4027',group:'Red Orange'},
+  {name:'Green · P3.10 T1',raw:[92,123,68],ref:'#489b6e',group:'Green'},
+  {name:'Green · P3.10 T2',raw:[96,124,67],ref:'#489b6e',group:'Green'},
+  {name:'Green · P3.10 T3',raw:[100,123,69],ref:'#489b6e',group:'Green'},
+  {name:'Violet · P3.10 T1',raw:[81,55,134],ref:'#4f4086',group:'Violet'},
+  {name:'Violet · P3.10 T2',raw:[85,61,136],ref:'#4f4086',group:'Violet'},
+  {name:'Violet · P3.10 T3',raw:[82,55,139],ref:'#4f4086',group:'Violet'},
+  {name:'Ecru · P3.10 T1',raw:[134,117,105],ref:'#c2ae93',group:'Ecru'},
+  {name:'Ecru · P3.10 T2',raw:[133,116,104],ref:'#c2ae93',group:'Ecru'},
+  {name:'Ecru · P3.10 T3',raw:[131,117,104],ref:'#c2ae93',group:'Ecru'},
+  {name:'Cerulean Blue · P3.10 T1',raw:[85,101,111],ref:'#0093a5',group:'Cerulean Blue'},
+  {name:'Cerulean Blue · P3.10 T2',raw:[94,103,112],ref:'#0093a5',group:'Cerulean Blue'},
+  {name:'Cerulean Blue · P3.10 T3',raw:[85,101,112],ref:'#0093a5',group:'Cerulean Blue'},
+  {name:'Yellow · P3.10 T1',raw:[185,177,32],ref:'#fff200',group:'Yellow'},
+  {name:'Yellow · P3.10 T2',raw:[187,181,34],ref:'#fff200',group:'Yellow'},
+  {name:'Yellow · P3.10 T3',raw:[183,176,30],ref:'#fff200',group:'Yellow'},
+  {name:'Sea Green · P3.10 T1',raw:[66,130,114],ref:'#00b49b',group:'Sea Green'},
+  {name:'Sea Green · P3.10 T2',raw:[61,131,115],ref:'#00b49b',group:'Sea Green'},
+  {name:'Sea Green · P3.10 T3',raw:[107,149,129],ref:'#00b49b',group:'Sea Green'},
+  {name:'Neutral Gray · P3.10 T1',raw:[176,170,160],ref:'#b6bfc1',group:'Neutral Gray'},
+  {name:'Neutral Gray · P3.10 T2',raw:[178,171,161],ref:'#b6bfc1',group:'Neutral Gray'},
+  {name:'Neutral Gray · P3.10 T3',raw:[174,168,159],ref:'#b6bfc1',group:'Neutral Gray'},
+  {name:'Olive · P3.10 T1',raw:[145,131,74],ref:'#837e31',group:'Olive'},
+  {name:'Olive · P3.10 T2',raw:[153,138,86],ref:'#837e31',group:'Olive'},
+  {name:'Olive · P3.10 T3',raw:[146,133,73],ref:'#837e31',group:'Olive'}
 ];
-for(const anchor of TEST13_CAL_ANCHORS){
+const TEST16_GROUP_COUNTS={};
+for(const anchor of TEST16_CAL_ANCHORS)TEST16_GROUP_COUNTS[anchor.group]=(TEST16_GROUP_COUNTS[anchor.group]||0)+1;
+for(const anchor of TEST16_CAL_ANCHORS){
   anchor.rawLab=rgbBytesToLab(...anchor.raw);
   const hex=anchor.ref.replace('#','');
   anchor.refRgb=[parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16)];
   anchor.refLab=rgbBytesToLab(...anchor.refRgb);
   anchor.deltaLab=anchor.refLab.map((v,i)=>v-anchor.rawLab[i]);
+  anchor.groupWeight=anchor.group&&TEST16_GROUP_COUNTS[anchor.group]>1?1/TEST16_GROUP_COUNTS[anchor.group]:1;
 }
-function test13ApplyCalibration(rgb){
+function test16ApplyCalibration(rgb){
   const rawLab=rgbBytesToLab(...rgb);
-  const distances=TEST13_CAL_ANCHORS.map(anchor=>ciede2000Lab(rawLab,anchor.rawLab));
+  const distances=TEST16_CAL_ANCHORS.map(anchor=>ciede2000Lab(rawLab,anchor.rawLab));
   const nearest=Math.min(...distances);
-
-  // Session-aware local interpolation. The two measurement sessions are kept
-  // as separate observations so the model can respond to a changed camera /
-  // lighting state without imposing one global correction matrix.
   const sigma=14;
-  const weights=distances.map(d=>Math.exp(-Math.pow(d/sigma,2)));
+  const weights=distances.map((d,i)=>Math.exp(-Math.pow(d/sigma,2))*TEST16_CAL_ANCHORS[i].groupWeight);
   const weightSum=weights.reduce((a,v)=>a+v,0);
   if(!weightSum)return rgb.map(v=>Math.max(0,Math.min(255,v)));
-
   const correction=[0,0,0];
-  for(let i=0;i<TEST13_CAL_ANCHORS.length;i++){
+  for(let i=0;i<TEST16_CAL_ANCHORS.length;i++){
     const w=weights[i]/weightSum;
-    for(let j=0;j<3;j++)correction[j]+=w*TEST13_CAL_ANCHORS[i].deltaLab[j];
+    for(let j=0;j<3;j++)correction[j]+=w*TEST16_CAL_ANCHORS[i].deltaLab[j];
   }
-
-  // Keep the same conservative distance falloff as test12. The added anchors
-  // improve coverage of the second observed camera/lighting state without
-  // turning distant regions into unconstrained extrapolation.
   const confidence=Math.exp(-Math.pow(nearest/28,2));
   const correctedLab=rawLab.map((v,i)=>v+correction[i]*confidence);
   const correctedRgb=test11LabToRgb(...correctedLab);
@@ -821,105 +855,57 @@ function test11LabToRgb(L,a,b){
  const encode=v=>{v=Math.max(0,Math.min(1,v));return v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055};
  return [encode(lr)*255,encode(lg)*255,encode(lb)*255];
 }
-let test13LabView={amin:-80,amax:80,bmin:-80,bmax:80};
-let test15LabTarget=null;
-let test15LabAnim=null;
-function test15Ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
-function test15AnimateLabView(target,duration=900){
-  test15LabTarget=target;
-  if(test15LabAnim) cancelAnimationFrame(test15LabAnim);
-  const start={...test13LabView}, t0=performance.now();
-  function step(now){
-    const p=Math.min(1,(now-t0)/duration), e=test15Ease(p);
-    test13LabView={
-      amin:start.amin+(target.amin-start.amin)*e,
-      amax:start.amax+(target.amax-start.amax)*e,
-      bmin:start.bmin+(target.bmin-start.bmin)*e,
-      bmax:start.bmax+(target.bmax-start.bmax)*e
-    };
-    test13DrawLabSpace([],true);
-    if(p<1) test15LabAnim=requestAnimationFrame(step);
-    else {test13LabView={...target};test13DrawLabSpace([],true);test15LabAnim=null;}
+let test16LabView={spanA:80,spanB:80,targetSpanA:80,targetSpanB:80,initialized:false};
+function test16SmoothZoom(targetSpanA,targetSpanB){
+  const minSpan=24,maxSpan=160;
+  const clamp=v=>Math.max(minSpan,Math.min(maxSpan,v));
+  test16LabView.targetSpanA=clamp(targetSpanA);test16LabView.targetSpanB=clamp(targetSpanB);
+  if(!test16LabView.initialized){
+    test16LabView.spanA=test16LabView.targetSpanA;test16LabView.spanB=test16LabView.targetSpanB;test16LabView.initialized=true;
+  }else{
+    const k=.16;
+    test16LabView.spanA+=(test16LabView.targetSpanA-test16LabView.spanA)*k;
+    test16LabView.spanB+=(test16LabView.targetSpanB-test16LabView.spanB)*k;
   }
-  test15LabAnim=requestAnimationFrame(step);
 }
-function test13NearestWadaSet(lab){
- const all=COLORS.map(([name,hex])=>({name,hex,lab:labMap[name],delta:ciede2000Lab(lab,labMap[name])}))
-   .sort((x,y)=>x.delta-y.delta);
- const main=all[0];
- const neighbors=all.slice(1).sort((x,y)=>ciede2000Lab(main.lab,x.lab)-ciede2000Lab(main.lab,y.lab)).slice(0,3);
- return [main,...neighbors];
+function test16NearestWadaSet(lab){
+  return COLORS.map(([name,hex])=>({name,hex,lab:labMap[name],delta:ciede2000Lab(lab,labMap[name])})).sort((x,y)=>x.delta-y.delta).slice(0,4);
 }
-function test13DrawLabSpace(points=[],keepView=false){
- const w=test11LabCanvas.width,h=test11LabCanvas.height,ctx=test11LabCtx,cell=4,L=65;
- let amin=-80,amax=80,bmin=-80,bmax=80;
- if(points.length){
-   const as=points.map(p=>p.lab[1]),bs=points.map(p=>p.lab[2]);
-   const ar=Math.max(6,(Math.max(...as)-Math.min(...as)));
-   const br=Math.max(6,(Math.max(...bs)-Math.min(...bs)));
-   const ap=ar*.42+5,bp=br*.42+5;
-   const targetA=Math.max(24,ar+2*ap),targetB=Math.max(24,br+2*bp);
-   const ca=(Math.min(...as)+Math.max(...as))/2,cb=(Math.min(...bs)+Math.max(...bs))/2;
-   amin=ca-targetA/2;amax=ca+targetA/2;bmin=cb-targetB/2;bmax=cb+targetB/2;
-   if(amax-amin>160){amin=ca-80;amax=ca+80;}
-   if(bmax-bmin>160){bmin=cb-80;bmax=cb+80;}
- }
- if(!keepView) test13LabView={amin,amax,bmin,bmax};
- ctx.clearRect(0,0,w,h);
- const mapA=a=>(a-amin)/(amax-amin),mapB=b=>(bmax-b)/(bmax-bmin);
- for(let py=0;py<h;py+=cell){
-   for(let px=0;px<w;px+=cell){
-     const a=amin+(px/(w-1))*(amax-amin),b=bmax-(py/(h-1))*(bmax-bmin);
-     const rgb=test11LabToRgb(L,a,b);
-     ctx.fillStyle='rgb('+rgb.map(v=>Math.round(v)).join(',')+')';
-     ctx.fillRect(px,py,cell,cell);
-   }
- }
- ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=1;
- const a0=mapA(0),b0=mapB(0);
- if(a0>=0&&a0<=1){ctx.beginPath();ctx.moveTo(a0*w,0);ctx.lineTo(a0*w,h);ctx.stroke();}
- if(b0>=0&&b0<=1){ctx.beginPath();ctx.moveTo(0,b0*h);ctx.lineTo(w,b0*h);ctx.stroke();}
- ctx.fillStyle='rgba(0,0,0,.72)';ctx.font='9px system-ui';
- ctx.fillText('−a',4,h-5);ctx.fillText('+a',w-18,h-5);ctx.fillText('+b',4,11);ctx.fillText('−b',4,h-16);
+function test16DrawLabSpace(rawLab,points){
+  const w=test11LabCanvas.width,h=test11LabCanvas.height,ctx=test11LabCtx,cell=4,L=65;
+  const maxDistance=Math.max(...points.map(p=>Math.hypot(p.lab[1]-rawLab[1],p.lab[2]-rawLab[2])),1);
+  test16SmoothZoom(Math.max(30,maxDistance*2.7),Math.max(30,maxDistance*2.7));
+  const amin=rawLab[1]-test16LabView.spanA/2,amax=rawLab[1]+test16LabView.spanA/2;
+  const bmin=rawLab[2]-test16LabView.spanB/2,bmax=rawLab[2]+test16LabView.spanB/2;
+  ctx.clearRect(0,0,w,h);
+  const mapA=a=>(a-amin)/(amax-amin),mapB=b=>(bmax-b)/(bmax-bmin);
+  for(let py=0;py<h;py+=cell)for(let px=0;px<w;px+=cell){
+    const a=amin+(px/(w-1))*(amax-amin),b=bmax-(py/(h-1))*(bmax-bmin);
+    const rgb=test11LabToRgb(L,a,b);ctx.fillStyle='rgb('+rgb.map(v=>Math.round(v)).join(',')+')';ctx.fillRect(px,py,cell,cell);
+  }
+  ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=1;
+  const a0=mapA(0),b0=mapB(0);
+  if(a0>=0&&a0<=1){ctx.beginPath();ctx.moveTo(a0*w,0);ctx.lineTo(a0*w,h);ctx.stroke();}
+  if(b0>=0&&b0<=1){ctx.beginPath();ctx.moveTo(0,b0*h);ctx.lineTo(w,b0*h);ctx.stroke();}
+  ctx.fillStyle='rgba(0,0,0,.72)';ctx.font='9px system-ui';
+  ctx.fillText('−a',4,h-5);ctx.fillText('+a',w-18,h-5);ctx.fillText('+b',4,11);ctx.fillText('−b',4,h-16);
 }
-function test13UpdateLab(rawRgb,correctedRgb){
- const rawLab=rgbBytesToLab(...rawRgb),correctedLab=rgbBytesToLab(...correctedRgb);
- const wadaSet=test13NearestWadaSet(correctedLab);
- const points=[{type:'raw',lab:rawLab},{type:'corrected',lab:correctedLab},...wadaSet.map((wada,i)=>({type:'wada',rank:i+1,lab:wada.lab,name:wada.name,hex:wada.hex,delta:wada.delta}))];
- test13DrawLabSpace(points);
- const mapPoint=lab=>({
-   x:Math.max(0,Math.min(100,(lab[1]-test13LabView.amin)/(test13LabView.amax-test13LabView.amin)*100)),
-   y:Math.max(0,Math.min(100,(test13LabView.bmax-lab[2])/(test13LabView.bmax-test13LabView.bmin)*100))
- });
- const rp=mapPoint(rawLab),cp=mapPoint(correctedLab);
- test11RawMarker.style.left=rp.x+'%';test11RawMarker.style.top=rp.y+'%';
- test11CorrectedMarker.style.left=cp.x+'%';test11CorrectedMarker.style.top=cp.y+'%';
- const markerHost=document.getElementById('test11WadaMarkers');
- markerHost.innerHTML='';
- const addBadge=(lab,label,cls)=>{
-   const p=mapPoint(lab),badge=document.createElement('div');
-   badge.className='test11-wada-badge '+(cls||'');
-   badge.style.left=p.x+'%';badge.style.top=Math.max(8,p.y-2)+'%';
-   badge.textContent=label;markerHost.appendChild(badge);
- };
- addBadge(rawLab,'Raw','raw-badge');
- addBadge(correctedLab,'Corrected','corrected-badge');
- wadaSet.forEach((wada,i)=>{
-   const p=mapPoint(wada.lab);
-   const marker=document.createElement('div');
-   marker.className='test11-wada-marker';
-   marker.style.left=p.x+'%';marker.style.top=p.y+'%';
-   marker.style.background=wada.hex;
-   marker.title=(i===0?'Closest Wada: ':'Wada #'+i+': ')+wada.name+' (ΔE00 '+wada.delta.toFixed(2)+')';
-   markerHost.appendChild(marker);
-   addBadge(wada.lab,(i===0?'Wada: ':'#'+i+' ')+wada.name,i===0?'main':'');
- });
- test11RawRgb.textContent=rawRgb.map(v=>Math.round(v)).join(', ');
- test11CorrectedRgb.textContent=correctedRgb.map(v=>Math.round(v)).join(', ');
- test11RawLab.textContent=rawLab.map(v=>v.toFixed(1)).join(', ');
- test11CorrectedLab.textContent=correctedLab.map(v=>v.toFixed(1)).join(', ');
+function test16UpdateLab(rawRgb,correctedRgb){
+  const rawLab=rgbBytesToLab(...rawRgb),correctedLab=rgbBytesToLab(...correctedRgb);
+  const wadaSet=test16NearestWadaSet(correctedLab);
+  const points=[{type:'corrected',lab:correctedLab},...wadaSet.map((wada,i)=>({type:'wada',lab:wada.lab,name:wada.name,hex:wada.hex,delta:wada.delta}))];
+  test16DrawLabSpace(rawLab,points);
+  const mapPoint=lab=>({x:Math.max(0,Math.min(100,(lab[1]-(rawLab[1]-test16LabView.spanA/2))/test16LabView.spanA*100)),y:Math.max(0,Math.min(100,((rawLab[2]+test16LabView.spanB/2)-lab[2])/test16LabView.spanB*100))});
+  test11RawMarker.style.left='50%';test11RawMarker.style.top='50%';
+  const cp=mapPoint(correctedLab);test11CorrectedMarker.style.left=cp.x+'%';test11CorrectedMarker.style.top=cp.y+'%';
+  const markerHost=document.getElementById('test11WadaMarkers');markerHost.innerHTML='';
+  const addBadge=(lab,label,cls)=>{const p=mapPoint(lab),badge=document.createElement('div');badge.className='test11-wada-badge '+(cls||'');badge.style.left=p.x+'%';badge.style.top=Math.max(8,p.y-2)+'%';badge.textContent=label;markerHost.appendChild(badge);};
+  addBadge(correctedLab,'Corrected','corrected-badge');
+  wadaSet.forEach((wada,i)=>{const p=mapPoint(wada.lab);const marker=document.createElement('div');marker.className='test11-wada-marker';marker.style.left=p.x+'%';marker.style.top=p.y+'%';marker.style.background=wada.hex;marker.title=(i===0?'Closest Wada: ':'Wada #'+i+': ')+wada.name+' (ΔE00 '+wada.delta.toFixed(2)+')';markerHost.appendChild(marker);addBadge(wada.lab,(i===0?'Wada: ':'#'+i+' ')+wada.name,i===0?'main':'');});
+  test11RawRgb.textContent=rawRgb.map(v=>Math.round(v)).join(', ');test11CorrectedRgb.textContent=correctedRgb.map(v=>Math.round(v)).join(', ');
+  test11RawLab.textContent=rawLab.map(v=>v.toFixed(1)).join(', ');test11CorrectedLab.textContent=correctedLab.map(v=>v.toFixed(1)).join(', ');
 }
-test13DrawLabSpace();
+test16DrawLabSpace([65,0,0],[{lab:[65,0,0],name:'Initial'}]);
 
 const cameraStage=document.querySelector('.camera-stage');
 let cameraZoomLevel=1;
@@ -1042,8 +1028,8 @@ function sampleCameraColor(){
  // Trim the darkest/lightest 10% per channel to reduce glare, shadow, and edge contamination.
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rawRgb=[avg(0),avg(1),avg(2)];
- let rgb=colorCorrectionEnabled?test13ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
- test13UpdateLab(rawRgb,rgb);
+ let rgb=colorCorrectionEnabled?test16ApplyCalibration(rawRgb):rawRgb.map(v=>Math.max(0,Math.min(255,v)));
+ test16UpdateLab(rawRgb,rgb);
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
  const now=performance.now();
