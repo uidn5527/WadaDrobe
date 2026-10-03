@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r24 — r44 baseline</title><style>
+<title>WadaDrobe 2C r25 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{margin:0;min-width:320px;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
 main{width:100%;max-width:1100px;margin:0 auto;padding:16px}
-.site-title-even{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .revision{order:0}.site-title-even .brand{order:1}
+.site-title-even{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .revision{order:0}.site-title-even .brand{order:1}.site-title-odd{font-size:clamp(1.45rem,6vw,2.2rem);line-height:1.15;margin:0 0 8px;color:var(--olive);display:flex;align-items:baseline;justify-content:flex-start;gap:3px}.site-title-odd .brand{order:0}.site-title-odd .revision{order:1}
 .revision{font-size:.42em;font-weight:300;letter-spacing:.04em;opacity:.42;color:var(--text)}
 h2{font-size:clamp(1.15rem,4.5vw,1.5rem);line-height:1.25;margin:0 0 12px}
 section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--border)}
@@ -106,7 +106,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">2C r24</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r25</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -122,8 +122,8 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 <section>
 <h2>Choose your two main colors</h2>
 <div class="two-inputs">
-  <div class="slot active" id="slot1" role="button" tabindex="0" aria-pressed="true"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Not selected</div></div>
-  <div class="slot" id="slot2" role="button" tabindex="0" aria-pressed="false"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Not selected</div></div>
+  <div class="slot active" id="slot1" role="button" tabindex="0" aria-pressed="true"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Choose a color</div></div>
+  <div class="slot" id="slot2" role="button" tabindex="0" aria-pressed="false"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Choose a color</div></div>
 </div>
 <div class="color-picker shared-picker">
   <input class="color-search" id="search" type="search" placeholder="Search colors…" autocomplete="off">
@@ -180,7 +180,7 @@ function updatePicker(){
  const n=selected[activeSlot-1],sw=document.getElementById('pickerSwatch'),name=document.getElementById('pickerName');
  sw.style.background=n?map[n]:'transparent';
  name.textContent=n||'Choose a color for the active frame';
- for(let slot=1;slot<=2;slot++){const sn=selected[slot-1];document.getElementById('meta'+slot).textContent=sn?(map[sn]+' · selected'):'Not selected';document.getElementById('swatch'+slot).style.background=sn?map[sn]:'transparent';}
+ for(let slot=1;slot<=2;slot++){const sn=selected[slot-1];document.getElementById('meta'+slot).textContent=sn?sn:'Choose a color';document.getElementById('swatch'+slot).style.background=sn?map[sn]:'transparent';}
  buildPicker(document.getElementById('search').value);
 }
 function setActive(slot){
@@ -266,7 +266,7 @@ function comboCandidates(){
 function renderLikes(slot,group){
  const box=document.getElementById('likes'+slot);
  if(!group.length){box.innerHTML='<div class="empty">Choose Color '+slot+'.</div>';return;}
- box.innerHTML=group.map((n,i)=>'<div class="like-card '+(i===0?'main-like':'')+'" title="'+n+' · '+distance(selected[slot-1],n).toFixed(1)+'"><div class="swatch" style="background:'+map[n]+'"></div><div class="name">'+n+'</div></div>').join('');
+ box.innerHTML=group.map((n,i)=>'<div class="like-card '+(i===0?'main-like':'')+'" title="Make '+n+' the Color '+slot+' main color" data-color="'+n+'"><div class="swatch" style="background:'+map[n]+'"></div><div class="name">'+n+'</div></div>').join('');
 }
 function render(){
  const count=Number(document.getElementById('threshold').value);
@@ -286,6 +286,13 @@ function render(){
    return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span><span class="score">'+kind+' · '+score+'</span></div><div class="blocks">'+labels+'</div></article>';
  }).join('');
 }
+for(let slot=1;slot<=2;slot++){
+ const box=document.getElementById('likes'+slot);
+ box.addEventListener('click',e=>{
+   const card=e.target.closest('.like-card');
+   if(card)chooseColor(slot,card.dataset.color);
+ });
+}
 document.getElementById('threshold').addEventListener('input',render);
 document.getElementById('similarityMethod').addEventListener('change',render);
 updatePicker();render();
@@ -295,9 +302,9 @@ let fullTimer=null,fullIndex=0;
 const fullWords=[['tap anywhere to exit','en'],['toca en cualquier lugar para salir','es'],['גע בכל מקום כדי לצאת','he'],['点击任意位置退出','zh'],['toque em qualquer lugar para sair','pt']];
 function startFullHints(){
  clearInterval(fullTimer);fullIndex=Math.floor(Math.random()*fullWords.length);
- const panes=document.querySelectorAll('.full-pane-hint');
- const tick=()=>{const [t,lang]=fullWords[fullIndex];panes.forEach(p=>{p.textContent=t;p.lang=lang;p.style.opacity='1'});fullIndex=(fullIndex+1)%fullWords.length};
- tick();fullTimer=setInterval(()=>{panes.forEach(p=>p.style.opacity='0');setTimeout(tick,800)},2600);
+ const hint=document.querySelector('.full-pane-hint');
+ const tick=()=>{const [t,lang]=fullWords[fullIndex];hint.textContent=t;hint.lang=lang;hint.style.opacity='1';fullIndex=(fullIndex+1)%fullWords.length};
+ tick();fullTimer=setInterval(()=>{hint.style.opacity='0';setTimeout(tick,800)},2600);
 }
 function stopFullHints(){clearInterval(fullTimer);fullTimer=null;}
 function paneBands(slot){
@@ -307,7 +314,7 @@ function paneBands(slot){
 function enterFull(){
  if(!selected[0]||!selected[1])return;
  const root=document.getElementById('fullscreenTwo');
- root.innerHTML='<div class="full-pane left" id="fullLeft"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 1</div>'+paneBands(1)+'</div><div class="full-pane right" id="fullRight"><div class="full-pane-hint"></div><div class="full-pane-label">COLOR 2</div>'+paneBands(2)+'</div>';
+ root.innerHTML='<div class="full-pane-hint"></div><div class="full-pane left" id="fullLeft"><div class="full-pane-label">COLOR 1</div>'+paneBands(1)+'</div><div class="full-pane right" id="fullRight"><div class="full-pane-label">COLOR 2</div>'+paneBands(2)+'</div>';
  document.body.classList.add('fullscreen-two');
  const panes=[...document.querySelectorAll('.full-pane')];
  panes.forEach(p=>{const main=p.querySelector('.full-band.main');main.style.setProperty('--full-text',hexText(main.style.background));});
