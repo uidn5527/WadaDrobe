@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r37 — r44 baseline</title><style>
+<title>WadaDrobe 2C r38 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -88,6 +88,39 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 .full-pane-hint{position:absolute;left:0;top:0;color:var(--full-text,rgba(255,255,255,.62));font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s}
 .full-pane-label{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.08em;font-weight:600;opacity:.35;z-index:2;writing-mode:vertical-rl}
 .full-pane.left .full-pane-label{left:8px}.full-pane.right .full-pane-label{right:8px}
+@media screen and (orientation:landscape) and (min-width:700px){
+ main{
+  display:grid;
+  grid-template-columns:minmax(360px,.42fr) minmax(520px,.58fr);
+  grid-template-areas:
+   "title title"
+   "controls camera"
+   "selected camera"
+   "similarity similarity"
+   "similar similar"
+   "combinations combinations"
+   "footer footer";
+  column-gap:18px;
+  row-gap:0;
+  align-items:stretch;
+  padding:24px 42px;
+  max-width:1400px;
+ }
+ main>h1{grid-area:title;margin-bottom:2px}
+ main>section:nth-of-type(1){grid-area:camera;margin:8px 0 0;padding:0;height:100%;display:flex;flex-direction:column;background:#111}
+ main>section:nth-of-type(1) .camera-stage{width:100%;max-width:none;height:100%;min-height:0;aspect-ratio:auto;flex:1 1 auto}
+ main>section:nth-of-type(2){display:contents}
+ .landscape-selected-heading{display:none;}\n@media screen and (orientation:landscape) and (min-width:700px){.landscape-selected-heading{display:block;grid-area:selected;align-self:end;margin:0;padding:0 14px 8px;font-size:1.25rem;line-height:1.15}
+ main>section:nth-of-type(2)>.two-inputs{grid-area:selected;margin:0;padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-self:stretch}
+ main>section:nth-of-type(2)>.shared-picker{grid-area:controls;margin:8px 0 0;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;align-self:start}
+ main>section:nth-of-type(2)>.two-inputs .slot{padding:10px}
+ main>section:nth-of-type(2)>.two-inputs .slot-swatch{height:56px}
+ main>section:nth-of-type(3){grid-area:similarity;margin:52px 0 0;padding:0 14px 10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:18px;align-items:start}
+ main>section:nth-of-type(4){grid-area:similar;margin:14px 0 0;padding:0 14px 14px}
+ main>section:nth-of-type(4)>h2{font-size:1.35rem;line-height:1.2;margin:0 0 12px}
+ main>section:nth-of-type(5){grid-area:combinations;margin:34px 0 0;padding:14px}
+ main>footer{grid-area:footer;margin-top:4px}
+}
 @media(max-width:600px){
  .camera-live-ring{background:radial-gradient(circle closest-side,transparent 0 calc(100% - 36px),var(--live-color) calc(100% - 36px) calc(100% - 28.8px),transparent calc(100% - 28.8px) 100%)}
  .camera-stable-ring{background:radial-gradient(circle closest-side,transparent 0 calc(100% - 28.8px),var(--stable-color) calc(100% - 28.8px) 100%)}
@@ -106,7 +139,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r37</span></h1>
+<h1 class="site-title-even"><span class="revision">2C r38</span><span class="brand">WadaDrobe</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -120,6 +153,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </section>
 
 <section>
+<h2 class="landscape-selected-heading">Selected colors</h2>
 <div class="two-inputs">
   <div class="slot active" id="slot1" role="button" tabindex="0" aria-pressed="true"><div class="slot-head"><span>Color 1</span><span>①</span></div><div class="slot-swatch" id="swatch1"></div><div class="slot-meta" id="meta1">Choose a color</div></div>
   <div class="slot" id="slot2" role="button" tabindex="0" aria-pressed="false"><div class="slot-head"><span>Color 2</span><span>②</span></div><div class="slot-swatch" id="swatch2"></div><div class="slot-meta" id="meta2">Choose a color</div></div>
