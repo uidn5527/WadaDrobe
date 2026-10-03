@@ -217,50 +217,70 @@ document.addEventListener('click',e=>{if(!e.target.closest('.custom-select'))doc
 function groupFor(name,count){if(!name)return[];return [name,...COLORS.map(x=>x[0]).filter(n=>n!==name).sort((a,b)=>distance(name,a)-distance(name,b)).slice(0,count)];}
 function membership(rank,count){if(count===0)return rank===0?1:0;return 1-(rank/(count+1));}
 function comboCandidates(){
- if(!selected[0]||!selected[1])return{exact2:[],fuzzy:[]};
+ if(!selected[0]||!selected[1])return[];
  const count=Number(document.getElementById('threshold').value);
- const g1=groupFor(selected[0],count),g2=groupFor(selected[1],count);
- const r1=Object.fromEntries(g1.map((n,i)=>[n,i])),r2=Object.fromEntries(g2.map((n,i)=>[n,i]));
 
- // Two-color palettes follow the strict rule: both colors must be members
- // of the two respective like-groups, with distinct positions.
- const exact2=[];
- for(const c of COMBINATIONS){
-   if(c.colors.length!==2)continue;
-   const p0=c.colors[0].name,p1=c.colors[1].name;
-   const direct=(r1[p0]!==undefined&&r2[p1]!==undefined);
-   const swapped=(r1[p1]!==undefined&&r2[p0]!==undefined);
-   if(direct||swapped){
-     const a=direct?{x:c.colors[0],i:0,rank:r1[p0]}:{x:c.colors[1],i:1,rank:r1[p1]};
-     const b=direct?{x:c.colors[1],i:1,rank:r2[p1]}:{x:c.colors[0],i:0,rank:r2[p0]};
-     exact2.push({c,best:{a,b,score:1,totalD:distance(selected[0],a.x.name)+distance(selected[1],b.x.name),d1:distance(selected[0],a.x.name),d2:distance(selected[1],b.x.name)}});
-   }
- }
+ // Continuous perceptual assignment:
+ // - Every eligible 2-, 3-, and 4-color combination is evaluated.
+ // - Color 1 and Color 2 are assigned to distinct positions.
+ // - Both possible assignments are tested for 2-color palettes.
+ // - The slider is a soft breadth control, not a membership gate. Lower
+ //   settings strongly favor colors close to each main color; higher settings
+ //   progressively reduce that breadth penalty and allow farther matches to
+ //   compete on their actual perceptual distance.
+ const names=COLORS.map(x=>x[0]);
+ const rankFor=(target)=>{
+   const ordered=names.filter(n=>n!==target).sort((a,b)=>distance(target,a)-distance(target,b));
+   return Object.fromEntries([[target,0],...ordered.map((n,i)=>[n,i+1])]);
+ };
+ const r1=rankFor(selected[0]),r2=rankFor(selected[1]);
+ const breadth=1+count;
+ const breadthPenalty=(rank)=>{
+   const transition=breadth+.5;
+   return 1+0.85/(1+Math.exp((rank-transition)/1.35));
+ };
+ const adjusted=(d,rank)=>d*breadthPenalty(rank);
 
- // Three- and four-color palettes use fuzzy membership. The slider controls
- // both the size of the pools and how much of the pool is considered usable.
- // The old gate (0.34 + 0.06*count) effectively admitted only the first
- // two members at the default setting, which could eliminate the entire
- // 3-/4-color catalog. The new gate relaxes progressively as the pool grows.
- const permissiveness=count===0?1:Math.max(.125,.30-.025*count);
- const fuzzy=[];
+ const candidates=[];
  for(const c of COMBINATIONS){
-   if(c.colors.length<3||c.colors.length>4)continue;
-   const opts1=c.colors.map((x,i)=>({x,i,rank:r1[x.name]})).filter(o=>o.rank!==undefined);
-   const opts2=c.colors.map((x,i)=>({x,i,rank:r2[x.name]})).filter(o=>o.rank!==undefined);
+   if(c.colors.length<2||c.colors.length>4)continue;
    let best=null;
-   for(const a of opts1)for(const b of opts2){
-     if(a.i===b.i)continue;
-     const mu1=membership(a.rank,count),mu2=membership(b.rank,count),worst=Math.min(mu1,mu2),avg=(mu1+mu2)/2;
-     const d1=distance(selected[0],a.x.name),d2=distance(selected[1],b.x.name);
-     const score=worst*.72+avg*.28;
-     if(!best||score>best.score||score===best.score&&(d1+d2)<best.totalD)best={a,b,mu1,mu2,worst,avg,score,totalD:d1+d2,d1,d2};
+   for(let i=0;i<c.colors.length;i++){
+     for(let j=0;j<c.colors.length;j++){
+       if(i===j)continue;
+       const a=c.colors[i],b=c.colors[j];
+       const d1=distance(selected[0],a.name),d2=distance(selected[1],b.name);
+       const rank1=r1[a.name]??names.length,rank2=r2[b.name]??names.length;
+       const ad1=adjusted(d1,rank1),ad2=adjusted(d2,rank2);
+       const worst=Math.max(ad1,ad2);
+       const total=ad1+ad2;
+       const balance=Math.abs(ad1-ad2);
+       const rawWorst=Math.max(d1,d2);
+       const rawTotal=d1+d2;
+       const score=worst;
+       const assignment={
+         a:{x:a,i,rank:rank1},
+         b:{x:b,j,rank:rank2},
+         d1,d2,ad1,ad2,worst,total,balance,rawWorst,rawTotal,score
+       };
+       if(!best||
+          assignment.worst<best.worst||
+          assignment.worst===best.worst&&assignment.total<best.total||
+          assignment.worst===best.worst&&assignment.total===best.total&&assignment.balance<best.balance){
+         best=assignment;
+       }
+     }
    }
-   if(best&&best.worst>=permissiveness)fuzzy.push({c,best});
+   if(best)candidates.push({c,best});
  }
- fuzzy.sort((a,b)=>b.best.score-a.best.score||Math.max(a.best.d1,a.best.d2)-Math.max(b.best.d1,b.best.d2)||a.c.number-b.c.number);
- exact2.sort((a,b)=>a.best.totalD-b.best.totalD||a.c.number-b.c.number);
- return{exact2,fuzzy};
+ candidates.sort((a,b)=>
+   a.best.worst-b.best.worst||
+   a.best.total-b.best.total||
+   a.best.balance-b.best.balance||
+   a.best.rawWorst-b.best.rawWorst||
+   a.c.number-b.c.number
+ );
+ return candidates;
 }
 function renderLikes(slot,group){
  const box=document.getElementById('likes'+slot);
@@ -274,14 +294,13 @@ function render(){
  renderLikes(1,currentLikes[0]);renderLikes(2,currentLikes[1]);
  const box=document.getElementById('results');
  if(!selected[0]||!selected[1]){box.innerHTML='<div class="empty">Choose or sample both colors.</div>';return;}
- const matches=comboCandidates();
- const all=[...matches.exact2,...matches.fuzzy];
- if(!all.length){box.innerHTML='<div class="empty">No catalog combinations meet the current matching rules.</div>';return;}
+ const all=comboCandidates();
+ if(!all.length){box.innerHTML='<div class="empty">No catalog combinations are available.</div>';return;}
  box.innerHTML=all.map(({c,best})=>{
    const ordered=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)];
    const labels=ordered.map((x,i)=>'<div class="block '+(i===0?'match1':i===1?'match2':'')+'" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');
-   const kind=c.colors.length===2?'exact 2-color':'fuzzy '+c.colors.length+'-color';
-   const score=c.colors.length===2?'exact match':'match '+Math.round(best.score*100)+'% · Δ '+best.d1.toFixed(1)+' / '+best.d2.toFixed(1);
+   const kind=c.colors.length+'-color perceptual match';
+   const score='Δ '+best.d1.toFixed(1)+' / '+best.d2.toFixed(1);
    return '<article class="combo"><div class="combo-title"><span>Combination #'+c.number+'</span><span class="score">'+kind+' · '+score+'</span></div><div class="blocks">'+labels+'</div></article>';
  }).join('');
 }
