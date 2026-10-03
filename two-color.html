@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r26 — r44 baseline</title><style>
+<title>WadaDrobe 2C r27 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -77,8 +77,8 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 .empty{color:var(--muted);padding:12px 2px}
 #fullscreenTwo{display:none}
 body.fullscreen-two{overflow:hidden}
-body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9999;background:#000}
-.full-pane{position:relative;width:50%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9999;background:transparent;width:100vw;height:100dvh;min-height:100dvh}
+.full-pane{position:relative;width:50%;height:100%;min-height:100%;display:flex;flex-direction:column;overflow:hidden;flex:0 0 50%}
 .full-pane.left{order:0}.full-pane.right{order:1}
 .full-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .full-band.main{flex:5 1 0}
@@ -106,7 +106,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r26</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r27</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
