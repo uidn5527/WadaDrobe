@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r40 — r44 baseline</title><style>
+<title>WadaDrobe 2C r41 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -187,7 +187,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">2C r40</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r41</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -252,7 +252,7 @@ function distance(a,b){const method=document.getElementById('similarityMethod').
 const familyOrder=['Reds','Oranges','Yellows','Greens','Blues','Purples','Pinks','Browns','Grays','Neutrals','Black & White','Other'];
 function colorFamily(name){const n=name.toLowerCase();if(/red|scarlet|coral/.test(n))return'Reds';if(/orange|ochre|ochraceous|apricot|cinnamon|buff|tan/.test(n))return'Oranges';if(/yellow|lemon|cream|olive/.test(n))return'Yellows';if(/green|turquoise|teal|viridian|aqua/.test(n))return'Greens';if(/blue|cyan|sky|azure|cerulean|cobalt|indigo/.test(n))return'Blues';if(/purple|violet|lavender|lilac|plum|magenta/.test(n))return'Purples';if(/pink|rose|vinaceous|salmon/.test(n))return'Pinks';if(/brown|drab|umber|russet|sienna/.test(n))return'Browns';if(/gray|grey|slate/.test(n))return'Grays';if(/black/.test(n))return'Black & White';if(/white|ivory|ecru|beige/.test(n))return'Neutrals';return'Other';}
 const records=COLORS.map(([name,hex])=>({name,hex,family:colorFamily(name)}));
-const selected=[null,null];let activeSlot=0;let currentLikes=[[],[]];
+const selected=[null,null];let activeSlot=1;let currentLikes=[[],[]];
 
 function buildPicker(query=''){
  const menu=document.getElementById('pickerMenu'), current=selected[activeSlot-1];menu.innerHTML='';
