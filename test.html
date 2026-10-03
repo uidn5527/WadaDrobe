@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe test14</title>
+<title>WadaDrobe test15</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -822,6 +822,27 @@ function test11LabToRgb(L,a,b){
  return [encode(lr)*255,encode(lg)*255,encode(lb)*255];
 }
 let test13LabView={amin:-80,amax:80,bmin:-80,bmax:80};
+let test15LabTarget=null;
+let test15LabAnim=null;
+function test15Ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function test15AnimateLabView(target,duration=900){
+  test15LabTarget=target;
+  if(test15LabAnim) cancelAnimationFrame(test15LabAnim);
+  const start={...test13LabView}, t0=performance.now();
+  function step(now){
+    const p=Math.min(1,(now-t0)/duration), e=test15Ease(p);
+    test13LabView={
+      amin:start.amin+(target.amin-start.amin)*e,
+      amax:start.amax+(target.amax-start.amax)*e,
+      bmin:start.bmin+(target.bmin-start.bmin)*e,
+      bmax:start.bmax+(target.bmax-start.bmax)*e
+    };
+    test13DrawLabSpace([],true);
+    if(p<1) test15LabAnim=requestAnimationFrame(step);
+    else {test13LabView={...target};test13DrawLabSpace([],true);test15LabAnim=null;}
+  }
+  test15LabAnim=requestAnimationFrame(step);
+}
 function test13NearestWadaSet(lab){
  const all=COLORS.map(([name,hex])=>({name,hex,lab:labMap[name],delta:ciede2000Lab(lab,labMap[name])}))
    .sort((x,y)=>x.delta-y.delta);
@@ -829,7 +850,7 @@ function test13NearestWadaSet(lab){
  const neighbors=all.slice(1).sort((x,y)=>ciede2000Lab(main.lab,x.lab)-ciede2000Lab(main.lab,y.lab)).slice(0,3);
  return [main,...neighbors];
 }
-function test13DrawLabSpace(points=[]){
+function test13DrawLabSpace(points=[],keepView=false){
  const w=test11LabCanvas.width,h=test11LabCanvas.height,ctx=test11LabCtx,cell=4,L=65;
  let amin=-80,amax=80,bmin=-80,bmax=80;
  if(points.length){
@@ -843,7 +864,7 @@ function test13DrawLabSpace(points=[]){
    if(amax-amin>160){amin=ca-80;amax=ca+80;}
    if(bmax-bmin>160){bmin=cb-80;bmax=cb+80;}
  }
- test13LabView={amin,amax,bmin,bmax};
+ if(!keepView) test13LabView={amin,amax,bmin,bmax};
  ctx.clearRect(0,0,w,h);
  const mapA=a=>(a-amin)/(amax-amin),mapB=b=>(bmax-b)/(bmax-bmin);
  for(let py=0;py<h;py+=cell){
