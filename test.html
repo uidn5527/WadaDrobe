@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r44</title>
+<title>WadaDrobe plus r45</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -543,7 +543,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r44</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r45</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -915,6 +915,21 @@ function nearestWadaFromLab(lab){
  for(const [name,hex] of COLORS){const d=ciede2000Lab(lab,labMap[name]);if(!best||d<best.delta)best={name,hex,delta:d};}
  return best;
 }
+function getProductionCorrectionParams(raw){
+ const mean=(raw[0]+raw[1]+raw[2])/3;
+ const targetMean=128;
+ const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
+ const exposed=raw.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
+ const correctedMean=(exposed[0]+exposed[1]+exposed[2])/3;
+ return {exposureGain,correctedMean};
+}
+function applyProductionCorrection(rgb,params=getProductionCorrectionParams(rgb)){
+ const wbStrength=.28;
+ return rgb.map(v=>{
+   const exposed=Math.max(0,Math.min(255,v*params.exposureGain));
+   return Math.round(Math.max(0,Math.min(255,exposed+(params.correctedMean-exposed)*wbStrength*0.35)));
+ });
+}
 function sampleCameraColor(){
  if(!cameraStream||cameraVideo.readyState<2)return;
  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;
@@ -949,18 +964,10 @@ function sampleCameraColor(){
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rgb=[avg(0),avg(1),avg(2)];
 
- // Silent camera normalization: compensate modestly for exposure and white-balance
- // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
- // the pre-r37 raw sampled RGB behavior.
+ // r45: the production exposure/white-balance correction is shared
+ // by both the production and Shades-of-Gray comparison paths.
  if(colorCorrectionEnabled){
- const mean=(rgb[0]+rgb[1]+rgb[2])/3;
- const targetMean=128;
- const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
- rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
- const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
- const wbStrength=.28;
- rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
- rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
+   rgb=applyProductionCorrection(rgb);
  }
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
@@ -1065,7 +1072,7 @@ const shadesCompareRgb=document.getElementById('shadesCompareRgb');
 const shadesCompareNote=document.getElementById('shadesCompareNote');
 const SHADES_GRAY_P=6;
 
-function shadesGrayIlluminant(){
+function shadesGrayIlluminant(productionParams=null){
   if(!cameraStream||cameraVideo.readyState<2)return null;
   const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;
   if(!iw||!ih)return null;
@@ -1076,7 +1083,19 @@ function shadesGrayIlluminant(){
   const d=ctx.getImageData(0,0,w,h).data,p=SHADES_GRAY_P;
   let sr=0,sg=0,sb=0,n=0;
   for(let i=0;i<d.length;i+=4){
-    const r=d[i],g=d[i+1],b=d[i+2];
+    let r=d[i],g=d[i+1],b=d[i+2];
+    // When the production correction toggle is on, Shades of Gray sees
+    // the same production exposure/WB-corrected frame as the production path.
+    if(productionParams){
+      r=Math.max(0,Math.min(255,r*productionParams.exposureGain));
+      g=Math.max(0,Math.min(255,g*productionParams.exposureGain));
+      b=Math.max(0,Math.min(255,b*productionParams.exposureGain));
+      const wbStrength=.28;
+      const wbMix=wbStrength*.35;
+      r=Math.max(0,Math.min(255,r+(productionParams.correctedMean-r)*wbMix));
+      g=Math.max(0,Math.min(255,g+(productionParams.correctedMean-g)*wbMix));
+      b=Math.max(0,Math.min(255,b+(productionParams.correctedMean-b)*wbMix));
+    }
     // Ignore transparent pixels and very dark sensor/background noise.
     if(r+g+b<30)continue;
     sr+=Math.pow(r,p);sg+=Math.pow(g,p);sb+=Math.pow(b,p);n++;
@@ -1117,9 +1136,15 @@ function sampleRawCentralRgbForShades(){
 
 function updateWadaComparePanel(){
   if(!cameraStream||cameraVideo.readyState<2)return;
-  const raw=sampleRawCentralRgbForShades(),illum=shadesGrayIlluminant();
-  if(!raw||!illum)return;
-  const corrected=raw.map((v,i)=>Math.max(0,Math.min(255,v*illum.gain[i])));
+  const raw=sampleRawCentralRgbForShades();
+  if(!raw)return;
+  // The toggle now controls the shared production correction applied before
+  // either matching path. Shades of Gray is then applied on top of it.
+  const productionParams=colorCorrectionEnabled?getProductionCorrectionParams(raw):null;
+  const productionCorrected=productionParams?applyProductionCorrection(raw,productionParams):raw.slice();
+  const illum=shadesGrayIlluminant(productionParams);
+  if(!illum)return;
+  const corrected=productionCorrected.map((v,i)=>Math.max(0,Math.min(255,v*illum.gain[i])));
   const prod=displayedCameraMatch;
   if(prod){
     productionCompareName.textContent=prod.name;
