@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r35</title>
+<title>WadaDrobe plus r36</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r35</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r36</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1054,7 +1054,12 @@ function plusStartTwoHints(){clearInterval(plusTwoFullscreenTimer);plusTwoFullsc
 function fitFullscreenColorNames(){
   const root=document.body.classList.contains('fullscreen-two-mode')?fullscreenTwoRoot:document.getElementById('fullscreenColorBands');
   if(!root)return;
-  const names=[...root.querySelectorAll('.fullscreen-name,.fullscreen-two-name')];
+  let names=[...root.querySelectorAll('.fullscreen-name,.fullscreen-two-name')];
+  // Single-color fullscreen with zero similar colors uses the legacy centered
+  // #fullscreenColorName element instead of the band renderer.
+  if(!document.body.classList.contains('fullscreen-two-mode') &&
+     !document.body.classList.contains('fullscreen-has-bands') &&
+     fullscreenColorName) names=[fullscreenColorName];
   if(!names.length)return;
   const isTwo=document.body.classList.contains('fullscreen-two-mode');
   const landscape=window.matchMedia('(orientation: landscape)').matches;
