@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r46</title>
+<title>WadaDrobe plus r47</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r46</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r47</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -565,7 +565,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <option value="lab">CIELAB Euclidean</option>
 <option value="rgb">RGB Euclidean</option>
 </select>
-<label for="threshold">Lighting uncertainty: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="7" step="1" value="4"><div class="range-row"><small>Ideal</small><small>High uncertainty</small></div></section>
+<label for="threshold">Lighting uncertainty: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="7" step="1" value="4"><div class="range-row"><small>Ideal</small><small>High</small></div></section>
 <section class="single-similar"><h2 id="similarHeading">Visually similar colors</h2><div class="grid" id="similarColors"></div></section>
 <section class="single-combinations"><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <section class="two-likes" id="twoLikesSection" hidden><h2>Like colors</h2><div class="two-like-columns"><div class="two-like-group"><h3>Color 1 group</h3><div id="twoLikes1" class="two-like-grid"></div></div><div class="two-like-group"><h3>Color 2 group</h3><div id="twoLikes2" class="two-like-grid"></div></div></div></section><section class="two-combinations" id="twoCombinationsSection" hidden><h2>Matching combinations</h2><div id="twoResults"></div></section><footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
@@ -606,15 +606,22 @@ function lightingUncertaintyScore(a,b){
   if(a===b)return 0;
   const ar=rgbMap[a],br=rgbMap[b];
   if(!ar||!br)return Infinity;
+  // Model illumination as a positive per-channel gain. Remove the common
+  // exposure component, then measure both chromatic distortion and the
+  // size of the required gain change.
   const logs=ar.map((v,i)=>Math.log(Math.max(1,v)/Math.max(1,br[i])));
   const mean=logs.reduce((s,v)=>s+v,0)/3;
   const centered=logs.map(v=>v-mean);
-  return Math.max(...centered)-Math.min(...centered);
+  const chromatic=Math.sqrt(centered.reduce((s,v)=>s+v*v,0)/3);
+  const exposure=Math.abs(mean);
+  return chromatic*1.6+exposure*0.55;
 }
 function lightingUncertaintyLimit(level){
+  // Deliberately conservative scale: low settings should add only a few
+  // genuinely plausible alternatives; higher settings broaden gradually.
   const t=Math.max(0,Math.min(7,Number(level)||0));
   if(t===0)return 0;
-  return 0.035+0.055*t+0.0075*t*t;
+  return 0.012+0.014*t+0.003*t*t;
 }
 function lightingAwareCandidates(selected,level){
   if(!selected)return[];
