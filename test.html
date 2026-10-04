@@ -1274,6 +1274,7 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
   function showLive(local){
     if(!local)return;
     displayedCameraMatch={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name)};
+    cameraLiveRing.style.setProperty('--live-color',local.hex);
     cameraStableRing.style.setProperty('--stable-color',local.hex);
     cameraResultSwatch.style.background=local.hex;
     cameraResultText.textContent=local.name;
@@ -1315,6 +1316,9 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
     playCameraClickSound();
     applyOfficial(analyze());
   },true);
+  // r42: disable the original per-frame production badge updater. The controlled
+  // lighting-aware updater above is now the sole source of the live badge/result.
+  sampleCameraColor=function(){};
   startLive();
 })();
 </script>
