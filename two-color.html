@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r41 — r44 baseline</title><style>
+<title>WadaDrobe 2C r42 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -76,18 +76,23 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{color:var(--muted);padding:12px 2px}
 #fullscreenTwo{display:none}
-body.fullscreen-two{overflow:hidden;background:linear-gradient(90deg,var(--full-left,#000) 0 50%,var(--full-right,#000) 50% 100%)!important}
-body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9999;background:transparent;width:100vw;height:100dvh;min-height:100dvh}
-.full-pane{position:relative;width:50%;height:100%;min-height:100%;display:flex;flex-direction:column;overflow:hidden;flex:0 0 50%}
+body.fullscreen-two{overflow:hidden}
+body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9999;width:100vw;height:100dvh;min-width:100vw;min-height:100dvh;background:#000}
+.full-pane{position:relative;width:50%;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;flex:0 0 50%}
 .full-pane.left{order:0}.full-pane.right{order:1}
 .full-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .full-band.main{flex:5 1 0}
 .full-band.similar{flex:1 1 0}
-.full-name{padding:8px 12px;color:var(--full-text,rgba(255,255,255,.62));font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.14);text-align:center}
+.full-name{padding:8px 12px;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.14);text-align:center}
 .full-band.main .full-name{font-size:23.1px}
-.full-pane-hint{position:absolute;left:0;top:0;color:var(--full-text,rgba(255,255,255,.62));font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s}
-.full-pane-label{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.08em;font-weight:600;opacity:.35;z-index:2;writing-mode:vertical-rl}
+.full-pane-hint{position:absolute;left:0;top:0;color:rgba(255,255,255,.62);font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s;pointer-events:none}
+.full-pane-label{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:.08em;font-weight:600;opacity:.35;z-index:2;writing-mode:vertical-rl;pointer-events:none}
 .full-pane.left .full-pane-label{left:8px}.full-pane.right .full-pane-label{right:8px}
+@media(max-width:420px){
+ .full-name{font-size:12px}
+ .full-band.main .full-name{font-size:18px}
+ .full-pane-hint{font-size:11px}
+}
 @media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
  main{
   display:grid;
@@ -187,7 +192,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r41</span></h1>
+<h1 class="site-title-even"><span class="revision">2C r42</span><span class="brand">WadaDrobe</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -373,28 +378,23 @@ document.getElementById('threshold').addEventListener('input',render);
 document.getElementById('similarityMethod').addEventListener('change',render);
 updatePicker();render();
 
-function hexText(hex){const h=hex.slice(1),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),lum=(.2126*r+.7152*g+.0722*b)/255;return lum>.58?'rgba(0,0,0,.56)':'rgba(255,255,255,.62)';}
-let fullTimer=null,fullIndex=0;
+function hexText(hex){const h=hex.slice(1),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),lum=(.2126*r+.7152*g+.0722*b)/255;return lum>.58?'rgba(0,0,0,.72)':'rgba(255,255,255,.82)';}
+let fullTimer=null,fullIndex=0,fullResizeFrame=null;
 const fullWords=[['tap anywhere to exit','en'],['toca en cualquier lugar para salir','es'],['גע בכל מקום כדי לצאת','he'],['点击任意位置退出','zh'],['toque em qualquer lugar para sair','pt']];
 function startFullHints(){
  clearInterval(fullTimer);fullIndex=Math.floor(Math.random()*fullWords.length);
- const hint=document.querySelector('.full-pane-hint');
- const root=document.getElementById('fullscreenTwo');
+ const hint=document.querySelector('.full-pane-hint'),root=document.getElementById('fullscreenTwo');
  const tick=()=>{
    const [t,lang]=fullWords[fullIndex];
    hint.textContent=t;hint.lang=lang;
-   const margin=18, exclusionTop=78, exclusionBottom=18;
+   const margin=18,exclusionTop=78,exclusionBottom=18,exclusionH=140;
    const maxX=Math.max(margin,root.clientWidth-hint.offsetWidth-margin);
    const maxY=Math.max(exclusionTop,root.clientHeight-hint.offsetHeight-exclusionBottom);
    let x=margin+Math.random()*Math.max(0,maxX-margin);
    let y=exclusionTop+Math.random()*Math.max(0,maxY-exclusionTop);
-   const exclusionH=140;
    for(let i=0;i<20;i++){
-     const left=x,right=x+hint.offsetWidth,top=y,bottom=y+hint.offsetHeight;
-     const centerX=root.clientWidth/2;
-     if(!(left<centerX+exclusionH&&right>centerX-exclusionH&&top<exclusionTop+exclusionH&&bottom>exclusionTop)){
-       break;
-     }
+     const left=x,right=x+hint.offsetWidth,top=y,bottom=y+hint.offsetHeight,centerX=root.clientWidth/2;
+     if(!(left<centerX+exclusionH&&right>centerX-exclusionH&&top<exclusionTop+exclusionH&&bottom>exclusionTop))break;
      x=margin+Math.random()*Math.max(0,maxX-margin);
      y=exclusionTop+Math.random()*Math.max(0,maxY-exclusionTop);
    }
@@ -406,30 +406,41 @@ function startFullHints(){
 }
 function stopFullHints(){clearInterval(fullTimer);fullTimer=null;}
 function paneBands(slot){
- const group=currentLikes[slot-1]||[];
- const main=selected[slot-1];
+ const group=currentLikes[slot-1]||[],main=selected[slot-1];
  if(!main)return '';
- const similars=group.slice(1);
- const topPct=Math.max(20,100-10*(similars.length+1));
- let html='<div class="full-band main" style="flex:0 0 '+topPct+'%;background:'+map[main]+'"><div class="full-name">'+main+'</div></div>';
- for(const n of similars)html+='<div class="full-band similar" style="background:'+map[n]+'"><div class="full-name">'+n+'</div></div>';
+ const similars=group.slice(1),topPct=Math.max(20,100-10*(similars.length+1));
+ const name=n=>'<div class="full-name" style="color:'+hexText(map[n])+'">'+n+'</div>';
+ let html='<div class="full-band main" style="flex:0 0 '+topPct+'%;background:'+map[main]+'">'+name(main)+'</div>';
+ for(const n of similars)html+='<div class="full-band similar" style="background:'+map[n]+'">'+name(n)+'</div>';
  html+='<div class="full-band bottom-main" style="background:'+map[main]+'"></div>';
  return html;
 }
-function enterFull(){
- if(!selected[0]||!selected[1])return;
- document.body.style.setProperty('--full-left',map[selected[0]]);
- document.body.style.setProperty('--full-right',map[selected[1]]);
+function renderFullscreen(){
  const root=document.getElementById('fullscreenTwo');
+ if(!document.body.classList.contains('fullscreen-two'))return;
  root.innerHTML='<div class="full-pane-hint"></div><div class="full-pane left" id="fullLeft"><div class="full-pane-label">COLOR 1</div>'+paneBands(1)+'</div><div class="full-pane right" id="fullRight"><div class="full-pane-label">COLOR 2</div>'+paneBands(2)+'</div>';
- document.body.classList.add('fullscreen-two');
- const panes=[...document.querySelectorAll('.full-pane')];
- panes.forEach(p=>{const main=p.querySelector('.full-band.main');main.style.setProperty('--full-text',hexText(main.style.background));});
  startFullHints();
 }
-function exitFull(){document.body.classList.remove('fullscreen-two');document.body.style.removeProperty('--full-left');document.body.style.removeProperty('--full-right');document.getElementById('fullscreenTwo').innerHTML='';stopFullHints();}
+function enterFull(){
+ if(!selected[0]||!selected[1])return;
+ document.body.classList.add('fullscreen-two');
+ requestAnimationFrame(renderFullscreen);
+}
+function scheduleFullResize(){
+ if(!document.body.classList.contains('fullscreen-two'))return;
+ cancelAnimationFrame(fullResizeFrame);
+ fullResizeFrame=requestAnimationFrame(()=>{fullResizeFrame=null;renderFullscreen();});
+}
+function exitFull(){
+ document.body.classList.remove('fullscreen-two');
+ cancelAnimationFrame(fullResizeFrame);fullResizeFrame=null;
+ document.getElementById('fullscreenTwo').innerHTML='';
+ stopFullHints();
+}
 document.getElementById('fullscreenTwo').addEventListener('click',exitFull);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('fullscreen-two'))exitFull();});
+window.addEventListener('resize',scheduleFullResize);
+window.addEventListener('orientationchange',scheduleFullResize);
 
 const fullscreenButton=document.createElement('button');
 fullscreenButton.type='button';fullscreenButton.textContent='Show full-screen color groups';fullscreenButton.style.cssText='width:100%;min-height:48px;margin-top:10px;padding:11px 14px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer';
