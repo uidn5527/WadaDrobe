@@ -1221,4 +1221,23 @@ document.addEventListener('keydown',e=>{
 });
 
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
+</script><style id="r51diag-style">
+#r51diag{position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:rgba(255,255,255,.97);border:1px solid #777;border-radius:8px;padding:8px;font:11px/1.35 monospace;color:#111;max-height:38vh;overflow:auto;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+#r51diag b{font-weight:700}.r51ok{color:#174d17}.r51bad{color:#8b1111}
+</style><script id="r51diag-script">
+(function(){
+ const panel=document.createElement('div');panel.id='r51diag';document.body.appendChild(panel);
+ const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ function update(){
+   const selected=select.value,k=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0)));
+   const expected=selected?lightingAwareCandidates(selected,k):[];
+   const shown=[...document.querySelectorAll('#similarColors .color-card .name')].map(x=>x.textContent.trim());
+   const match=JSON.stringify(shown)===JSON.stringify(expected);
+   panel.innerHTML='<b>r51 single-color diagnostic</b><br>select.value = <b>'+esc(selected)+'</b><br>threshold.value = <b>'+esc(threshold.value)+'</b> &nbsp; displayed = <b>'+esc(thresholdValue.textContent)+'</b><br>lightingAwareCandidates length = <b>'+expected.length+'</b><br>expected = '+esc(expected.join(' | '))+'<br>DOM similarColors count = <b>'+shown.length+'</b><br>DOM = '+esc(shown.join(' | '))+'<br>DOM matches candidate array: <b class="'+(match?'r51ok':'r51bad')+'">'+match+'</b>';
+ }
+ window.r51DiagnosticUpdate=update;
+ threshold.addEventListener('input',()=>requestAnimationFrame(update));
+ new MutationObserver(()=>update()).observe(document.getElementById('similarColors'),{childList:true,subtree:true});
+ update();
+})();
 </script></body></html>
