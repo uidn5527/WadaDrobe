@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r45</title>
+<title>WadaDrobe plus r46</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -188,17 +188,6 @@ button,select,input{touch-action:manipulation}
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
-.wada-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 0;padding:0 10px 10px}
-.wada-compare-card{background:#fff;color:#202124;border-radius:10px;padding:12px;border:1px solid #d5d5d5;min-width:0}
-.wada-compare-card.production{border-left:4px solid #555}
-.wada-compare-card.shades{border-left:4px solid #315f8c}
-.wada-compare-label{font-size:.76rem;font-weight:750;letter-spacing:.03em;text-transform:uppercase;color:#666;margin-bottom:7px}
-.wada-compare-name{font-weight:750;line-height:1.2;min-height:2.4em;display:flex;align-items:center}
-.wada-compare-swatch{width:100%;height:38px;border-radius:6px;border:1px solid #999;margin:7px 0}
-.wada-compare-rgb{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#666}
-.wada-compare-note{font-size:.72rem;color:#777;margin-top:5px;line-height:1.25}
-@media(max-width:600px){.wada-compare{grid-template-columns:1fr 1fr;padding-left:6px;padding-right:6px;gap:7px}.wada-compare-card{padding:9px}.wada-compare-name{font-size:.9rem}.wada-compare-swatch{height:34px}}
-
 .camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
@@ -543,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r45</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r46</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -568,22 +557,6 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
-<div class="wada-compare" aria-label="Production versus Shades of Gray comparison">
-  <div class="wada-compare-card production">
-    <div class="wada-compare-label">Production r39</div>
-    <div id="productionCompareName" class="wada-compare-name">Waiting for camera…</div>
-    <div id="productionCompareSwatch" class="wada-compare-swatch"></div>
-    <div id="productionCompareRgb" class="wada-compare-rgb">RGB —</div>
-    <div class="wada-compare-note">Existing production correction + CIEDE2000</div>
-  </div>
-  <div class="wada-compare-card shades">
-    <div class="wada-compare-label">Shades of Gray · p=6</div>
-    <div id="shadesCompareName" class="wada-compare-name">Waiting for camera…</div>
-    <div id="shadesCompareSwatch" class="wada-compare-swatch"></div>
-    <div id="shadesCompareRgb" class="wada-compare-rgb">RGB —</div>
-    <div id="shadesCompareNote" class="wada-compare-note">Whole-frame illumination estimate</div>
-  </div>
-</div>
 </section>
 <section class="single-selected"><div class="selected" id="selectedColor"></div></section><section class="two-selected" id="twoSelected"><div class="two-inputs"><div class="two-slot active" id="twoSlot1" role="button" tabindex="0" aria-pressed="true"><div class="two-slot-head"><span>Color 1</span><span>①</span></div><div class="two-slot-swatch" id="twoSwatch1"></div><div class="two-slot-meta" id="twoMeta1"></div></div><div class="two-slot" id="twoSlot2" role="button" tabindex="0" aria-pressed="false"><div class="two-slot-head"><span>Color 2</span><button id="clearColor2" class="clear-color2" type="button" aria-label="Clear Color 2" title="Clear Color 2">×</button></div><div class="two-slot-swatch" id="twoSwatch2"></div><div class="two-slot-meta" id="twoMeta2">Choose Color 2</div></div></div></section>
 <section class="similarity-controls"><label for="similarityMethod">Similarity method</label>
@@ -592,7 +565,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <option value="lab">CIELAB Euclidean</option>
 <option value="rgb">RGB Euclidean</option>
 </select>
-<label for="threshold">Similar colors: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="7" step="1" value="4"><div class="range-row"><small>0</small><small>7</small></div></section>
+<label for="threshold">Lighting uncertainty: <span class="value" id="thresholdValue"></span></label><input id="threshold" type="range" min="0" max="7" step="1" value="4"><div class="range-row"><small>Ideal</small><small>High uncertainty</small></div></section>
 <section class="single-similar"><h2 id="similarHeading">Visually similar colors</h2><div class="grid" id="similarColors"></div></section>
 <section class="single-combinations"><h2>Color combinations using the selected or similar colors</h2><div id="combinations"></div></section>
 <section class="two-likes" id="twoLikesSection" hidden><h2>Like colors</h2><div class="two-like-columns"><div class="two-like-group"><h3>Color 1 group</h3><div id="twoLikes1" class="two-like-grid"></div></div><div class="two-like-group"><h3>Color 2 group</h3><div id="twoLikes2" class="two-like-grid"></div></div></div></section><section class="two-combinations" id="twoCombinationsSection" hidden><h2>Matching combinations</h2><div id="twoResults"></div></section><footer>Color matching uses CIEDE2000 by default. Camera sampling is processed locally in your browser.</footer>
@@ -629,10 +602,35 @@ function ciede2000(a,b){
  return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
 }
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
+function lightingUncertaintyScore(a,b){
+  if(a===b)return 0;
+  const ar=rgbMap[a],br=rgbMap[b];
+  if(!ar||!br)return Infinity;
+  const logs=ar.map((v,i)=>Math.log(Math.max(1,v)/Math.max(1,br[i])));
+  const mean=logs.reduce((s,v)=>s+v,0)/3;
+  const centered=logs.map(v=>v-mean);
+  return Math.max(...centered)-Math.min(...centered);
+}
+function lightingUncertaintyLimit(level){
+  const t=Math.max(0,Math.min(7,Number(level)||0));
+  if(t===0)return 0;
+  return 0.035+0.055*t+0.0075*t*t;
+}
+function lightingAwareCandidates(selected,level){
+  if(!selected)return[];
+  const k=Math.max(0,Math.min(7,Math.round(Number(level)||0)));
+  if(k===0)return[selected];
+  const limit=lightingUncertaintyLimit(k);
+  return [selected,...COLORS.map(([n])=>n).filter(n=>n!==selected)
+    .map(n=>({name:n,score:lightingUncertaintyScore(selected,n),distance:distance(selected,n)}))
+    .filter(x=>x.score<=limit)
+    .sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name))
+    .map(x=>x.name)];
+}
 const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
 const methodThresholds=Object.fromEntries(Object.entries(methodConfig).map(([key,c])=>[key,c.value]));
-function updateMethodControls(){threshold.min=0;threshold.max=7;threshold.step=1;threshold.value=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||4)));document.querySelector('label[for=threshold]').childNodes[0].nodeValue='Similar colors: ';render();}
+function updateMethodControls(){threshold.min=0;threshold.max=7;threshold.step=1;threshold.value=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||4)));document.querySelector('label[for=threshold]').childNodes[0].nodeValue='Lighting uncertainty: ';render();}
 const colorSearch=document.getElementById('colorSearch');
 const familyOrder=['Reds','Oranges','Yellows','Greens','Blues','Purples','Pinks','Browns','Grays','Neutrals','Black & White','Other'];
 let currentSimilarColors=[];
@@ -677,7 +675,7 @@ function populateColorSelect(preferredColor=null){
 }
 populateColorSelect();
 function updateColorPickerButton(){const selected=select.value;selectedSwatch.style.background=map[selected]||'transparent';selectedSwatch.title=selected+' '+(map[selected]||'');selectedColorName.textContent=selected||'Choose a color';colorPickerButton.setAttribute('aria-label',selected?'Choose '+selected:'Choose a color');colorPickerMenu.querySelectorAll('.custom-select-option').forEach(o=>o.setAttribute('aria-selected',String(o.dataset.color===selected)));}
-function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=COLORS.map(([n])=>n).filter(n=>n!==selected).sort((a,b)=>distance(selected,a)-distance(selected,b)).slice(0,count);currentSimilarColors=similar.slice();const group=[selected,...similar];
+function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.round(Number(threshold.value)))); updateColorPickerButton();thresholdValue.textContent=String(count);const similar=lightingAwareCandidates(selected,count).slice(1);currentSimilarColors=similar.slice();const group=[selected,...similar];
  document.getElementById('selectedColor').innerHTML=`<div class="swatch clickable-color" role="button" tabindex="0" data-color="${selected}" title="Choose ${selected}" style="background:${map[selected]}"></div><div class="selected-color-meta"><div class="name">${selected}</div><div class="hex">${map[selected]}</div></div>`;
  document.getElementById('similarHeading').textContent='Visually similar colors';
  const grid=document.getElementById('similarColors');grid.innerHTML=group.map((n,index)=>`<article class="color-card${index===0?' selected-similar-color':''}"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
@@ -810,7 +808,7 @@ select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-
 colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
 colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});
 document.addEventListener('click',e=>{if(!colorPicker.contains(e.target)){colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');}});
-similarityMethod.addEventListener('change',()=>{render();updateMethodControls();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});updateMethodControls();
+similarityMethod.addEventListener('change',()=>{render();updateMethodControls();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{thresholdValue.textContent=String(Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0))));render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});updateMethodControls();
 
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
@@ -915,21 +913,6 @@ function nearestWadaFromLab(lab){
  for(const [name,hex] of COLORS){const d=ciede2000Lab(lab,labMap[name]);if(!best||d<best.delta)best={name,hex,delta:d};}
  return best;
 }
-function getProductionCorrectionParams(raw){
- const mean=(raw[0]+raw[1]+raw[2])/3;
- const targetMean=128;
- const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
- const exposed=raw.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
- const correctedMean=(exposed[0]+exposed[1]+exposed[2])/3;
- return {exposureGain,correctedMean};
-}
-function applyProductionCorrection(rgb,params=getProductionCorrectionParams(rgb)){
- const wbStrength=.28;
- return rgb.map(v=>{
-   const exposed=Math.max(0,Math.min(255,v*params.exposureGain));
-   return Math.round(Math.max(0,Math.min(255,exposed+(params.correctedMean-exposed)*wbStrength*0.35)));
- });
-}
 function sampleCameraColor(){
  if(!cameraStream||cameraVideo.readyState<2)return;
  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;if(!iw||!ih)return;
@@ -964,10 +947,18 @@ function sampleCameraColor(){
  const avg=ch=>{const vals=samples.map(p=>p[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
  let rgb=[avg(0),avg(1),avg(2)];
 
- // r45: the production exposure/white-balance correction is shared
- // by both the production and Shades-of-Gray comparison paths.
+ // Silent camera normalization: compensate modestly for exposure and white-balance
+ // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
+ // the pre-r37 raw sampled RGB behavior.
  if(colorCorrectionEnabled){
-   rgb=applyProductionCorrection(rgb);
+ const mean=(rgb[0]+rgb[1]+rgb[2])/3;
+ const targetMean=128;
+ const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
+ rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
+ const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
+ const wbStrength=.28;
+ rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
+ rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
  }
  const liveHex='#'+rgb.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
  const lab=rgbBytesToLab(...rgb),match=nearestWadaFromLab(lab);
@@ -1060,108 +1051,6 @@ function playCameraClickSound(){
    osc.stop(now+0.08);
  }catch(err){}
 }
-
-/* r44 experiment: independent Shades of Gray comparison path.
-   This does not replace production matching or capture behavior. */
-const productionCompareName=document.getElementById('productionCompareName');
-const productionCompareSwatch=document.getElementById('productionCompareSwatch');
-const productionCompareRgb=document.getElementById('productionCompareRgb');
-const shadesCompareName=document.getElementById('shadesCompareName');
-const shadesCompareSwatch=document.getElementById('shadesCompareSwatch');
-const shadesCompareRgb=document.getElementById('shadesCompareRgb');
-const shadesCompareNote=document.getElementById('shadesCompareNote');
-const SHADES_GRAY_P=6;
-
-function shadesGrayIlluminant(productionParams=null){
-  if(!cameraStream||cameraVideo.readyState<2)return null;
-  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;
-  if(!iw||!ih)return null;
-  const maxW=160,scale=Math.min(1,maxW/iw),w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
-  const c=document.createElement('canvas');c.width=w;c.height=h;
-  const ctx=c.getContext('2d',{willReadFrequently:true});
-  ctx.drawImage(cameraVideo,0,0,w,h);
-  const d=ctx.getImageData(0,0,w,h).data,p=SHADES_GRAY_P;
-  let sr=0,sg=0,sb=0,n=0;
-  for(let i=0;i<d.length;i+=4){
-    let r=d[i],g=d[i+1],b=d[i+2];
-    // When the production correction toggle is on, Shades of Gray sees
-    // the same production exposure/WB-corrected frame as the production path.
-    if(productionParams){
-      r=Math.max(0,Math.min(255,r*productionParams.exposureGain));
-      g=Math.max(0,Math.min(255,g*productionParams.exposureGain));
-      b=Math.max(0,Math.min(255,b*productionParams.exposureGain));
-      const wbStrength=.28;
-      const wbMix=wbStrength*.35;
-      r=Math.max(0,Math.min(255,r+(productionParams.correctedMean-r)*wbMix));
-      g=Math.max(0,Math.min(255,g+(productionParams.correctedMean-g)*wbMix));
-      b=Math.max(0,Math.min(255,b+(productionParams.correctedMean-b)*wbMix));
-    }
-    // Ignore transparent pixels and very dark sensor/background noise.
-    if(r+g+b<30)continue;
-    sr+=Math.pow(r,p);sg+=Math.pow(g,p);sb+=Math.pow(b,p);n++;
-  }
-  if(!n)return null;
-  const e=[Math.pow(sr/n,1/p),Math.pow(sg/n,1/p),Math.pow(sb/n,1/p)];
-  const mean=(e[0]+e[1]+e[2])/3;
-  return {e,gain:e.map(v=>mean/Math.max(1,v))};
-}
-
-function sampleRawCentralRgbForShades(){
-  if(!cameraStream||cameraVideo.readyState<2)return null;
-  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;
-  if(!iw||!ih)return null;
-  const targetRect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
-  const targetCx=targetRect.left+targetRect.width/2-videoRect.left;
-  const targetCy=targetRect.top+targetRect.height/2-videoRect.top;
-  const scale=Math.max(videoRect.width/iw,videoRect.height/ih);
-  const renderedW=iw*scale,renderedH=ih*scale;
-  const cropX=(renderedW-videoRect.width)/2,cropY=(renderedH-videoRect.height)/2;
-  let cx=(targetCx+cropX)/scale,cy=(targetCy+cropY)/scale;
-  if(cameraFacing==='user')cx=iw-cx;
-  const innerRadius=Math.max(6,targetRect.width/2);
-  const sourceRadius=Math.max(4,innerRadius/scale);
-  const sampleRadius=sourceRadius*.90;
-  const drawSize=Math.max(24,Math.min(180,Math.ceil(sampleRadius*2)));
-  const c=document.createElement('canvas');c.width=drawSize;c.height=drawSize;
-  const ctx=c.getContext('2d',{willReadFrequently:true});
-  ctx.drawImage(cameraVideo,cx-sampleRadius,cy-sampleRadius,sampleRadius*2,sampleRadius*2,0,0,drawSize,drawSize);
-  const d=ctx.getImageData(0,0,drawSize,drawSize).data,cc=drawSize/2,rr=drawSize/2*.96,samples=[];
-  for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++){
-    if(Math.hypot(x-cc,y-cc)<=rr){const i=(y*drawSize+x)*4;samples.push([d[i],d[i+1],d[i+2]]);}
-  }
-  if(!samples.length)return null;
-  const avg=ch=>{const vals=samples.map(v=>v[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
-  return [avg(0),avg(1),avg(2)];
-}
-
-function updateWadaComparePanel(){
-  if(!cameraStream||cameraVideo.readyState<2)return;
-  const raw=sampleRawCentralRgbForShades();
-  if(!raw)return;
-  // The toggle now controls the shared production correction applied before
-  // either matching path. Shades of Gray is then applied on top of it.
-  const productionParams=colorCorrectionEnabled?getProductionCorrectionParams(raw):null;
-  const productionCorrected=productionParams?applyProductionCorrection(raw,productionParams):raw.slice();
-  const illum=shadesGrayIlluminant(productionParams);
-  if(!illum)return;
-  const corrected=productionCorrected.map((v,i)=>Math.max(0,Math.min(255,v*illum.gain[i])));
-  const prod=displayedCameraMatch;
-  if(prod){
-    productionCompareName.textContent=prod.name;
-    productionCompareSwatch.style.background=prod.hex;
-    productionCompareRgb.textContent='RGB '+prod.rgb.map(v=>Math.round(v)).join(', ');
-  }
-  const shades=nearestWadaFromLab(rgbBytesToLab(...corrected));
-  shadesCompareName.textContent=shades.name;
-  shadesCompareSwatch.style.background=shades.hex;
-  shadesCompareRgb.textContent='RGB '+corrected.map(v=>Math.round(v)).join(', ');
-  const g=illum.gain.map(v=>v.toFixed(3)).join(' / ');
-  shadesCompareNote.textContent='p=6 · gains R/G/B '+g;
-}
-
-const wadaOriginalCameraLoop=cameraLoop;
-cameraLoop=function(){sampleCameraColor();updateWadaComparePanel();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);};
-
 function captureCameraColor(){
  if(!lastCameraMatch)return;
  playCameraClickSound();
@@ -1196,9 +1085,9 @@ function plusBuildPicker(){const q=colorSearch.value.trim().toLowerCase(),groups
 function plusSetSearchClear(){colorSearchClear.classList.toggle('visible',!!colorSearch.value)}
 function plusSetActive(slot){plusActiveSlot=slot===2?2:1;twoSlot1.classList.toggle('active',plusActiveSlot===1);twoSlot2.classList.toggle('active',plusActiveSlot===2);twoSlot1.setAttribute('aria-pressed',String(plusActiveSlot===1));twoSlot2.setAttribute('aria-pressed',String(plusActiveSlot===2));select.value=plusActiveSlot===2?(plusColor2||plusColor1):plusColor1;updateColorPickerButton();plusBuildPicker()}
 function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'';twoSwatch2.style.background=plusColor2?map[plusColor2]:'';twoSlot2.classList.toggle('empty-color2',!plusColor2);twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
-function plusGroupFor(n,k){if(!n)return[];return[n,...COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b)).slice(0,k)]}
-function plusRadius(n,k){if(!n||k<=0)return 0;const ns=COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b));return distance(n,ns[k-1])+.05*k*k}
-function plusComboCandidates(){const a=plusColor1,b=plusColor2;if(!a||!b)return[];const k=Number(threshold.value),r1=plusRadius(a,k),r2=plusRadius(b,k),out=[];for(const c of COMBINATIONS){if(c.colors.length<2||c.colors.length>4)continue;let best=null;for(let i=0;i<c.colors.length;i++){const x=c.colors[i],d1=distance(a,x.name);if(d1>r1)continue;for(let j=0;j<c.colors.length;j++){if(i===j)continue;const y=c.colors[j],d2=distance(b,y.name);if(d2>r2)continue;const z={a:{x,i},b:{x:y,i:j},worst:Math.max(d1,d2),total:d1+d2,balance:Math.abs(d1-d2)};if(!best||z.total<best.total||z.total===best.total&&z.worst<best.worst||z.total===best.total&&z.worst===best.worst&&z.balance<best.balance)best=z}}if(best)out.push({c,best})}out.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);return out.slice(0,12)}
+function plusGroupFor(n,k){return lightingAwareCandidates(n,k)}
+function plusRadius(n,k){const g=plusGroupFor(n,k);if(!n||g.length<2)return 0;return distance(n,g[g.length-1])}
+function plusComboCandidates(){const a=plusColor1,b=plusColor2;if(!a||!b)return[];const k=Number(threshold.value),g1=plusGroupFor(a,k),g2=plusGroupFor(b,k),rank1=new Map(g1.map((n,i)=>[n,i])),rank2=new Map(g2.map((n,i)=>[n,i])),out=[];for(const c of COMBINATIONS){if(c.colors.length<2||c.colors.length>4)continue;let best=null;for(let i=0;i<c.colors.length;i++){const x=c.colors[i],d1=distance(a,x.name),q1=rank1.has(x.name)?rank1.get(x.name):Infinity;if(!rank1.has(x.name))continue;for(let j=0;j<c.colors.length;j++){if(i===j)continue;const y=c.colors[j],d2=distance(b,y.name),q2=rank2.has(y.name)?rank2.get(y.name):Infinity;if(!rank2.has(y.name))continue;const z={a:{x,i},b:{x:y,i:j},worst:Math.max(q1,q2),total:q1+q2,balance:Math.abs(q1-q2)};if(!best||z.total<best.total||z.total===best.total&&z.worst<best.worst||z.total===best.total&&z.worst===best.worst&&z.balance<best.balance)best=z}}if(best)out.push({c,best})}out.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);return out.slice(0,12)}
 function plusRenderLikes(slot,g){const box=document.getElementById('twoLikes'+slot);if(!g.length){box.innerHTML='<div class="empty">Choose Color '+slot+'.</div>';return}box.innerHTML=g.map((n,i)=>'<div class="two-like-card '+(i?'':'main-like')+'" data-color="'+n+'"><div class="swatch" style="background:'+map[n]+'"></div><div class="name">'+n+'</div></div>').join('')}
 function plusText(hex){const h=hex.slice(1),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),l=(.2126*r+.7152*g+.0722*b)/255;return l>.58?'rgba(0,0,0,.72)':'rgba(255,255,255,.82)'}
 function plusPane(slot){const n=slot===1?plusColor1:plusColor2,g=plusGroupFor(n,Number(threshold.value)),sim=g.slice(1),pct=Math.max(20,100-10*(sim.length+1)),nm=x=>'<div class="fullscreen-two-name" style="color:'+plusText(map[x])+'">'+x+'</div>';let h='<div class="fullscreen-two-band main" style="flex:0 0 '+pct+'%;background:'+map[n]+'">'+nm(n)+'</div>';for(const x of sim)h+='<div class="fullscreen-two-band" style="background:'+map[x]+'">'+nm(x)+'</div>';return h+'<div class="fullscreen-two-band" style="background:'+map[n]+'"></div>'}
