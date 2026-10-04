@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r42</title>
+<title>WadaDrobe plus r43</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -186,7 +186,7 @@ button,select,input{touch-action:manipulation}
   background:radial-gradient(circle closest-side,transparent 0 calc(100% - 33.6px),var(--stable-color) calc(100% - 33.6px) 100%);
 }
 
-.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-result{display:none!important;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
 .camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-zoom.visible{opacity:1}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r42</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r43</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1160,9 +1160,8 @@ document.addEventListener('keydown',e=>{
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
 </script>
 </body></html><script>
-/* WadaAI local lighting experiment — r42: live badge uses the same lighting-aware matcher as capture. */
+/* WadaAI local lighting experiment — r43: r41 capture behavior; live result badge removed. */
 (function(){
-  var liveTimer=null,liveBusy=false;
   function clamp(v,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?255:b,v));}
   function localDE(rgb,name){return ciede2000Lab(rgbBytesToLab(clamp(rgb[0]),clamp(rgb[1]),clamp(rgb[2])),labMap[name]);}
   function frameCanvas(){
@@ -1233,11 +1232,11 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
       var m=(v[0]+v[1]+v[2])/3;
       return v.map(function(x){return m/Math.max(1,x);});
     }
-    var a=normalize(g1),b=normalize(g2),cc=normalize(den);
+    var a=normalize(g1),b=normalize(g2),c=normalize(den);
     var neutralConfidence=Math.min(1,gray.length/Math.max(30,ps.length*.08));
     var brightConfidence=Math.min(1,bright.length/Math.max(20,ps.length*.05));
     var w1=.45*neutralConfidence,w2=.30*brightConfidence,w3=.25,z=w1+w2+w3;
-    var gain=[0,1,2].map(function(k){return(w1*a[k]+w2*b[k]+w3*cc[k])/z;});
+    var gain=[0,1,2].map(function(k){return(w1*a[k]+w2*b[k]+w3*c[k])/z;});
     var strength=.55+.35*Math.min(1,(neutralConfidence+brightConfidence)/2);
     return{gain:gain.map(function(g){return 1+(g-1)*strength;})};
   }
@@ -1271,26 +1270,6 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
     var target=targetCenter(fc),raw=sampleTarget(fc),scene=scenePixels(fc,target),illum=estimateIllumination(scene);
     return localMatch(raw,illum);
   }
-  function showLive(local){
-    if(!local)return;
-    displayedCameraMatch={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name)};
-    cameraLiveRing.style.setProperty('--live-color',local.hex);
-    cameraStableRing.style.setProperty('--stable-color',local.hex);
-    cameraResultSwatch.style.background=local.hex;
-    cameraResultText.textContent=local.name;
-    cameraResult.hidden=false;
-  }
-  function updateLive(){
-    if(liveBusy||!cameraVideo||cameraVideo.readyState<2||!cameraVideo.videoWidth)return;
-    liveBusy=true;
-    try{showLive(analyze());}catch(err){}
-    liveBusy=false;
-  }
-  function startLive(){
-    if(liveTimer)clearInterval(liveTimer);
-    liveTimer=setInterval(updateLive,700);
-    updateLive();
-  }
   function applyOfficial(local){
     if(!local)return;
     var official={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name)};
@@ -1316,10 +1295,6 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
     playCameraClickSound();
     applyOfficial(analyze());
   },true);
-  // r42: disable the original per-frame production badge updater. The controlled
-  // lighting-aware updater above is now the sole source of the live badge/result.
-  sampleCameraColor=function(){};
-  startLive();
 })();
 </script>
 </body></html>
