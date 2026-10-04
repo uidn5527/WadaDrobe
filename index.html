@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r39</title>
+<title>WadaDrobe plus r40</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r39</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r40</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -783,7 +783,7 @@ select.addEventListener('change',()=>{document.body.style.setProperty('--chosen-
 colorPickerButton.addEventListener('click',e=>{e.stopPropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open));if(!open){const selectedItem=colorPickerMenu.querySelector('[aria-selected="true"]');selectedItem?.scrollIntoView({block:'nearest'});}});
 colorPickerMenu.addEventListener('click',e=>{const item=e.target.closest('.custom-select-option');if(!item)return;const chosen=item.dataset.color;select.value=chosen;colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');document.body.style.setProperty('--chosen-color',map[chosen]);render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});
 document.addEventListener('click',e=>{if(!colorPicker.contains(e.target)){colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false');}});
-similarityMethod.addEventListener('change',()=>{render();updateMethodControls();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});updateMethodControls();
+similarityMethod.addEventListener('change',()=>{render();updateMethodControls();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});colorSearch.addEventListener('input',populateColorSelect);threshold.addEventListener('input',()=>{thresholdValue.textContent=String(Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0))));render();if(document.body.classList.contains('fullscreen-color-mode'))updateFullscreenBands();});updateMethodControls();
 
 // Live camera sampler: sample the average RGB value inside the target circle,
 // convert it to Lab, and continuously find the nearest Sanzo Wada catalog color.
