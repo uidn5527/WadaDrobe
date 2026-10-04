@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r18</title>
+<title>WadaDrobe plus r17</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -382,84 +382,10 @@ body:not(.mode-two) #twoSelected{display:block!important}
 .two-slot.empty-color2 .two-slot-swatch::after{content:"";position:absolute;inset:0;width:100%;height:100%;pointer-events:none;background-repeat:no-repeat;background-size:100% 100%}
 .two-slot.empty-color2 .two-slot-swatch::before{background-image:linear-gradient(to bottom right,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px))}
 .two-slot.empty-color2 .two-slot-swatch::after{background-image:linear-gradient(to bottom left,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px))}
-</style><style>
-/* plus r18: harmonize combination blocks and compact the landscape camera/selection composition */
-@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
-  /* Match the camera and left-hand selection stack as compact visual units. */
-  main>.controls{
-    padding:12px;
-    margin:6px 0 0;
-    gap:10px;
-  }
-  main>.controls .search-wrap,
-  main>.controls .custom-select-button{
-    min-height:40px;
-  }
-  main>.controls #colorFieldToggle{
-    min-height:42px;
-    margin-top:6px;
-    padding:8px 12px;
-  }
-
-  main>.two-selected{
-    padding:6px 10px 10px;
-  }
-  .two-inputs{
-    gap:9px;
-  }
-  .two-slot{
-    padding:8px;
-  }
-  .two-slot.active{
-    padding:7px;
-  }
-  .two-slot-head{
-    min-height:32px;
-    font-size:.84rem;
-  }
-  .two-slot-swatch{
-    height:48px;
-    margin:6px 0;
-  }
-  .two-slot-meta{
-    font-size:.74rem;
-    min-height:16px;
-  }
-
-  /* Shorter landscape camera frame; the video is cropped, not distorted. */
-  main>.camera-panel{
-    align-self:start;
-    height:auto;
-  }
-  main>.camera-panel .camera-stage{
-    height:auto;
-    aspect-ratio:5/4;
-    flex:none;
-    width:100%;
-  }
-  main>.camera-panel #cameraVideo{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-  }
-
-  /* Single-color combinations use exactly the two-color block spacing model. */
-  main>.single-combinations .blocks{
-    display:flex;
-    flex-wrap:nowrap;
-    gap:0;
-    overflow:hidden;
-  }
-  main>.single-combinations .block{
-    flex:1 1 0;
-    width:0;
-    min-width:0;
-  }
-}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r18</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r17</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
