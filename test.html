@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r18</title>
+<title>WadaDrobe plus r19</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -459,7 +459,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r18</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r19</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -975,7 +975,7 @@ function plusHintText(){
  return Math.min(c1,c2)>=Math.min(b1,b2)?'#fff':'#000';
 }
 function plusStartTwoHints(){clearInterval(plusTwoFullscreenTimer);plusTwoFullscreenIndex=Math.floor(Math.random()*plusFullWords.length);const root=fullscreenTwoRoot,hint=root.querySelector('.fullscreen-two-hint');hint.style.color=plusHintText();const tick=()=>{const [txt,lang]=plusFullWords[plusTwoFullscreenIndex];hint.textContent=txt;hint.lang=lang;const m=18,maxX=Math.max(m,root.clientWidth-hint.offsetWidth-m),maxY=Math.max(m,root.clientHeight-hint.offsetHeight-m);hint.style.left=m+Math.random()*Math.max(0,maxX-m)+'px';hint.style.top=m+Math.random()*Math.max(0,maxY-m)+'px';hint.style.opacity='1';plusTwoFullscreenIndex=(plusTwoFullscreenIndex+1)%plusFullWords.length};requestAnimationFrame(tick);plusTwoFullscreenTimer=setInterval(()=>{hint.style.opacity='0';setTimeout(()=>requestAnimationFrame(tick),800)},2600)}
-function plusRenderTwoFullscreen(){if(!document.body.classList.contains('fullscreen-two-mode'))return;const root=fullscreenTwoRoot;root.innerHTML='<div class="fullscreen-two-hint"></div><div class="fullscreen-two-pane">'+plusPane(1)+'</div><div class="fullscreen-two-pane">'+plusPane(2)+'</div>';const v=window.visualViewport,w=v?v.width:innerWidth,h=v?v.height:innerHeight,l=v?v.offsetLeft:0,t=v?v.offsetTop:0;root.style.left=l+'px';root.style.top=t+'px';root.style.width=w+'px';root.style.height=h+'px';root.style.right='auto';root.style.bottom='auto';plusStartTwoHints()}
+function plusRenderTwoFullscreen(){if(!document.body.classList.contains('fullscreen-two-mode'))return;const root=fullscreenTwoRoot;root.innerHTML='<div class="fullscreen-two-hint"></div><div class="fullscreen-two-pane">'+plusPane(1)+'</div><div class="fullscreen-two-pane">'+plusPane(2)+'</div>';root.style.left='';root.style.top='';root.style.width='';root.style.height='';root.style.right='';root.style.bottom='';plusStartTwoHints()}
 function plusEnterTwoFullscreen(){if(!plusColor2)return;document.body.classList.add('fullscreen-two-mode');requestAnimationFrame(plusRenderTwoFullscreen)}
 function plusExitTwoFullscreen(){document.body.classList.remove('fullscreen-two-mode');clearInterval(plusTwoFullscreenTimer);plusTwoFullscreenTimer=null;fullscreenTwoRoot.innerHTML=''}
 function plusRenderTwo(){if(!plusColor2){plusExitTwoMode();return}select.value=plusColor1;plusUpdateTwoSlots();plusRenderLikes(1,plusGroupFor(plusColor1,Number(threshold.value)));plusRenderLikes(2,plusGroupFor(plusColor2,Number(threshold.value)));const box=twoResults,all=plusComboCandidates();if(!all.length){box.innerHTML='<div class="empty">No catalog combinations are available.</div>';return}box.innerHTML=all.map(({c,best})=>{const o=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)],p=o.slice(0,2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join(''),rest=o.slice(2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');return '<article class="two-combo"><div class="two-combo-title">Combination #'+c.number+'</div><div class="blocks"><div class="two-match-pair">'+p+'</div>'+rest+'</div></article>'}).join('')}
