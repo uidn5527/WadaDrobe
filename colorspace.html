@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>WadaDrobe — CIELAB Color Space</title>
+<title>WadaDrobe CIELAB Color Space — r02</title>
 <style>
 :root{--bg:#f5f5f2;--panel:#fff;--text:#202124;--muted:#666;--border:#d8d8d3}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
 #top{z-index:5;display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(8px)}
-#top h1{font-size:18px;margin:0;white-space:nowrap}
+#top h1{font-size:18px;margin:0;white-space:nowrap}.version{font-size:.62em;font-weight:400;letter-spacing:.04em;color:#888;margin-left:5px;vertical-align:middle}
 #top .sub{font-size:12px;color:var(--muted);white-space:nowrap}
 .controls{margin-left:auto;display:flex;gap:6px}
 button{border:1px solid #bbb;background:#fff;border-radius:7px;padding:7px 10px;font:inherit;cursor:pointer}
@@ -27,7 +27,7 @@ canvas{display:block;width:100%;height:100%}
 <body>
 <div id="app">
   <div id="top">
-    <h1>WadaDrobe CIELAB</h1>
+    <h1>WadaDrobe CIELAB <span class="version">r02</span></h1>
     <div class="sub">2D a* / b* color space · all Wada colors</div>
     <div class="controls"><button id="reset">Reset</button><button id="fit">Fit all</button></div>
   </div>
