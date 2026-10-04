@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r10</title>
+<title>WadaDrobe plus r37</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -17,6 +17,7 @@ label{font-weight:650;display:block;margin-bottom:8px}select,input[type=range]{w
 footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border);padding-top:16px}@media(max-width:700px){.controls{grid-template-columns:1fr}.selected{align-items:stretch;flex-direction:column}.selected .swatch{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 #colorFieldToggle{margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:6px;background:#fff;color:#222;cursor:pointer;font:inherit}
 #colorFieldToggle:hover{background:#f0f0f0}
+#colorFieldToggle{font-size:.9rem;white-space:nowrap}
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
 #fullscreenTapLayer{display:none}body.fullscreen-color-mode #fullscreenTapLayer{display:block;position:fixed;inset:0;z-index:9998;background:transparent;cursor:pointer;touch-action:manipulation}#fullscreenHint{display:none}
@@ -27,145 +28,6 @@ body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!impo
 .clickable-color{cursor:pointer}
 .clickable-color:focus{outline:3px solid #222;outline-offset:2px}
 
-@media screen and (orientation: landscape) and (min-width: 600px) and (max-width: 1200px){
-  main{
-    display:grid;
-    grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);
-    grid-template-areas:
-      "title title"
-      "controls camera"
-      "selected camera"
-      "similarity similarity"
-      "similar similar"
-      "combinations combinations"
-      "footer footer";
-    column-gap:18px;
-    row-gap:0;
-    align-items:stretch;
-    padding-left:42px;
-    padding-right:42px;
-  }
-  main>h1{
-    grid-area:title;
-    margin-bottom:2px;
-  }
-  main>.controls{
-    grid-area:controls;
-    margin:8px 0 0;
-    padding:16px;
-    display:block;
-  }
-  main>.camera-panel{
-    grid-area:camera;
-    margin:8px 18px 0 0;
-    padding:0;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-  }
-  main>.camera-panel .camera-stage{
-    width:100%;
-    max-width:none;
-    height:100%;
-    min-height:0;
-    aspect-ratio:auto;
-    flex:1 1 auto;
-  }
-  main>section:nth-of-type(3){
-    grid-area:selected;
-    margin:0;
-    padding:8px 14px 14px;
-  }
-  main>section:nth-of-type(3)>h2{
-    font-size:1.25rem;
-    line-height:1.15;
-    margin:0 0 8px;
-  }
-  main>section:nth-of-type(3) .selected{
-    margin-bottom:0;
-    padding:10px 14px;
-    gap:12px;
-    display:block;
-  }
-  main>section:nth-of-type(3) .selected .swatch{
-    width:100%;
-    height:56px;
-  }
-  main>section:nth-of-type(3) .selected-color-meta{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:14px;
-    margin-top:8px;
-    min-width:0;
-  }
-  main>section:nth-of-type(3) .selected-color-meta .name{
-    margin-top:0;
-    min-width:0;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  main>section:nth-of-type(3) .selected-color-meta .hex{
-    flex:none;
-    white-space:nowrap;
-  }
-  main>.similarity-controls{
-    grid-area:similarity;
-    margin:52px 0 0;
-    padding:0 14px 10px;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    grid-template-rows:auto auto auto;
-    column-gap:18px;
-    align-items:start;
-  }
-  main>.similarity-controls label[for="threshold"]{
-    grid-column:1;
-    grid-row:1;
-    margin-top:0;
-  }
-  main>.similarity-controls #threshold{
-    grid-column:1;
-    grid-row:2;
-  }
-  main>.similarity-controls .range-row{
-    grid-column:1;
-    grid-row:3;
-  }
-  main>.similarity-controls label[for="similarityMethod"]{
-    grid-column:2;
-    grid-row:1;
-    margin-top:0;
-  }
-  main>.similarity-controls #similarityMethod{
-    grid-column:2;
-    grid-row:2;
-  }
-  main>section:nth-of-type(5){
-    grid-area:similar;
-    margin:14px 0 0;
-    padding:0 14px 14px;
-  }
-  main>section:nth-of-type(5)>h2{
-    font-size:1.35rem;
-    line-height:1.2;
-    margin:0 0 12px;
-  }
-  main>section:nth-of-type(5) .grid{
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    margin-bottom:0;
-  }
-  main>section:nth-of-type(6){
-    grid-area:combinations;
-    margin:34px 0 0;
-    padding:14px;
-  }
-  main>footer{
-    grid-area:footer;
-    margin-top:4px;
-  }
-}
 </style>
 
 <style>
@@ -199,7 +61,7 @@ input,select,button{font-size:16px;min-height:44px}
 .name{overflow-wrap:anywhere;line-height:1.25}
 .hex{font-size:.82rem;overflow-wrap:anywhere}
 .combination{padding:12px;margin:10px 0;border-radius:10px}
-.blocks{display:flex;flex-wrap:wrap;gap:6px}
+.blocks{display:flex;flex-wrap:wrap;gap:0}
 .block{flex:1 1 72px;min-width:64px;min-height:58px;padding:8px 5px;border-radius:7px;display:flex;align-items:flex-end;justify-content:center;text-align:center;overflow-wrap:anywhere}
 .block span{font-size:.72rem;line-height:1.15;background:rgba(255,255,255,.78);color:#111;border-radius:4px;padding:2px 4px;max-width:100%}
 .combination-title{font-weight:700;line-height:1.25;margin-bottom:8px}
@@ -325,7 +187,9 @@ button,select,input{touch-action:manipulation}
 }
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
+.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
+.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
@@ -341,18 +205,6 @@ button,select,input{touch-action:manipulation}
 </style><style>
 .site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}
 
-/* test06 portrait-only section order: camera before color selection */
-@media (orientation: portrait){
-  main{display:flex;flex-direction:column}
-  main>h1{order:0}
-  main>.camera-panel{order:1}
-  main>.controls{order:2}
-  main>section:nth-of-type(3){order:3}
-  main>.similarity-controls{order:4}
-  main>section:nth-of-type(5){order:5}
-  main>section:nth-of-type(6){order:6}
-  main>footer{order:7}
-}
 /* test06 fullscreen experiment — no effect in normal mode */
 .site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
 .site-title-odd .brand{color:#505423}
@@ -413,7 +265,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
   text-shadow:0 1px 3px rgba(0,0,0,.14);
 }
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
-.search-wrap{position:relative;margin:6px 0 10px}.search-wrap #colorSearch{margin:0;padding-right:42px}.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#666;font:inherit;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;min-height:32px}.search-clear.visible{display:flex}.search-clear:hover{background:#eee;color:#222}.search-clear:focus{outline:2px solid rgba(49,95,140,.35);outline-offset:1px}.add-color2{width:100%;min-height:44px;margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer}.two-selected{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-inputs,.two-like-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two-slot{border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0}.two-slot.active{border:2px solid #505423;padding:9px;box-shadow:0 0 0 1px rgba(80,84,35,.12)}.two-slot-head{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-weight:700;gap:8px}.two-slot-swatch{height:56px;border-radius:8px;border:1px solid #888;margin:9px 0}.two-slot-meta{font-size:.8rem;color:var(--muted);min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clear-color2{width:32px;height:32px;min-height:32px;border:0;border-radius:50%;background:transparent;color:#666;font-size:22px;line-height:1;cursor:pointer}.clear-color2:hover{background:#eee;color:#222}.two-likes,.two-combinations{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-like-group{border:1px solid var(--border);border-radius:9px;padding:8px;min-width:0}.two-like-group h3{margin:0 0 7px;font-size:.95rem}.two-like-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.two-like-card{min-width:0;border:1px solid #bbb;border-radius:6px;padding:4px;cursor:pointer}.two-like-card .swatch{height:38px;border-radius:4px;border:1px solid #777}.two-like-card .name{font-size:.68rem;line-height:1.1;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.two-like-card.main-like{border:2px solid #555;padding:3px}.two-combo{border:1px solid var(--border);border-radius:9px;padding:10px;margin:9px 0;background:#fff}.two-combo-title{font-weight:700;margin-bottom:7px}.two-match-pair{display:flex;flex:2 1 0;min-width:0;overflow:hidden;cursor:pointer}.two-match-pair .block{flex:1 1 0;width:0;border-right:1px solid rgba(0,0,0,.35)}.two-match-pair .block:last-child{border-right:0}.two-combo .blocks{display:flex;gap:0;overflow:hidden;border-radius:6px}.two-combo .block{height:64px;position:relative;cursor:pointer;flex:1 1 0;width:0;min-width:0}.two-combo .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mode-two .single-selected,.mode-two .single-similar,.mode-two .single-combinations{display:none}.mode-two .two-selected,.mode-two .two-likes,.mode-two .two-combinations{display:block}.mode-two main{display:flex;flex-direction:column}.mode-two #colorFieldToggle{display:block}.mode-two .controls{display:block!important}.mode-two .two-selected{order:2}.mode-two .controls{order:3}.mode-two .camera-panel{order:1}.mode-two .similarity-controls{order:4}.mode-two .two-likes{order:5}.mode-two .two-combinations{order:6}.mode-two footer{order:7}.fullscreen-two-root{display:none}body.fullscreen-two-mode{overflow:hidden}body.fullscreen-two-mode .fullscreen-two-root{display:flex;position:fixed;left:0;top:0;right:0;bottom:0;width:auto;height:auto;z-index:9999;background:#000;overflow:hidden}.fullscreen-two-pane{position:relative;flex:1 1 50%;min-width:0;height:100%;overflow:hidden;display:flex;flex-direction:column}.fullscreen-two-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.fullscreen-two-band.main{flex:5 1 0}.fullscreen-two-name{padding:8px 12px;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.14)}.fullscreen-two-band.main .fullscreen-two-name{font-size:23.1px}.fullscreen-two-hint{position:absolute;left:0;top:0;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s;pointer-events:none}@media(max-width:420px){.two-like-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.two-combo .block{height:58px}}@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){.mode-two main{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);grid-template-areas:"title title" "controls camera" "selected camera" "similarity similarity" "likes likes" "combos combos" "footer footer";column-gap:18px;row-gap:0;align-items:stretch;padding-left:42px;padding-right:42px}.mode-two main>h1{grid-area:title;margin-bottom:2px}.mode-two main>.controls{grid-area:controls;margin:8px 0 0;padding:16px}.mode-two main>.camera-panel{grid-area:camera;margin:8px 18px 0 0;padding:0;height:100%;display:flex;flex-direction:column}.mode-two main>.camera-panel .camera-stage{width:100%;max-width:none;height:100%;min-height:0;aspect-ratio:auto;flex:1 1 auto}.mode-two main>.two-selected{grid-area:selected;margin:0;padding:8px 14px 14px}.mode-two main>.similarity-controls{grid-area:similarity;margin:52px 0 0;padding:0 14px 10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:18px;align-items:start}.mode-two main>.two-likes{grid-area:likes;margin:14px 0 0;padding:0 14px 14px}.mode-two main>.two-combinations{grid-area:combos;margin:34px 0 0;padding:14px}.mode-two main>footer{grid-area:footer;margin-top:4px}}</style><style>
+.search-wrap{position:relative;margin:6px 0 10px}.search-wrap #colorSearch{margin:0;padding-right:42px}.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#666;font:inherit;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;min-height:32px}.search-clear.visible{display:flex}.search-clear:hover{background:#eee;color:#222}.search-clear:focus{outline:2px solid rgba(49,95,140,.35);outline-offset:1px}.add-color2{width:100%;min-height:44px;margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer}.two-selected{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-inputs,.two-like-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two-slot{border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0}.two-slot.active{border:2px solid #505423;padding:9px;box-shadow:0 0 0 1px rgba(80,84,35,.12)}.two-slot-head{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-weight:700;gap:8px}.two-slot-swatch{height:56px;border-radius:8px;border:1px solid #888;margin:9px 0}.two-slot-meta{font-size:.8rem;color:var(--muted);min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clear-color2{width:32px;height:32px;min-height:32px;border:0;border-radius:50%;background:transparent;color:#666;font-size:22px;line-height:1;cursor:pointer}.clear-color2:hover{background:#eee;color:#222}.two-likes,.two-combinations{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-like-group{border:1px solid var(--border);border-radius:9px;padding:8px;min-width:0}.two-like-group h3{margin:0 0 7px;font-size:.95rem}.two-like-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.two-like-card{min-width:0;border:1px solid #bbb;border-radius:6px;padding:4px;cursor:pointer}.two-like-card .swatch{height:38px;border-radius:4px;border:1px solid #777}.two-like-card .name{font-size:.68rem;line-height:1.1;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.two-like-card.main-like{border:2px solid #555;padding:3px}.two-combo{border:1px solid var(--border);border-radius:9px;padding:10px;margin:9px 0;background:#fff}.two-combo-title{font-weight:700;margin-bottom:7px}.two-match-pair{display:flex;flex:2 1 0;min-width:0;overflow:hidden;cursor:pointer}.two-match-pair .block{flex:1 1 0;width:0;border-right:1px solid rgba(0,0,0,.35)}.two-match-pair .block:last-child{border-right:0}.two-combo .blocks{display:flex;gap:0;overflow:hidden;border-radius:6px}.two-combo .block{height:64px;position:relative;cursor:pointer;flex:1 1 0;width:0;min-width:0}.two-combo .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mode-two .single-selected,.mode-two .single-similar,.mode-two .single-combinations{display:none}.mode-two .two-selected,.mode-two .two-likes,.mode-two .two-combinations{display:block}.mode-two main{display:flex;flex-direction:column}.mode-two #colorFieldToggle{display:block}.mode-two .controls{display:block!important}.mode-two .two-selected{order:2}.mode-two .controls{order:3}.mode-two .camera-panel{order:1}.mode-two .similarity-controls{order:4}.mode-two .two-likes{order:5}.mode-two .two-combinations{order:6}.mode-two footer{order:7}.fullscreen-two-root{display:none}body.fullscreen-two-mode{overflow:hidden}body.fullscreen-two-mode .fullscreen-two-root{display:flex;position:fixed;left:0;top:0;right:0;bottom:0;width:auto;height:auto;z-index:9999;background:#000;overflow:hidden}.fullscreen-two-pane{position:relative;flex:1 1 50%;min-width:0;height:100%;overflow:hidden;display:flex;flex-direction:column}.fullscreen-two-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.fullscreen-two-band.main{flex:5 1 0}.fullscreen-two-name{padding:8px 12px;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.14)}.fullscreen-two-band.main .fullscreen-two-name{font-size:23.1px}.fullscreen-two-hint{position:absolute;left:0;top:0;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s;pointer-events:none}@media(max-width:420px){.two-like-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.two-combo .block{height:58px}}</style><style>
 /* p02: two-color-only UI must never occupy the single-color layout */
 body:not(.mode-two) #twoSelected,
 body:not(.mode-two) #twoLikesSection,
@@ -452,10 +304,235 @@ body:not(.mode-two) #twoSelected{display:block!important}
   body:not(.mode-two) main>.single-combinations{order:6}
   body:not(.mode-two) main>footer{order:7}
 }
-</style></head>
+</style>
+<style>
+/* plus r16: clean landscape layout, responsive empty Color 2 X, compact slot labels */
+@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
+  main{
+    display:grid !important;
+    width:100%;
+    max-width:none;
+    min-width:0;
+    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
+    grid-template-areas:
+      "title title"
+      "controls camera"
+      "selected camera"
+      "similarity similarity"
+      "similar similar"
+      "combinations combinations"
+      "footer footer";
+    column-gap:18px;
+    row-gap:0;
+    padding-left:24px;
+    padding-right:24px;
+    align-items:stretch;
+  }
+  main>h1{grid-area:title;min-width:0;margin-bottom:2px}
+  main>.controls{grid-area:controls;display:block !important;width:100%;min-width:0;max-width:100%;margin:8px 0 0;padding:16px}
+  main>.camera-panel{grid-area:camera;width:100%;min-width:0;max-width:100%;height:100%;min-height:0;margin:8px 0 0;padding:0;display:flex;flex-direction:column}
+  main>.camera-panel .camera-stage{width:100%;max-width:none;height:100%;min-height:0;aspect-ratio:auto;flex:1 1 auto}
+  main>.two-selected{grid-area:selected !important;display:block !important;width:100%;min-width:0;max-width:100%;margin:0;padding:8px 14px 14px}
+  main>.controls .color-picker{width:100%;min-width:0;max-width:100%}
+  main>.controls .search-wrap{width:100%;min-width:0;max-width:100%;position:relative;display:block}
+  main>.controls #colorSearch{display:block;width:100%;min-width:0;max-width:100%}
+  main>.controls #colorPicker{width:100%;min-width:0;max-width:100%}
+  main>.controls #colorPickerButton{display:flex;width:100%;min-width:0;max-width:100%}
+  main>.controls #colorFieldToggle{display:block;width:100%;min-width:0;max-width:100%}
+  main>.similarity-controls{grid-area:similarity !important;display:grid !important;width:100%;min-width:0;max-width:100%;margin:28px 0 0;padding:0 14px 10px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:18px;align-items:start}
+  main>.similarity-controls label[for="threshold"]{grid-column:1;grid-row:1;margin-top:0}
+  main>.similarity-controls #threshold{grid-column:1;grid-row:2;width:100%;min-width:0}
+  main>.similarity-controls .range-row{grid-column:1;grid-row:3;min-width:0}
+  main>.similarity-controls label[for="similarityMethod"]{grid-column:2;grid-row:1;margin-top:0}
+  main>.similarity-controls #similarityMethod{grid-column:2;grid-row:2;width:100%;min-width:0}
+  main>.single-similar{grid-area:similar !important;width:100%;min-width:0;max-width:100%;margin:14px 0 0;padding:0 14px 14px}
+  main>.two-likes{grid-area:similar !important;width:100%;min-width:0;max-width:100%;margin:14px 0 0;padding:0 14px 14px}
+  main>.single-combinations{grid-area:combinations !important;width:100%;min-width:0;max-width:100%;margin:28px 0 0;padding:14px}
+  main>.two-combinations{grid-area:combinations !important;width:100%;min-width:0;max-width:100%;margin:28px 0 0;padding:14px}
+  body:not(.mode-two) main>.two-likes,
+  body:not(.mode-two) main>.two-combinations{display:none !important}
+  body.mode-two main>.single-similar,
+  body.mode-two main>.single-combinations{display:none !important}
+  body:not(.mode-two) main>.single-similar,
+  body:not(.mode-two) main>.single-combinations{display:block !important}
+  body.mode-two main>.two-likes,
+  body.mode-two main>.two-combinations{display:block !important}
+  main>.single-combinations #combinations,
+  main>.two-combinations #twoResults{width:100%;min-width:0;max-width:100%}
+  main>.single-combinations .combination,
+  main>.two-combinations .two-combo,
+  main>.single-combinations .blocks,
+  main>.two-combinations .blocks{width:100%;min-width:0;max-width:100%}
+  main>footer{grid-area:footer;width:100%;min-width:0;max-width:100%;margin-top:4px}
+  main>section,main>footer,main>section>*{min-width:0;max-width:100%}
+  main>.single-similar .grid,main>.two-likes .two-like-grid{width:100%;min-width:0;max-width:100%;grid-template-columns:repeat(4,minmax(0,1fr))}
+  .two-slot-head{min-height:36px;font-size:.88rem}
+}
+.two-slot.empty-color2 .two-slot-swatch{position:relative;background:#fff !important;overflow:hidden}
+.two-slot.empty-color2 .two-slot-swatch::before,
+.two-slot.empty-color2 .two-slot-swatch::after{content:"";position:absolute;inset:0;width:100%;height:100%;pointer-events:none;background-repeat:no-repeat;background-size:100% 100%}
+.two-slot.empty-color2 .two-slot-swatch::before{background-image:linear-gradient(to bottom right,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px))}
+.two-slot.empty-color2 .two-slot-swatch::after{background-image:linear-gradient(to bottom left,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px))}
+</style><style>
+/* plus r18: harmonize combination blocks and compact the landscape camera/selection composition */
+@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
+  /* Match the camera and left-hand selection stack as compact visual units. */
+  main>.controls{
+    padding:12px;
+    margin:6px 0 0;
+    gap:10px;
+  }
+  main>.controls .search-wrap,
+  main>.controls .custom-select-button{
+    min-height:40px;
+  }
+  main>.controls #colorFieldToggle{
+    min-height:42px;
+    margin-top:6px;
+    padding:8px 12px;
+  }
+
+  main>.two-selected{
+    padding:6px 10px 10px;
+  }
+  .two-inputs{
+    gap:9px;
+  }
+  .two-slot{
+    padding:8px;
+  }
+  .two-slot.active{
+    padding:7px;
+  }
+  .two-slot-head{
+    min-height:32px;
+    font-size:.84rem;
+  }
+  .two-slot-swatch{
+    height:48px;
+    margin:6px 0;
+  }
+  .two-slot-meta{
+    font-size:.74rem;
+    min-height:16px;
+  }
+
+  /* Camera geometry is governed by the landscape grid so single- and two-color modes share the same frame. */
+  main>.camera-panel{
+    align-self:stretch;
+  }
+  main>.camera-panel #cameraVideo{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  /* Single-color combinations use exactly the two-color block spacing model. */
+  main>.single-combinations .blocks{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:0;
+    overflow:hidden;
+  }
+  main>.single-combinations .block{
+    flex:1 1 0;
+    width:0;
+    min-width:0;
+  }
+}
+</style><style>
+/* plus r27: consolidated two-color landscape grid; preserves the r24 working layout. */
+@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1400px){
+  .mode-two main{
+    display:grid !important;
+    width:100%;
+    max-width:none;
+    min-width:0;
+    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
+    grid-template-areas:
+      "title title"
+      "controls camera"
+      "selected camera"
+      "similarity similarity"
+      "likes likes"
+      "combos combos"
+      "footer footer";
+    column-gap:18px;
+    row-gap:0;
+    padding-left:24px;
+    padding-right:24px;
+    align-items:stretch;
+  }
+  .mode-two main>h1{grid-area:title;min-width:0;margin-bottom:2px}
+  .mode-two main>.controls{
+    grid-area:controls;
+    display:block !important;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin:8px 0 0;
+    padding:16px;
+  }
+  .mode-two main>.camera-panel{
+    grid-area:camera;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    height:100%;
+    min-height:0;
+    margin:8px 0 0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    align-self:stretch;
+  }
+  .mode-two main>.camera-panel .camera-stage{
+    width:100%;
+    max-width:none;
+    height:100%;
+    min-height:0;
+    aspect-ratio:auto;
+    flex:1 1 auto;
+  }
+  .mode-two main>.two-selected{
+    grid-area:selected !important;
+    display:block !important;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin:0;
+    padding:8px 14px 14px;
+  }
+  .mode-two main>.similarity-controls{
+    grid-area:similarity !important;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .mode-two main>.two-likes{
+    grid-area:likes !important;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .mode-two main>.two-combinations{
+    grid-area:combos !important;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .mode-two main>footer{
+    grid-area:footer;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+}
+</style>
+</head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r10</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r37</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -467,7 +544,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="colorPickerMenu" class="custom-select-menu" role="listbox" hidden></div>
 </div>
 <select id="colorSelect" hidden aria-hidden="true"></select>
-<button id="colorFieldToggle" type="button" aria-pressed="false">Show full-screen color sample</button>
+<button id="colorFieldToggle" type="button" aria-pressed="false">Full screen preview</button>
 </div>
 </section>
 <section class="camera-panel">
@@ -475,7 +552,8 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
 <button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>
+<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
@@ -675,7 +753,7 @@ function updateFullscreenBands(){
    renderFullscreenBands();
    fullscreenColorName.textContent=select.value;
    setFullscreenHintColor(map[select.value]);
-   requestAnimationFrame(positionFullscreenHint);
+   requestAnimationFrame(()=>{positionFullscreenHint();fitFullscreenColorNames()});
  }
 }
 function enterFullscreenColorMode(){
@@ -854,7 +932,6 @@ function sampleCameraColor(){
  rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
  const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
  const wbStrength=.28;
- const wbScale=correctedMean/Math.max(1,correctedMean);
  rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
  rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
  }
@@ -956,7 +1033,7 @@ render=function(){if(plusColor2){plusRenderTwo();return}plusSingleRender()};
 function plusBuildPicker(){const q=colorSearch.value.trim().toLowerCase(),groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));colorRecords.filter(x=>x.name.toLowerCase().includes(q)).forEach(x=>groups[x.family].push(x));colorPickerMenu.innerHTML='';let found=0;familyOrder.forEach(f=>{if(!groups[f].length)return;found+=groups[f].length;const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;colorPickerMenu.appendChild(label);groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(x=>{const item=document.createElement('button');item.type='button';item.className='custom-select-option';item.setAttribute('role','option');item.dataset.color=x.name;item.setAttribute('aria-selected',String(x.name===select.value));item.innerHTML='<span class="custom-option-swatch" style="background:'+x.hex+'"></span><span class="custom-option-name">'+x.name+'</span>';colorPickerMenu.appendChild(item)})});if(!found)colorPickerMenu.innerHTML='<div class="empty" role="status">No colors found.<br><small>Try a different search.</small></div>'}
 function plusSetSearchClear(){colorSearchClear.classList.toggle('visible',!!colorSearch.value)}
 function plusSetActive(slot){plusActiveSlot=slot===2?2:1;twoSlot1.classList.toggle('active',plusActiveSlot===1);twoSlot2.classList.toggle('active',plusActiveSlot===2);twoSlot1.setAttribute('aria-pressed',String(plusActiveSlot===1));twoSlot2.setAttribute('aria-pressed',String(plusActiveSlot===2));select.value=plusActiveSlot===2?(plusColor2||plusColor1):plusColor1;updateColorPickerButton();plusBuildPicker()}
-function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'transparent';twoSwatch2.style.background=plusColor2?map[plusColor2]:'transparent';twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
+function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'';twoSwatch2.style.background=plusColor2?map[plusColor2]:'';twoSlot2.classList.toggle('empty-color2',!plusColor2);twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
 function plusGroupFor(n,k){if(!n)return[];return[n,...COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b)).slice(0,k)]}
 function plusRadius(n,k){if(!n||k<=0)return 0;const ns=COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b));return distance(n,ns[k-1])+.05*k*k}
 function plusComboCandidates(){const a=plusColor1,b=plusColor2;if(!a||!b)return[];const k=Number(threshold.value),r1=plusRadius(a,k),r2=plusRadius(b,k),out=[];for(const c of COMBINATIONS){if(c.colors.length<2||c.colors.length>4)continue;let best=null;for(let i=0;i<c.colors.length;i++){const x=c.colors[i],d1=distance(a,x.name);if(d1>r1)continue;for(let j=0;j<c.colors.length;j++){if(i===j)continue;const y=c.colors[j],d2=distance(b,y.name);if(d2>r2)continue;const z={a:{x,i},b:{x:y,i:j},worst:Math.max(d1,d2),total:d1+d2,balance:Math.abs(d1-d2)};if(!best||z.total<best.total||z.total===best.total&&z.worst<best.worst||z.total===best.total&&z.worst===best.worst&&z.balance<best.balance)best=z}}if(best)out.push({c,best})}out.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);return out.slice(0,12)}
@@ -971,7 +1048,56 @@ function plusHintText(){
  return Math.min(c1,c2)>=Math.min(b1,b2)?'#fff':'#000';
 }
 function plusStartTwoHints(){clearInterval(plusTwoFullscreenTimer);plusTwoFullscreenIndex=Math.floor(Math.random()*plusFullWords.length);const root=fullscreenTwoRoot,hint=root.querySelector('.fullscreen-two-hint');hint.style.color=plusHintText();const tick=()=>{const [txt,lang]=plusFullWords[plusTwoFullscreenIndex];hint.textContent=txt;hint.lang=lang;const m=18,maxX=Math.max(m,root.clientWidth-hint.offsetWidth-m),maxY=Math.max(m,root.clientHeight-hint.offsetHeight-m);hint.style.left=m+Math.random()*Math.max(0,maxX-m)+'px';hint.style.top=m+Math.random()*Math.max(0,maxY-m)+'px';hint.style.opacity='1';plusTwoFullscreenIndex=(plusTwoFullscreenIndex+1)%plusFullWords.length};requestAnimationFrame(tick);plusTwoFullscreenTimer=setInterval(()=>{hint.style.opacity='0';setTimeout(()=>requestAnimationFrame(tick),800)},2600)}
-function plusRenderTwoFullscreen(){if(!document.body.classList.contains('fullscreen-two-mode'))return;const root=fullscreenTwoRoot;root.innerHTML='<div class="fullscreen-two-hint"></div><div class="fullscreen-two-pane">'+plusPane(1)+'</div><div class="fullscreen-two-pane">'+plusPane(2)+'</div>';const v=window.visualViewport,w=v?v.width:innerWidth,h=v?v.height:innerHeight,l=v?v.offsetLeft:0,t=v?v.offsetTop:0;root.style.left=l+'px';root.style.top=t+'px';root.style.width=w+'px';root.style.height=h+'px';root.style.right='auto';root.style.bottom='auto';plusStartTwoHints()}
+/* r35: keep each typography role globally consistent within a fullscreen view. Main labels
+   never independently shrink; if any main label needs more width, all main labels may wrap.
+   If any like label is too wide, all like labels share the same reduced size. */
+function fitFullscreenColorNames(){
+  const root=document.body.classList.contains('fullscreen-two-mode')?fullscreenTwoRoot:document.getElementById('fullscreenColorBands');
+  if(!root)return;
+  let names=[...root.querySelectorAll('.fullscreen-name,.fullscreen-two-name')];
+  // Single-color fullscreen with zero similar colors uses the legacy centered
+  // #fullscreenColorName element instead of the band renderer.
+  if(!document.body.classList.contains('fullscreen-two-mode') &&
+     !document.body.classList.contains('fullscreen-has-bands') &&
+     fullscreenColorName) names=[fullscreenColorName];
+  if(!names.length)return;
+  const isTwo=document.body.classList.contains('fullscreen-two-mode');
+  const landscape=window.matchMedia('(orientation: landscape)').matches;
+  const mainBaseline=isTwo?(landscape?23.1:18):23.1;
+  const likeBaseline=isTwo?(landscape?15.4:12):15.4;
+  const mains=names.filter(el=>el.closest('.fullscreen-band.main,.fullscreen-two-band.main'));
+  const likes=names.filter(el=>el.closest('.fullscreen-band.similar,.fullscreen-two-band:not(.main)'));
+  const widthLimit=el=>Math.max(0,el.parentElement.clientWidth*.90);
+
+  // Start every label from the r33 baseline.
+  names.forEach(el=>{
+    el.style.fontSize=(el.classList.contains('fullscreen-two-name')?
+      (el.closest('.fullscreen-two-band.main')?mainBaseline:likeBaseline):
+      (el.closest('.fullscreen-band.main')?mainBaseline:likeBaseline))+'px';
+    el.style.whiteSpace='nowrap';
+    el.style.maxWidth='90%';
+  });
+
+  // Main-color rule: test both main labels together. If either is too wide,
+  // allow wrapping for all main labels without changing their font size.
+  const mainNeedsWrap=mains.some(el=>el.scrollWidth>widthLimit(el));
+  mains.forEach(el=>{
+    el.style.whiteSpace=mainNeedsWrap?'normal':'nowrap';
+    el.style.maxWidth='90%';
+  });
+
+  // Like-color rule: if any like label is too wide at the r33 size,
+  // reduce every like label by the same factor in both color panes.
+  const likeOverflow=likes.reduce((worst,el)=>{
+    const ratio=widthLimit(el)/Math.max(1,el.scrollWidth);
+    return Math.min(worst,ratio);
+  },1);
+  if(likeOverflow<1){
+    const likeSize=likeBaseline*Math.max(.5,likeOverflow);
+    likes.forEach(el=>{el.style.fontSize=likeSize.toFixed(2)+'px';});
+  }
+}
+function plusRenderTwoFullscreen(){if(!document.body.classList.contains('fullscreen-two-mode'))return;const root=fullscreenTwoRoot;root.innerHTML='<div class="fullscreen-two-hint"></div><div class="fullscreen-two-pane">'+plusPane(1)+'</div><div class="fullscreen-two-pane">'+plusPane(2)+'</div>';const v=window.visualViewport,w=v?v.width:innerWidth,h=v?v.height:innerHeight,l=v?v.offsetLeft:0,t=v?v.offsetTop:0;root.style.left=l+'px';root.style.top=t+'px';root.style.width=w+'px';root.style.height=h+'px';root.style.right='auto';root.style.bottom='auto';requestAnimationFrame(fitFullscreenColorNames);plusStartTwoHints()}
 function plusEnterTwoFullscreen(){if(!plusColor2)return;document.body.classList.add('fullscreen-two-mode');requestAnimationFrame(plusRenderTwoFullscreen)}
 function plusExitTwoFullscreen(){document.body.classList.remove('fullscreen-two-mode');clearInterval(plusTwoFullscreenTimer);plusTwoFullscreenTimer=null;fullscreenTwoRoot.innerHTML=''}
 function plusRenderTwo(){if(!plusColor2){plusExitTwoMode();return}select.value=plusColor1;plusUpdateTwoSlots();plusRenderLikes(1,plusGroupFor(plusColor1,Number(threshold.value)));plusRenderLikes(2,plusGroupFor(plusColor2,Number(threshold.value)));const box=twoResults,all=plusComboCandidates();if(!all.length){box.innerHTML='<div class="empty">No catalog combinations are available.</div>';return}box.innerHTML=all.map(({c,best})=>{const o=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)],p=o.slice(0,2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join(''),rest=o.slice(2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');return '<article class="two-combo"><div class="two-combo-title">Combination #'+c.number+'</div><div class="blocks"><div class="two-match-pair">'+p+'</div>'+rest+'</div></article>'}).join('')}
@@ -982,21 +1108,21 @@ function plusOpenColor2(){plusActiveSlot=2;colorSearch.value='';plusBuildPicker(
 function plusSearchInput(){plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true')}
 function plusClearSearch(){colorSearch.value='';plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true');colorSearch.focus()}
 clearColor2.addEventListener('click',e=>{e.stopPropagation();plusExitTwoMode()});twoSlot1.addEventListener('click',()=>plusSetActive(1));twoSlot2.addEventListener('click',()=>plusSetActive(2));twoLikes1.addEventListener('click',e=>{const x=e.target.closest('.two-like-card');if(x){plusActiveSlot=1;plusChooseColor(x.dataset.color)}});twoLikes2.addEventListener('click',e=>{const x=e.target.closest('.two-like-card');if(x){plusActiveSlot=2;plusChooseColor(x.dataset.color)}});twoResults.addEventListener('click',e=>{const x=e.target.closest('.two-match-pair .block');if(x){plusActiveSlot=x.parentElement.querySelector('.block')===x?1:2;plusChooseColor(x.dataset.color)}});
-function plusUpdateFullscreenButton(){if(!colorFieldToggle)return;const two=document.body.classList.contains('mode-two');colorFieldToggle.textContent=two?'Show full-screen color groups':'Show full-screen color sample';colorFieldToggle.setAttribute('aria-label',two?'Show full-screen color groups':'Show full-screen color sample')}
+function plusUpdateFullscreenButton(){if(!colorFieldToggle)return;colorFieldToggle.textContent='Full screen preview';colorFieldToggle.setAttribute('aria-label','Full screen preview')}
 document.getElementById('colorPickerMenu').addEventListener('click',e=>{const x=e.target.closest('.custom-select-option');if(x){e.stopImmediatePropagation();plusChooseColor(x.dataset.color);colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false')}},{capture:true});
 document.getElementById('colorSearch').addEventListener('input',e=>{e.stopImmediatePropagation();plusSearchInput()},{capture:true});
 document.getElementById('colorSearchClear').addEventListener('click',e=>{e.stopImmediatePropagation();plusClearSearch()},{capture:true});
 document.getElementById('colorPickerButton').addEventListener('click',e=>{e.stopImmediatePropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open))},{capture:true});
 cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;plusChooseColor(lastCameraMatch.name)});
-window.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen()});window.addEventListener('orientationchange',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen()});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen()});
+window.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});window.addEventListener('orientationchange',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});
 
 // p04: make two-color fullscreen explicitly dismissible on touch, mouse, and Escape.
-fullscreenTwoRoot.addEventListener('pointerdown',e=>{if(document.body.classList.contains('fullscreen-two-mode')){e.preventDefault();e.stopPropagation();plusExitTwoFullscreen();}});
 fullscreenTwoRoot.addEventListener('click',e=>{
-  if(document.body.classList.contains('fullscreen-two-mode')) plusExitTwoFullscreen();
-});
-fullscreenTwoRoot.addEventListener('pointerup',e=>{
-  if(document.body.classList.contains('fullscreen-two-mode')) plusExitTwoFullscreen();
+  if(document.body.classList.contains('fullscreen-two-mode')){
+    e.preventDefault();
+    e.stopPropagation();
+    plusExitTwoFullscreen();
+  }
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && document.body.classList.contains('fullscreen-two-mode')){
