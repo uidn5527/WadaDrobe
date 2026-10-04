@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r43</title>
+<title>WadaDrobe plus r44</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -186,8 +186,19 @@ button,select,input{touch-action:manipulation}
   background:radial-gradient(circle closest-side,transparent 0 calc(100% - 33.6px),var(--stable-color) calc(100% - 33.6px) 100%);
 }
 
-.camera-result{display:none!important;position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
+.wada-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 0;padding:0 10px 10px}
+.wada-compare-card{background:#fff;color:#202124;border-radius:10px;padding:12px;border:1px solid #d5d5d5;min-width:0}
+.wada-compare-card.production{border-left:4px solid #555}
+.wada-compare-card.shades{border-left:4px solid #315f8c}
+.wada-compare-label{font-size:.76rem;font-weight:750;letter-spacing:.03em;text-transform:uppercase;color:#666;margin-bottom:7px}
+.wada-compare-name{font-weight:750;line-height:1.2;min-height:2.4em;display:flex;align-items:center}
+.wada-compare-swatch{width:100%;height:38px;border-radius:6px;border:1px solid #999;margin:7px 0}
+.wada-compare-rgb{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#666}
+.wada-compare-note{font-size:.72rem;color:#777;margin-top:5px;line-height:1.25}
+@media(max-width:600px){.wada-compare{grid-template-columns:1fr 1fr;padding-left:6px;padding-right:6px;gap:7px}.wada-compare-card{padding:9px}.wada-compare-name{font-size:.9rem}.wada-compare-swatch{height:34px}}
+
 .camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
@@ -532,7 +543,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r43</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r44</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -557,6 +568,22 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
+<div class="wada-compare" aria-label="Production versus Shades of Gray comparison">
+  <div class="wada-compare-card production">
+    <div class="wada-compare-label">Production r39</div>
+    <div id="productionCompareName" class="wada-compare-name">Waiting for camera…</div>
+    <div id="productionCompareSwatch" class="wada-compare-swatch"></div>
+    <div id="productionCompareRgb" class="wada-compare-rgb">RGB —</div>
+    <div class="wada-compare-note">Existing production correction + CIEDE2000</div>
+  </div>
+  <div class="wada-compare-card shades">
+    <div class="wada-compare-label">Shades of Gray · p=6</div>
+    <div id="shadesCompareName" class="wada-compare-name">Waiting for camera…</div>
+    <div id="shadesCompareSwatch" class="wada-compare-swatch"></div>
+    <div id="shadesCompareRgb" class="wada-compare-rgb">RGB —</div>
+    <div id="shadesCompareNote" class="wada-compare-note">Whole-frame illumination estimate</div>
+  </div>
+</div>
 </section>
 <section class="single-selected"><div class="selected" id="selectedColor"></div></section><section class="two-selected" id="twoSelected"><div class="two-inputs"><div class="two-slot active" id="twoSlot1" role="button" tabindex="0" aria-pressed="true"><div class="two-slot-head"><span>Color 1</span><span>①</span></div><div class="two-slot-swatch" id="twoSwatch1"></div><div class="two-slot-meta" id="twoMeta1"></div></div><div class="two-slot" id="twoSlot2" role="button" tabindex="0" aria-pressed="false"><div class="two-slot-head"><span>Color 2</span><button id="clearColor2" class="clear-color2" type="button" aria-label="Clear Color 2" title="Clear Color 2">×</button></div><div class="two-slot-swatch" id="twoSwatch2"></div><div class="two-slot-meta" id="twoMeta2">Choose Color 2</div></div></div></section>
 <section class="similarity-controls"><label for="similarityMethod">Similarity method</label>
@@ -1026,6 +1053,90 @@ function playCameraClickSound(){
    osc.stop(now+0.08);
  }catch(err){}
 }
+
+/* r44 experiment: independent Shades of Gray comparison path.
+   This does not replace production matching or capture behavior. */
+const productionCompareName=document.getElementById('productionCompareName');
+const productionCompareSwatch=document.getElementById('productionCompareSwatch');
+const productionCompareRgb=document.getElementById('productionCompareRgb');
+const shadesCompareName=document.getElementById('shadesCompareName');
+const shadesCompareSwatch=document.getElementById('shadesCompareSwatch');
+const shadesCompareRgb=document.getElementById('shadesCompareRgb');
+const shadesCompareNote=document.getElementById('shadesCompareNote');
+const SHADES_GRAY_P=6;
+
+function shadesGrayIlluminant(){
+  if(!cameraStream||cameraVideo.readyState<2)return null;
+  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;
+  if(!iw||!ih)return null;
+  const maxW=160,scale=Math.min(1,maxW/iw),w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const ctx=c.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(cameraVideo,0,0,w,h);
+  const d=ctx.getImageData(0,0,w,h).data,p=SHADES_GRAY_P;
+  let sr=0,sg=0,sb=0,n=0;
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i],g=d[i+1],b=d[i+2];
+    // Ignore transparent pixels and very dark sensor/background noise.
+    if(r+g+b<30)continue;
+    sr+=Math.pow(r,p);sg+=Math.pow(g,p);sb+=Math.pow(b,p);n++;
+  }
+  if(!n)return null;
+  const e=[Math.pow(sr/n,1/p),Math.pow(sg/n,1/p),Math.pow(sb/n,1/p)];
+  const mean=(e[0]+e[1]+e[2])/3;
+  return {e,gain:e.map(v=>mean/Math.max(1,v))};
+}
+
+function sampleRawCentralRgbForShades(){
+  if(!cameraStream||cameraVideo.readyState<2)return null;
+  const iw=cameraVideo.videoWidth,ih=cameraVideo.videoHeight;
+  if(!iw||!ih)return null;
+  const targetRect=cameraTarget.getBoundingClientRect(),videoRect=cameraVideo.getBoundingClientRect();
+  const targetCx=targetRect.left+targetRect.width/2-videoRect.left;
+  const targetCy=targetRect.top+targetRect.height/2-videoRect.top;
+  const scale=Math.max(videoRect.width/iw,videoRect.height/ih);
+  const renderedW=iw*scale,renderedH=ih*scale;
+  const cropX=(renderedW-videoRect.width)/2,cropY=(renderedH-videoRect.height)/2;
+  let cx=(targetCx+cropX)/scale,cy=(targetCy+cropY)/scale;
+  if(cameraFacing==='user')cx=iw-cx;
+  const innerRadius=Math.max(6,targetRect.width/2);
+  const sourceRadius=Math.max(4,innerRadius/scale);
+  const sampleRadius=sourceRadius*.90;
+  const drawSize=Math.max(24,Math.min(180,Math.ceil(sampleRadius*2)));
+  const c=document.createElement('canvas');c.width=drawSize;c.height=drawSize;
+  const ctx=c.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(cameraVideo,cx-sampleRadius,cy-sampleRadius,sampleRadius*2,sampleRadius*2,0,0,drawSize,drawSize);
+  const d=ctx.getImageData(0,0,drawSize,drawSize).data,cc=drawSize/2,rr=drawSize/2*.96,samples=[];
+  for(let y=0;y<drawSize;y++)for(let x=0;x<drawSize;x++){
+    if(Math.hypot(x-cc,y-cc)<=rr){const i=(y*drawSize+x)*4;samples.push([d[i],d[i+1],d[i+2]]);}
+  }
+  if(!samples.length)return null;
+  const avg=ch=>{const vals=samples.map(v=>v[ch]).sort((a,b)=>a-b);const lo=Math.floor(vals.length*.1),hi=Math.ceil(vals.length*.9);return vals.slice(lo,hi).reduce((a,v)=>a+v,0)/Math.max(1,hi-lo)};
+  return [avg(0),avg(1),avg(2)];
+}
+
+function updateWadaComparePanel(){
+  if(!cameraStream||cameraVideo.readyState<2)return;
+  const raw=sampleRawCentralRgbForShades(),illum=shadesGrayIlluminant();
+  if(!raw||!illum)return;
+  const corrected=raw.map((v,i)=>Math.max(0,Math.min(255,v*illum.gain[i])));
+  const prod=displayedCameraMatch;
+  if(prod){
+    productionCompareName.textContent=prod.name;
+    productionCompareSwatch.style.background=prod.hex;
+    productionCompareRgb.textContent='RGB '+prod.rgb.map(v=>Math.round(v)).join(', ');
+  }
+  const shades=nearestWadaFromLab(rgbBytesToLab(...corrected));
+  shadesCompareName.textContent=shades.name;
+  shadesCompareSwatch.style.background=shades.hex;
+  shadesCompareRgb.textContent='RGB '+corrected.map(v=>Math.round(v)).join(', ');
+  const g=illum.gain.map(v=>v.toFixed(3)).join(' / ');
+  shadesCompareNote.textContent='p=6 · gains R/G/B '+g;
+}
+
+const wadaOriginalCameraLoop=cameraLoop;
+cameraLoop=function(){sampleCameraColor();updateWadaComparePanel();if(cameraStream)cameraFrame=requestAnimationFrame(cameraLoop);};
+
 function captureCameraColor(){
  if(!lastCameraMatch)return;
  playCameraClickSound();
@@ -1158,143 +1269,4 @@ document.addEventListener('keydown',e=>{
 });
 
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
-</script>
-</body></html><script>
-/* WadaAI local lighting experiment — r43: r41 capture behavior; live result badge removed. */
-(function(){
-  function clamp(v,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?255:b,v));}
-  function localDE(rgb,name){return ciede2000Lab(rgbBytesToLab(clamp(rgb[0]),clamp(rgb[1]),clamp(rgb[2])),labMap[name]);}
-  function frameCanvas(){
-    if(!cameraVideo||cameraVideo.readyState<2||!cameraVideo.videoWidth)return null;
-    var c=document.createElement('canvas'),maxW=960,scale=Math.min(1,maxW/cameraVideo.videoWidth);
-    c.width=Math.max(1,Math.round(cameraVideo.videoWidth*scale));
-    c.height=Math.max(1,Math.round(cameraVideo.videoHeight*scale));
-    var x=c.getContext('2d',{willReadFrequently:true});
-    if(cameraFacing==='user'){x.translate(c.width,0);x.scale(-1,1);}
-    x.drawImage(cameraVideo,0,0,c.width,c.height);
-    return{c:c,x:x,scale:scale};
-  }
-  function targetCenter(fc){
-    var tr=cameraTarget.getBoundingClientRect(),vr=cameraVideo.getBoundingClientRect();
-    var tx=tr.left+tr.width/2-vr.left,ty=tr.top+tr.height/2-vr.top;
-    var scale=Math.max(vr.width/cameraVideo.videoWidth,vr.height/cameraVideo.videoHeight);
-    var rw=cameraVideo.videoWidth*scale,rh=cameraVideo.videoHeight*scale;
-    var cropX=(rw-vr.width)/2,cropY=(rh-vr.height)/2;
-    var cx=(tx+cropX)/scale,cy=(ty+cropY)/scale;
-    if(cameraFacing==='user')cx=cameraVideo.videoWidth-cx;
-    return{x:cx*fc.scale,y:cy*fc.scale,r:(tr.width/2)/scale*fc.scale};
-  }
-  function sampleTarget(fc){
-    var q=targetCenter(fc),img=fc.x.getImageData(0,0,fc.c.width,fc.c.height),d=img.data,vals=[];
-    var rr=Math.max(8,Math.min(q.r*.62,Math.min(fc.c.width,fc.c.height)*.18));
-    var x0=Math.max(0,Math.floor(q.x-rr)),x1=Math.min(fc.c.width-1,Math.ceil(q.x+rr));
-    var y0=Math.max(0,Math.floor(q.y-rr)),y1=Math.min(fc.c.height-1,Math.ceil(q.y+rr));
-    for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++){
-      var dx=x-q.x,dy=y-q.y;
-      if(dx*dx+dy*dy>rr*rr)continue;
-      var i=(y*fc.c.width+x)*4;
-      vals.push([d[i],d[i+1],d[i+2]]);
-    }
-    if(!vals.length)return[128,128,128];
-    vals.sort(function(a,b){return(.2126*a[0]+.7152*a[1]+.0722*a[2])-(.2126*b[0]+.7152*b[1]+.0722*b[2]);});
-    var lo=Math.floor(vals.length*.10),hi=Math.max(lo+1,Math.ceil(vals.length*.90)),v=vals.slice(lo,hi);
-    return[0,1,2].map(function(k){return v.reduce(function(s,p){return s+p[k];},0)/v.length;});
-  }
-  function scenePixels(fc,target){
-    var d=fc.x.getImageData(0,0,fc.c.width,fc.c.height).data;
-    var step=Math.max(2,Math.floor(Math.max(fc.c.width,fc.c.height)/80)),out=[];
-    for(var y=0;y<fc.c.height;y+=step)for(var x=0;x<fc.c.width;x+=step){
-      var dx=x-target.x,dy=y-target.y;
-      if(dx*dx+dy*dy<Math.pow(target.r*1.35,2))continue;
-      var i=(y*fc.c.width+x)*4;
-      out.push([d[i],d[i+1],d[i+2]]);
-    }
-    return out;
-  }
-  function luminance(p){return.2126*p[0]+.7152*p[1]+.0722*p[2];}
-  function chroma(p){var m=Math.max.apply(null,p),n=Math.min.apply(null,p);return(m-n)/(m+n+1);}
-  function meanRGB(ps){
-    if(!ps.length)return[128,128,128];
-    return[0,1,2].map(function(k){return ps.reduce(function(s,p){return s+p[k];},0)/ps.length;});
-  }
-  function estimateIllumination(ps){
-    var mean=meanRGB(ps);
-    var gray=ps.filter(function(p){return luminance(p)>45&&luminance(p)<225&&chroma(p)<.18;});
-    var bright=ps.filter(function(p){return luminance(p)>145&&chroma(p)<.22;});
-    bright.sort(function(a,b){return luminance(b)-luminance(a);});
-    bright=bright.slice(0,Math.max(20,Math.floor(ps.length*.08)));
-    var q=ps.filter(function(p){return luminance(p)>35&&luminance(p)<245;});
-    var den=[0,1,2].map(function(k){
-      return Math.pow(q.reduce(function(s,p){return s+Math.pow(p[k]/255,6);},0)/Math.max(1,q.length),1/6)*255;
-    });
-    var g1=gray.length?meanRGB(gray):mean,g2=bright.length?meanRGB(bright):g1;
-    function normalize(v){
-      var m=(v[0]+v[1]+v[2])/3;
-      return v.map(function(x){return m/Math.max(1,x);});
-    }
-    var a=normalize(g1),b=normalize(g2),c=normalize(den);
-    var neutralConfidence=Math.min(1,gray.length/Math.max(30,ps.length*.08));
-    var brightConfidence=Math.min(1,bright.length/Math.max(20,ps.length*.05));
-    var w1=.45*neutralConfidence,w2=.30*brightConfidence,w3=.25,z=w1+w2+w3;
-    var gain=[0,1,2].map(function(k){return(w1*a[k]+w2*b[k]+w3*c[k])/z;});
-    var strength=.55+.35*Math.min(1,(neutralConfidence+brightConfidence)/2);
-    return{gain:gain.map(function(g){return 1+(g-1)*strength;})};
-  }
-  function correct(rgb,gain){return rgb.map(function(v,i){return clamp(v*gain[i]);});}
-  function materialPlausibility(rgb){
-    var m=(rgb[0]+rgb[1]+rgb[2])/3,spread=Math.max.apply(null,rgb)-Math.min.apply(null,rgb);
-    return Math.max(0,1-Math.abs(m-145)/190)*Math.max(0,1-spread/230);
-  }
-  function localMatch(raw,illum){
-    var base=correct(raw,illum.gain);
-    var variants=[
-      base,
-      correct(raw,illum.gain.map(function(g){return 1+(g-1)*.72;})),
-      correct(raw,illum.gain.map(function(g){return 1+(g-1)*1.18;}))
-    ];
-    var best=null;
-    for(var i=0;i<COLORS.length;i++){
-      var name=COLORS[i][0],hex=COLORS[i][1],ds=variants.map(function(v){return localDE(v,name);});
-      var avg=ds.reduce(function(a,b){return a+b;},0)/ds.length;
-      var spread=Math.max.apply(null,ds)-Math.min.apply(null,ds);
-      var rgb=[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
-      var score=avg+spread*.32-materialPlausibility(rgb)*.22;
-      var candidate={name:name,hex:hex,score:score,corrected:base};
-      if(!best||candidate.score<best.score)best=candidate;
-    }
-    return best;
-  }
-  function analyze(){
-    var fc=frameCanvas();
-    if(!fc)return null;
-    var target=targetCenter(fc),raw=sampleTarget(fc),scene=scenePixels(fc,target),illum=estimateIllumination(scene);
-    return localMatch(raw,illum);
-  }
-  function applyOfficial(local){
-    if(!local)return;
-    var official={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name)};
-    lastCameraMatch=official;
-    displayedCameraMatch=official;
-    candidateCameraMatch=null;
-    candidateSince=0;
-    cameraStableRing.style.setProperty('--stable-color',official.hex);
-    cameraResultSwatch.style.background=official.hex;
-    cameraResultText.textContent=official.name;
-    cameraResult.hidden=false;
-    plusChooseColor(official.name);
-  }
-  if(cameraTarget)cameraTarget.addEventListener('click',function(e){
-    if(e.target.closest('button'))return;
-    var fc=frameCanvas();
-    if(!fc){
-      if(lastCameraMatch)return;
-      return;
-    }
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    playCameraClickSound();
-    applyOfficial(analyze());
-  },true);
-})();
-</script>
-</body></html>
+</script></body></html>
