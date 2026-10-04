@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r47</title>
+<title>WadaDrobe plus r48</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r47</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r48</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -604,35 +604,50 @@ function ciede2000(a,b){
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
 function lightingUncertaintyScore(a,b){
   if(a===b)return 0;
-  const ar=rgbMap[a],br=rgbMap[b];
-  if(!ar||!br)return Infinity;
-  // Model illumination as a positive per-channel gain. Remove the common
-  // exposure component, then measure both chromatic distortion and the
-  // size of the required gain change.
-  const logs=ar.map((v,i)=>Math.log(Math.max(1,v)/Math.max(1,br[i])));
+  const observed=rgbMap[a],candidate=rgbMap[b];
+  if(!observed||!candidate)return Infinity;
+
+  // Fit a simple diagonal illumination model:
+  // observed ~= candidate * [R gain, G gain, B gain].
+  // A plausible illumination change should require modest exposure and
+  // white-balance changes, and should not rely on extreme channel gains.
+  const eps=4;
+  const logs=observed.map((v,i)=>Math.log((v+eps)/(candidate[i]+eps)));
   const mean=logs.reduce((s,v)=>s+v,0)/3;
   const centered=logs.map(v=>v-mean);
-  const chromatic=Math.sqrt(centered.reduce((s,v)=>s+v*v,0)/3);
+
   const exposure=Math.abs(mean);
-  return chromatic*1.6+exposure*0.55;
+  const chromatic=Math.sqrt(centered.reduce((s,v)=>s+v*v,0)/3);
+  const maxChannelShift=Math.max(...centered.map(v=>Math.abs(v)));
+
+  // Penalize the largest channel correction strongly: real illumination
+  // changes should generally be smooth, not arbitrary RGB remappings.
+  return exposure*0.9 + chromatic*2.4 + maxChannelShift*1.8;
 }
 function lightingUncertaintyLimit(level){
-  // Deliberately conservative scale: low settings should add only a few
-  // genuinely plausible alternatives; higher settings broaden gradually.
+  // Each step represents a progressively larger physically plausible
+  // illumination change. The first step is intentionally very restrictive.
   const t=Math.max(0,Math.min(7,Number(level)||0));
   if(t===0)return 0;
-  return 0.012+0.014*t+0.003*t*t;
+  const limits=[0,0.028,0.050,0.074,0.101,0.132,0.166,0.205];
+  return limits[t];
 }
 function lightingAwareCandidates(selected,level){
   if(!selected)return[];
   const k=Math.max(0,Math.min(7,Math.round(Number(level)||0)));
   if(k===0)return[selected];
+
   const limit=lightingUncertaintyLimit(k);
-  return [selected,...COLORS.map(([n])=>n).filter(n=>n!==selected)
+  const scored=COLORS.map(([n])=>n)
+    .filter(n=>n!==selected)
     .map(n=>({name:n,score:lightingUncertaintyScore(selected,n),distance:distance(selected,n)}))
     .filter(x=>x.score<=limit)
-    .sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name))
-    .map(x=>x.name)];
+    .sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name));
+
+  // Level 1 is intentionally a nearest-plausible-neighbor test rather than
+  // a broad radius. Higher levels use the physical plausibility threshold.
+  if(k===1)return[selected,...scored.slice(0,2).map(x=>x.name)];
+  return[selected,...scored.map(x=>x.name)];
 }
 const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
