@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r08</title>
+<title>WadaDrobe plus r09</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -455,7 +455,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r08</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r09</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -976,8 +976,8 @@ function plusEnterTwoFullscreen(){if(!plusColor2)return;document.body.classList.
 function plusExitTwoFullscreen(){document.body.classList.remove('fullscreen-two-mode');clearInterval(plusTwoFullscreenTimer);plusTwoFullscreenTimer=null;fullscreenTwoRoot.innerHTML=''}
 function plusRenderTwo(){if(!plusColor2){plusExitTwoMode();return}select.value=plusColor1;plusUpdateTwoSlots();plusRenderLikes(1,plusGroupFor(plusColor1,Number(threshold.value)));plusRenderLikes(2,plusGroupFor(plusColor2,Number(threshold.value)));const box=twoResults,all=plusComboCandidates();if(!all.length){box.innerHTML='<div class="empty">No catalog combinations are available.</div>';return}box.innerHTML=all.map(({c,best})=>{const o=[best.a.x,best.b.x,...c.colors.filter((x,i)=>i!==best.a.i&&i!==best.b.i)],p=o.slice(0,2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join(''),rest=o.slice(2).map(x=>'<div class="block" style="background:'+x.hex+'" data-color="'+x.name+'"><span>'+x.name+'</span></div>').join('');return '<article class="two-combo"><div class="two-combo-title">Combination #'+c.number+'</div><div class="blocks"><div class="two-match-pair">'+p+'</div>'+rest+'</div></article>'}).join('')}
 function plusEnterTwoMode(){if(!plusColor2)return;document.body.classList.add('mode-two');twoSelected.hidden=false;twoLikesSection.hidden=false;twoCombinationsSection.hidden=false;plusUpdateFullscreenButton();plusRenderTwo()}
-function plusExitTwoMode(){plusColor2=null;plusActiveSlot=1;select.value=plusColor1;document.body.classList.remove('mode-two');plusExitTwoFullscreen();twoSelected.hidden=false;twoLikesSection.hidden=true;twoCombinationsSection.hidden=true;plusUpdateTwoSlots();plusBuildPicker();updateColorPickerButton();plusUpdateFullscreenButton();render()}
-function plusChooseColor(n){if(!map[n])return;if(plusActiveSlot===2){plusColor2=n;plusEnterTwoMode()}else{plusColor1=n;select.value=n;if(plusColor2)plusRenderTwo();else render()}colorSearch.value='';plusBuildPicker();plusSetSearchClear();updateColorPickerButton()}
+function plusExitTwoMode(){plusColor2=null;document.body.classList.remove('mode-two');plusExitTwoFullscreen();twoSelected.hidden=false;twoLikesSection.hidden=true;twoCombinationsSection.hidden=true;plusActiveSlot=1;plusSetActive(1);plusUpdateTwoSlots();plusUpdateFullscreenButton();render()}
+function plusChooseColor(n){if(!map[n])return;if(plusActiveSlot===2){plusColor2=n;plusEnterTwoMode()}else{plusColor1=n;select.value=n;if(plusColor2)plusRenderTwo();else render()}plusUpdateTwoSlots();colorSearch.value='';plusBuildPicker();plusSetSearchClear();updateColorPickerButton()}
 function plusOpenColor2(){plusActiveSlot=2;colorSearch.value='';plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true');colorSearch.focus()}
 function plusSearchInput(){plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true')}
 function plusClearSearch(){colorSearch.value='';plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true');colorSearch.focus()}
