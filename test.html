@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r22</title>
+<title>WadaDrobe plus r18</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -16,8 +16,7 @@ label{font-weight:650;display:block;margin-bottom:8px}select,input[type=range]{w
 .combination{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin:12px 0}.combination-title{font-weight:700;margin-bottom:10px}.blocks{display:flex;gap:0;overflow:hidden;border-radius:5px}.block{height:64px;flex:1;min-width:70px;border:1px solid #777;border-right:0;position:relative}.block:last-child{border-right:1px solid #777}.block span{position:absolute;left:6px;bottom:5px;background:rgba(255,255,255,.78);padding:2px 4px;border-radius:3px;font-size:.72rem;max-width:calc(100% - 12px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border);padding-top:16px}@media(max-width:700px){.controls{grid-template-columns:1fr}.selected{align-items:stretch;flex-direction:column}.selected .swatch{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 #colorFieldToggle{margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:6px;background:#fff;color:#222;cursor:pointer;font:inherit}
-#colorFieldToggle:hover{background:#f0f0f0}
-#colorFieldToggle{font-size:.9rem;white-space:nowrap}
+#colorFieldToggle:hover{background:#f0f0f0}\n#colorFieldToggle{font-size:.9rem;white-space:nowrap}
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
 #fullscreenTapLayer{display:none}body.fullscreen-color-mode #fullscreenTapLayer{display:block;position:fixed;inset:0;z-index:9998;background:transparent;cursor:pointer;touch-action:manipulation}#fullscreenHint{display:none}
@@ -187,9 +186,7 @@ button,select,input{touch-action:manipulation}
 }
 
 .camera-result{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}
-.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.camera-zoom.visible{opacity:1}
+.camera-result-swatch{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.8);flex:none}\n.camera-zoom{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:.78rem;line-height:1;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}\n.camera-zoom.visible{opacity:1}
 .camera-controls{display:none}
 .camera-controls button{flex:1;min-width:130px;padding:10px 12px;border:1px solid #777;border-radius:8px;background:#fff;color:#111;font-weight:650;cursor:pointer}
 .camera-controls button:disabled{opacity:.5;cursor:default}
@@ -462,7 +459,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r22</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r18</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -482,8 +479,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <video id="cameraVideo" playsinline autoplay muted></video>
 <button id="cameraSwitch" class="camera-switch" type="button" aria-label="Switch camera" title="Switch camera">↻</button>
 <button id="colorCorrectionToggle" class="color-correction-toggle" type="button" aria-label="Color correction on" title="Color correction on" aria-pressed="true"><span class="eyedropper-icon" aria-hidden="true"></span></button>
-<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>
-<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
+<div id="cameraTarget" class="camera-target" aria-label="Capture sampled color"><span id="cameraLiveRing" class="camera-live-ring" aria-hidden="true"></span><span id="cameraStableRing" class="camera-stable-ring" aria-hidden="true"></span></div>\n<div id="cameraZoom" class="camera-zoom" aria-hidden="true">1.0×</div>
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
