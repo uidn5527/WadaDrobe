@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r29</title>
+<title>WadaDrobe plus r30</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -417,16 +417,9 @@ body:not(.mode-two) #twoSelected{display:block!important}
     min-height:16px;
   }
 
-  /* Shorter landscape camera frame; the video is cropped, not distorted. */
+  /* Camera geometry is governed by the landscape grid so single- and two-color modes share the same frame. */
   main>.camera-panel{
-    align-self:start;
-    height:auto;
-  }
-  main>.camera-panel .camera-stage{
-    height:auto;
-    aspect-ratio:5/4;
-    flex:none;
-    width:100%;
+    align-self:stretch;
   }
   main>.camera-panel #cameraVideo{
     width:100%;
@@ -539,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r29</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r30</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
