@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r18</title>
+<title>WadaDrobe plus r23</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -456,10 +456,24 @@ body:not(.mode-two) #twoSelected{display:block!important}
     min-width:0;
   }
 }
-</style></head>
+<style>
+/* plus r23: restore the two-color landscape camera's grid participation.
+   Keep the r18 5:4 presentation change scoped to single-color only. */
+@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
+  .mode-two main>.camera-panel{
+    align-self:stretch;
+    height:100%;
+  }
+  .mode-two main>.camera-panel .camera-stage{
+    height:100%;
+    aspect-ratio:auto;
+    flex:1 1 auto;
+  }
+}
+</style></style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r18</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r23</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
