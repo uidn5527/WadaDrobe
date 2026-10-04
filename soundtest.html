@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe sound r01</title>
+<title>WadaDrobe sound r02</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -531,8 +531,17 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style>
 </head>
 <body>
-<main><section id="soundTestPanel" style="margin:12px auto 18px;max-width:520px;padding:14px 16px;border:1px solid rgba(0,0,0,.14);border-radius:12px;background:rgba(255,255,255,.72);text-align:center"><div style="font-weight:700;margin-bottom:8px">Sound r01</div><select id="soundTestMode" style="width:100%;padding:8px;border-radius:8px"><option value="current">1 — Current soft tick</option><option value="mechanical">2 — Soft mechanical shutter</option><option value="chime">3 — Soft glass/chime</option></select><button id="soundTestPlay" type="button" style="margin-top:10px;padding:8px 14px;border-radius:8px">Play selected sound</button></section>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">sound r01</span></h1>
+<main><section id="soundTestPanel" style="margin:12px auto 18px;max-width:520px;padding:14px 16px;border:1px solid rgba(0,0,0,.14);border-radius:12px;background:rgba(255,255,255,.72);text-align:center"><div style="font-weight:700;margin-bottom:8px">Sound r01</div><select id="soundTestMode" style="width:100%;padding:8px;border-radius:8px"><option value="current">1 — Current soft tick</option>
+<option value="mechanical">2 — Soft mechanical shutter</option>
+<option value="shutter">3 — Classic camera shutter</option>
+<option value="beep">4 — Digital camera beep + click</option>
+<option value="chime">5 — Soft glass/chime</option>
+<option value="polaroid">6 — Polaroid-style</option>
+<option value="analog">7 — Vinyl/analog click</option>
+<option value="two-stage">8 — Two-stage capture</option>
+<option value="subbass">9 — Sub-bass thump + click</option>
+<option value="micro">10 — Almost silent micro-click</option></select><button id="soundTestPlay" type="button" style="margin-top:10px;padding:8px 14px;border-radius:8px">Play selected sound</button></section>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision" >sound r02</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1011,8 +1020,7 @@ function playCameraClickSound(){
    const now=ctx.currentTime;
    const mode=document.getElementById('soundTestMode')?.value||'current';
    const master=ctx.createGain();
-   master.gain.setValueAtTime(0.0001,now);
-   master.connect(ctx.destination);
+   master.gain.setValueAtTime(0.0001,now); master.connect(ctx.destination);
    const tone=(type,f1,f2,dur,level,delay=0)=>{
      const t=now+delay,osc=ctx.createOscillator(),gain=ctx.createGain();
      osc.type=type; osc.frequency.setValueAtTime(f1,t);
@@ -1021,16 +1029,28 @@ function playCameraClickSound(){
      osc.connect(gain); gain.connect(master); osc.start(t); osc.stop(t+dur+.005);
    };
    if(mode==='mechanical'){
-     tone('triangle',920,620,.055,.85);
-     tone('triangle',680,480,.045,.65,.045);
+     tone('triangle',920,620,.055,.85); tone('triangle',680,480,.045,.65,.045);
+   }else if(mode==='shutter'){
+     tone('triangle',1180,650,.045,.85); tone('triangle',760,430,.07,.62,.035);
+   }else if(mode==='beep'){
+     tone('sine',880,880,.055,.42); tone('triangle',1080,900,.055,.68,.055);
    }else if(mode==='chime'){
-     tone('sine',1040,900,.075,.55);
-     tone('sine',1560,1380,.11,.32,.025);
+     tone('sine',1040,900,.075,.55); tone('sine',1560,1380,.11,.32,.025);
+   }else if(mode==='polaroid'){
+     tone('triangle',760,430,.07,.72); tone('sawtooth',145,115,.18,.12,.075);
+   }else if(mode==='analog'){
+     tone('triangle',620,360,.075,.5); tone('triangle',980,620,.035,.25,.028);
+   }else if(mode==='two-stage'){
+     tone('triangle',920,620,.05,.48); tone('sine',1280,1120,.055,.3,.055);
+   }else if(mode==='subbass'){
+     tone('sine',110,75,.12,.16); tone('triangle',850,520,.055,.5,.008);
+   }else if(mode==='micro'){
+     tone('triangle',1050,780,.045,.28);
    }else{
      tone('triangle',1050,720,.08,1);
    }
    master.gain.exponentialRampToValueAtTime(0.12,now+.004);
-   master.gain.exponentialRampToValueAtTime(0.0001,now+.16);
+   master.gain.exponentialRampToValueAtTime(0.0001,now+.24);
  }catch(err){}
 }
 function captureCameraColor(){
