@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r32</title>
+<title>WadaDrobe plus r33</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r32</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r33</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -932,7 +932,6 @@ function sampleCameraColor(){
  rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
  const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
  const wbStrength=.28;
- const wbScale=correctedMean/Math.max(1,correctedMean);
  rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
  rgb=rgb.map(v=>Math.round(Math.max(0,Math.min(255,v))));
  }
