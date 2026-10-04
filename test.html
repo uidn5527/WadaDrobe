@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r38</title>
+<title>WadaDrobe plus r39</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r38</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r39</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1139,7 +1139,7 @@ document.getElementById('colorPickerMenu').addEventListener('click',e=>{const x=
 document.getElementById('colorSearch').addEventListener('input',e=>{e.stopImmediatePropagation();plusSearchInput()},{capture:true});
 document.getElementById('colorSearchClear').addEventListener('click',e=>{e.stopImmediatePropagation();plusClearSearch()},{capture:true});
 document.getElementById('colorPickerButton').addEventListener('click',e=>{e.stopImmediatePropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open))},{capture:true});
-cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;plusChooseColor(lastCameraMatch.name)});
+cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;playCameraClickSound();plusChooseColor(lastCameraMatch.name)});
 window.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});window.addEventListener('orientationchange',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});
 
 // p04: make two-color fullscreen explicitly dismissible on touch, mouse, and Escape.
