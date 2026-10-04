@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r25</title>
+<title>WadaDrobe plus r26</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -205,18 +205,6 @@ button,select,input{touch-action:manipulation}
 </style><style>
 .site-title-even{display:flex;align-items:baseline;justify-content:flex-end;gap:3px}.site-title-even .brand{color:#505423}
 
-/* test06 portrait-only section order: camera before color selection */
-@media (orientation: portrait){
-  main{display:flex;flex-direction:column}
-  main>h1{order:0}
-  main>.camera-panel{order:1}
-  main>.controls{order:2}
-  main>section:nth-of-type(3){order:3}
-  main>.similarity-controls{order:4}
-  main>section:nth-of-type(5){order:5}
-  main>section:nth-of-type(6){order:6}
-  main>footer{order:7}
-}
 /* test06 fullscreen experiment — no effect in normal mode */
 .site-title-odd{display:flex;align-items:baseline;justify-content:flex-start;gap:3px}
 .site-title-odd .brand{color:#505423}
@@ -565,7 +553,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r25</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r26</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
