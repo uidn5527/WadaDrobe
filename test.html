@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r47</title>
+<title>WadaDrobe plus r48</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r47</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r48</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1163,16 +1163,6 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
 /* WadaAI local lighting experiment — r44: lighting-aware Wada badge/ring updated every 500ms. */
 (function(){
   var liveOfficial=null,liveTimer=null,liveBusy=false;
-  var debugLog=[];
-  function dbg(label,value){
-    var v=value;
-    try{v=typeof value==='object'?JSON.stringify(value):String(value)}catch(e){v='[unreadable]'}
-    debugLog.push(new Date().toLocaleTimeString()+' — '+label+': '+v);
-    if(debugLog.length>18)debugLog.shift();
-    var el=document.getElementById('wadaDebugLog');
-    if(el)el.textContent=debugLog.join('\\n');
-  }
-  function dbgState(label){dbg(label,{activeSlot:plusActiveSlot,color1:plusColor1,color2:plusColor2,select:select&&select.value});}
   function clamp(v,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?255:b,v));}
   function localDE(rgb,name){return ciede2000Lab(rgbBytesToLab(clamp(rgb[0]),clamp(rgb[1]),clamp(rgb[2])),labMap[name]);}
   function applyCameraColorCorrection(rgb){
@@ -1319,26 +1309,15 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
     updateLive();
   }
   if(cameraTarget)cameraTarget.addEventListener('click',function(e){
-    dbg('CAMERA CLICK',{target:e.target&&e.target.id,activeSlot:plusActiveSlot,last:lastCameraMatch&&lastCameraMatch.name});
-    if(e.target.closest('button')){dbg('IGNORED','button');return;}
+    if(e.target.closest('button'))return;
     var official=liveOfficial||analyze();
-    dbg('OFFICIAL',official&&{name:official.name,hex:official.hex});
-    if(!official){dbg('ABORT','no official result');return;}
+    if(!official)return;
     e.preventDefault();
     e.stopImmediatePropagation();
     playCameraClickSound();
-    dbgState('BEFORE plusChooseColor');
     plusChooseColor(official.name);
-    dbgState('AFTER plusChooseColor');
   },true);
   startLive();
-  var debugPanel=document.createElement('pre');
-  debugPanel.id='wadaDebugLog';
-  debugPanel.style.cssText='margin:10px 0;padding:10px;border:1px solid currentColor;border-radius:8px;font:11px/1.35 monospace;white-space:pre-wrap;max-height:180px;overflow:auto;';
-  debugPanel.textContent='WadaDrobe r47 diagnostic — waiting for camera tap…';
-  var cameraPanel=document.querySelector('.camera-panel');
-  if(cameraPanel)cameraPanel.appendChild(debugPanel);
-  dbg('INIT',{activeSlot:plusActiveSlot,color1:plusColor1,color2:plusColor2});
 })();
 </script>
 </body></html>
