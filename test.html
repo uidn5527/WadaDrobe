@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r16</title>
+<title>WadaDrobe plus r17</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -16,7 +16,7 @@ label{font-weight:650;display:block;margin-bottom:8px}select,input[type=range]{w
 .combination{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;margin:12px 0}.combination-title{font-weight:700;margin-bottom:10px}.blocks{display:flex;gap:0;overflow:hidden;border-radius:5px}.block{height:64px;flex:1;min-width:70px;border:1px solid #777;border-right:0;position:relative}.block:last-child{border-right:1px solid #777}.block span{position:absolute;left:6px;bottom:5px;background:rgba(255,255,255,.78);padding:2px 4px;border-radius:3px;font-size:.72rem;max-width:calc(100% - 12px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 footer{margin-top:30px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border);padding-top:16px}@media(max-width:700px){.controls{grid-template-columns:1fr}.selected{align-items:stretch;flex-direction:column}.selected .swatch{width:100%}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 #colorFieldToggle{margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:6px;background:#fff;color:#222;cursor:pointer;font:inherit}
-#colorFieldToggle:hover{background:#f0f0f0}
+#colorFieldToggle:hover{background:#f0f0f0}\n#colorFieldToggle{font-size:.9rem;white-space:nowrap}
 body.fullscreen-color-mode{background:var(--chosen-color)!important;color:transparent!important}
 body.fullscreen-color-mode>*{visibility:hidden!important}
 #fullscreenTapLayer{display:none}body.fullscreen-color-mode #fullscreenTapLayer{display:block;position:fixed;inset:0;z-index:9998;background:transparent;cursor:pointer;touch-action:manipulation}#fullscreenHint{display:none}
@@ -385,7 +385,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r16</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r17</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -397,7 +397,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="colorPickerMenu" class="custom-select-menu" role="listbox" hidden></div>
 </div>
 <select id="colorSelect" hidden aria-hidden="true"></select>
-<button id="colorFieldToggle" type="button" aria-pressed="false">Show full-screen color sample</button>
+<button id="colorFieldToggle" type="button" aria-pressed="false">Full screen preview</button>
 </div>
 </section>
 <section class="camera-panel">
@@ -912,7 +912,7 @@ function plusOpenColor2(){plusActiveSlot=2;colorSearch.value='';plusBuildPicker(
 function plusSearchInput(){plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true')}
 function plusClearSearch(){colorSearch.value='';plusBuildPicker();plusSetSearchClear();colorPickerMenu.hidden=false;colorPicker.setAttribute('aria-expanded','true');colorSearch.focus()}
 clearColor2.addEventListener('click',e=>{e.stopPropagation();plusExitTwoMode()});twoSlot1.addEventListener('click',()=>plusSetActive(1));twoSlot2.addEventListener('click',()=>plusSetActive(2));twoLikes1.addEventListener('click',e=>{const x=e.target.closest('.two-like-card');if(x){plusActiveSlot=1;plusChooseColor(x.dataset.color)}});twoLikes2.addEventListener('click',e=>{const x=e.target.closest('.two-like-card');if(x){plusActiveSlot=2;plusChooseColor(x.dataset.color)}});twoResults.addEventListener('click',e=>{const x=e.target.closest('.two-match-pair .block');if(x){plusActiveSlot=x.parentElement.querySelector('.block')===x?1:2;plusChooseColor(x.dataset.color)}});
-function plusUpdateFullscreenButton(){if(!colorFieldToggle)return;const two=document.body.classList.contains('mode-two');colorFieldToggle.textContent=two?'Show full-screen color groups':'Show full-screen color sample';colorFieldToggle.setAttribute('aria-label',two?'Show full-screen color groups':'Show full-screen color sample')}
+function plusUpdateFullscreenButton(){if(!colorFieldToggle)return;colorFieldToggle.textContent='Full screen preview';colorFieldToggle.setAttribute('aria-label','Full screen preview')}
 document.getElementById('colorPickerMenu').addEventListener('click',e=>{const x=e.target.closest('.custom-select-option');if(x){e.stopImmediatePropagation();plusChooseColor(x.dataset.color);colorPickerMenu.hidden=true;colorPicker.setAttribute('aria-expanded','false')}},{capture:true});
 document.getElementById('colorSearch').addEventListener('input',e=>{e.stopImmediatePropagation();plusSearchInput()},{capture:true});
 document.getElementById('colorSearchClear').addEventListener('click',e=>{e.stopImmediatePropagation();plusClearSearch()},{capture:true});
