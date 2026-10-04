@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r48</title>
+<title>WadaDrobe plus r49</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r48</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r49</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1162,7 +1162,8 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
 </body></html><script>
 /* WadaAI local lighting experiment — r44: lighting-aware Wada badge/ring updated every 500ms. */
 (function(){
-  var liveOfficial=null,liveTimer=null,liveBusy=false;
+  var liveOfficial=null,liveTimer=null,liveBusy=false,candidateOfficial=null,candidateOfficialSince=0;
+  var HYSTERESIS_MARGIN=.75,HYSTERESIS_DWELL_MS=750;
   function clamp(v,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?255:b,v));}
   function localDE(rgb,name){return ciede2000Lab(rgbBytesToLab(clamp(rgb[0]),clamp(rgb[1]),clamp(rgb[2])),labMap[name]);}
   function applyCameraColorCorrection(rgb){
@@ -1286,8 +1287,30 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
   }
   function showOfficial(local){
     if(!local)return;
-    var official={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name)};
-    liveOfficial=official;
+    var preliminary={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name),score:local.score};
+    if(!liveOfficial){
+      liveOfficial=preliminary;
+      candidateOfficial=null;
+      candidateOfficialSince=0;
+    }else if(preliminary.name===liveOfficial.name){
+      liveOfficial=preliminary;
+      candidateOfficial=null;
+      candidateOfficialSince=0;
+    }else if(preliminary.score < liveOfficial.score-HYSTERESIS_MARGIN){
+      var now=performance.now();
+      if(!candidateOfficial||candidateOfficial.name!==preliminary.name){
+        candidateOfficial=preliminary;
+        candidateOfficialSince=now;
+      }else if(now-candidateOfficialSince>=HYSTERESIS_DWELL_MS){
+        liveOfficial=preliminary;
+        candidateOfficial=null;
+        candidateOfficialSince=0;
+      }
+    }else{
+      candidateOfficial=null;
+      candidateOfficialSince=0;
+    }
+    var official=liveOfficial;
     displayedCameraMatch=official;
     lastCameraMatch=official;
     candidateCameraMatch=null;
