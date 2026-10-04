@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r44 — r44 baseline</title><style>
+<title>WadaDrobe 2C r45 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -75,7 +75,7 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 .match-pair .block:last-child{border-right:0}
 .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{color:var(--muted);padding:12px 2px}
-#fullscreenTwo{display:none}body.fullscreen-two{overflow:hidden}body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;inset:0;z-index:9999;width:auto;height:auto;min-width:0;min-height:0;background:#000;overflow:hidden}
+#fullscreenTwo{display:none}body.fullscreen-two{overflow:hidden}body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;position:fixed;left:0;top:0;right:0;bottom:0;width:auto;height:auto;min-width:0;min-height:0;background:#000;overflow:hidden}
 .full-pane{position:relative;width:auto;height:100%;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;flex:1 1 50%}
 .full-pane.left{order:0}.full-pane.right{order:1}
 .full-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -190,7 +190,7 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">2C r44</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r45</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -450,12 +450,27 @@ function renderFullscreen(){
 function enterFull(){
  if(!selected[0]||!selected[1])return;
  document.body.classList.add('fullscreen-two');
- requestAnimationFrame(renderFullscreen);
+ requestAnimationFrame(()=>{syncFullscreenViewport();renderFullscreen();});
+}
+function syncFullscreenViewport(){
+ if(!document.body.classList.contains('fullscreen-two'))return;
+ const root=document.getElementById('fullscreenTwo');
+ const vv=window.visualViewport;
+ const width=vv?vv.width:window.innerWidth;
+ const height=vv?vv.height:window.innerHeight;
+ const offsetLeft=vv?vv.offsetLeft:0;
+ const offsetTop=vv?vv.offsetTop:0;
+ root.style.left=offsetLeft+'px';
+ root.style.top=offsetTop+'px';
+ root.style.width=width+'px';
+ root.style.height=height+'px';
+ root.style.right='auto';
+ root.style.bottom='auto';
 }
 function scheduleFullResize(){
  if(!document.body.classList.contains('fullscreen-two'))return;
  cancelAnimationFrame(fullResizeFrame);
- fullResizeFrame=requestAnimationFrame(()=>{fullResizeFrame=null;renderFullscreen();});
+ fullResizeFrame=requestAnimationFrame(()=>{fullResizeFrame=null;syncFullscreenViewport();});
 }
 function exitFull(){
  document.body.classList.remove('fullscreen-two');
@@ -467,6 +482,7 @@ document.getElementById('fullscreenTwo').addEventListener('click',exitFull);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('fullscreen-two'))exitFull();});
 window.addEventListener('resize',scheduleFullResize);
 window.addEventListener('orientationchange',scheduleFullResize);
+if(window.visualViewport){window.visualViewport.addEventListener('resize',scheduleFullResize);window.visualViewport.addEventListener('scroll',scheduleFullResize);}
 
 const fullscreenButton=document.createElement('button');
 fullscreenButton.type='button';fullscreenButton.textContent='Show full-screen color groups';fullscreenButton.style.cssText='width:100%;min-height:48px;margin-top:10px;padding:11px 14px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer';
