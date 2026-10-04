@@ -48,7 +48,7 @@ function rgbLab(r,g,b){
  const f=v=>v>.008856?Math.cbrt(v):7.787*v+16/116;
  const fx=f(x),fy=f(y),fz=f(z);return [116*fy-16,500*(fx-fy),200*(fy-fz)]
 }
-const points=COLORS.map(([name,hex])=>{const [L,a,b]=rgbLab(...hexRgb(hex));return{name,hex,L,a,b}});
+const points=COLORS.map(({name,hex})=>{const [L,a,b]=rgbLab(...hexRgb(hex));return{name,hex,L,a,b}});
 let dpr=1,W=0,H=0;
 let view={cx:0,cy:0,scale:7};
 let selected=null;
