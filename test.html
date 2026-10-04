@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r49</title>
+<title>WadaDrobe plus r50</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r49</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r50</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -621,9 +621,9 @@ function lightingTransformRGB(rgb,kind,strength){
 function lightingUncertaintyLimit(level){
   const t=Math.max(0,Math.min(7,Number(level)||0));
   if(t===0)return 0;
-  // Calibrated so level 4 produces roughly seven colors, including MC,
-  // across a representative sample of the Wada catalog.
-  return 13*Math.pow(t/4,1.5);
+  // Empirically calibrated against representative Wada colors so level 4
+  // yields roughly seven alternatives while higher settings remain controlled.
+  return 9.5*Math.pow(t/4,1.5);
 }
 function lightingAwareCandidates(selected,level){
   if(!selected)return[];
@@ -647,6 +647,22 @@ function lightingAwareCandidates(selected,level){
   }).filter(x=>x&&x.score<=limit)
     .sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name));
 
+  // Any nonzero uncertainty setting must expose at least one
+  // plausible alternative, even when the calibrated threshold is empty.
+  if(!scored.length){
+    const fallback=COLORS.map(([name])=>{
+      if(name===selected)return null;
+      const candidate=rgbMap[name];
+      let best=Infinity;
+      for(const scenario of scenarios){
+        const transformed=lightingTransformRGB(candidate,scenario,strength);
+        const d=ciede2000Lab(targetLab,rgbBytesToLab(...transformed));
+        if(d<best)best=d;
+      }
+      return {name,score:best,distance:distance(selected,name)};
+    }).filter(Boolean).sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name))[0];
+    if(fallback)scored.push(fallback);
+  }
   return [selected,...scored.map(x=>x.name)];
 }
 const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
