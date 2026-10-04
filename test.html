@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r02</title>
+<title>WadaDrobe plus r03</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -418,10 +418,24 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
 body:not(.mode-two) #twoSelected,
 body:not(.mode-two) #twoLikesSection,
 body:not(.mode-two) #twoCombinationsSection{display:none!important}
+</style><style>
+/* p03: explicit single-color portrait ordering. Do not rely on nth-of-type
+   because the two-color sections are also children of main. */
+@media (orientation: portrait){
+  body:not(.mode-two) main{display:flex;flex-direction:column}
+  body:not(.mode-two) main>h1{order:0}
+  body:not(.mode-two) main>.camera-panel{order:1}
+  body:not(.mode-two) main>.single-controls{order:2}
+  body:not(.mode-two) main>.single-selected{order:3}
+  body:not(.mode-two) main>.similarity-controls{order:4}
+  body:not(.mode-two) main>.single-similar{order:5}
+  body:not(.mode-two) main>.single-combinations{order:6}
+  body:not(.mode-two) main>footer{order:7}
+}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r02</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r03</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
