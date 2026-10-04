@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaAI r01</title>
+<title>WadaAI r02</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -557,7 +557,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <canvas id="cameraCanvas" hidden></canvas>
-</section><section class="wada-ai-panel" id="wadaAiPanel"><h2>WadaAI r01 — AI lighting experiment</h2><div class="wada-ai-key-row"><input id="wadaAiKey" type="password" autocomplete="off" placeholder="OpenAI API key (prototype only)"><button id="wadaAiClearKey" type="button">Clear</button></div><div class="wada-ai-status" id="wadaAiStatus">Enter an API key, then click the camera sampling area. The same capture will be evaluated by the current engine and AI.</div><div class="wada-ai-results"><div class="wada-ai-result"><h3>Current production engine</h3><div class="wada-ai-color"><div class="wada-ai-swatch" id="wadaAiProdSwatch"></div><div class="wada-ai-name" id="wadaAiProdName">—</div></div><div class="wada-ai-meta" id="wadaAiProdMeta">No capture yet.</div></div><div class="wada-ai-result"><h3>AI-assisted match</h3><div class="wada-ai-color"><div class="wada-ai-swatch" id="wadaAiAiSwatch"></div><div class="wada-ai-name" id="wadaAiAiName">—</div></div><div class="wada-ai-meta" id="wadaAiAiMeta">No AI result yet.</div></div></div><img class="wada-ai-snapshot" id="wadaAiSnapshot" alt="Captured camera frame used for the AI comparison"></section>
+</section><section class="wada-ai-panel" id="wadaAiPanel"><h2>WadaAI r02 — AI lighting experiment</h2><div class="wada-ai-status" id="wadaAiStatus">Click the sampling area to capture the current camera frame. The image will be exported so it can be uploaded here for AI analysis.</div><button id="wadaAiSave" type="button" disabled>Save captured image</button><div class="wada-ai-meta" id="wadaAiCaptureMeta">No capture yet.</div><img class="wada-ai-snapshot" id="wadaAiSnapshot" alt="Captured camera frame for AI analysis"></section>
 <section class="single-selected"><div class="selected" id="selectedColor"></div></section><section class="two-selected" id="twoSelected"><div class="two-inputs"><div class="two-slot active" id="twoSlot1" role="button" tabindex="0" aria-pressed="true"><div class="two-slot-head"><span>Color 1</span><span>①</span></div><div class="two-slot-swatch" id="twoSwatch1"></div><div class="two-slot-meta" id="twoMeta1"></div></div><div class="two-slot" id="twoSlot2" role="button" tabindex="0" aria-pressed="false"><div class="two-slot-head"><span>Color 2</span><button id="clearColor2" class="clear-color2" type="button" aria-label="Clear Color 2" title="Clear Color 2">×</button></div><div class="two-slot-swatch" id="twoSwatch2"></div><div class="two-slot-meta" id="twoMeta2">Choose Color 2</div></div></div></section>
 <section class="similarity-controls"><label for="similarityMethod">Similarity method</label>
 <select id="similarityMethod">
@@ -1139,12 +1139,43 @@ document.getElementById('colorPickerMenu').addEventListener('click',e=>{const x=
 document.getElementById('colorSearch').addEventListener('input',e=>{e.stopImmediatePropagation();plusSearchInput()},{capture:true});
 document.getElementById('colorSearchClear').addEventListener('click',e=>{e.stopImmediatePropagation();plusClearSearch()},{capture:true});
 document.getElementById('colorPickerButton').addEventListener('click',e=>{e.stopImmediatePropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open))},{capture:true});
-const wadaAiKey=document.getElementById('wadaAiKey'),wadaAiClearKey=document.getElementById('wadaAiClearKey'),wadaAiStatus=document.getElementById('wadaAiStatus'),wadaAiProdSwatch=document.getElementById('wadaAiProdSwatch'),wadaAiProdName=document.getElementById('wadaAiProdName'),wadaAiProdMeta=document.getElementById('wadaAiProdMeta'),wadaAiAiSwatch=document.getElementById('wadaAiAiSwatch'),wadaAiAiName=document.getElementById('wadaAiAiName'),wadaAiAiMeta=document.getElementById('wadaAiAiMeta'),wadaAiSnapshot=document.getElementById('wadaAiSnapshot');
-wadaAiClearKey.addEventListener('click',()=>{wadaAiKey.value='';wadaAiStatus.textContent='API key cleared.'});
-function wadaAiFrameDataUrl(){if(!cameraVideo||cameraVideo.readyState<2)return null;const c=document.createElement('canvas'),maxW=960,scale=Math.min(1,maxW/cameraVideo.videoWidth);c.width=Math.max(1,Math.round(cameraVideo.videoWidth*scale));c.height=Math.max(1,Math.round(cameraVideo.videoHeight*scale));const x=c.getContext('2d');if(cameraFacing==='user'){x.translate(c.width,0);x.scale(-1,1)}x.drawImage(cameraVideo,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78)}
-function wadaAiCatalogText(){return COLORS.map(x=>x[0]+' | '+x[1]).join('\n')}
-async function wadaAiAsk(frame,productionName){const key=wadaAiKey.value.trim();if(!key)throw new Error('Enter an OpenAI API key first.');const prompt=['You are the visual color-analysis component of an experimental Sanzo Wada color-matching application.','The camera frame contains a central sampling target. Identify which Sanzo Wada catalog color the sampled physical color most likely corresponds to.','Use the entire photograph to infer illumination and color cast before judging the target.','Do not simply choose the brightest or most familiar color name.','Treat the physical target inside the central sampling circle as the object of interest.','Return exactly one catalog color from the supplied catalog.','The current production engine selected "'+productionName+'" from calibrated camera data. You are an independent second opinion.','','Sanzo Wada catalog (name | hex):',wadaAiCatalogText(),'','Return JSON with these fields:','best_match: exact catalog name','confidence: number from 0 to 1','lighting: concise description of apparent illumination/color cast','correction: concise description of visual correction you believe was needed','reason: concise explanation of why the selected Wada color is appropriate.'].join('\n');const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-6-luna',input:[{role:'user',content:[{type:'input_text',text:prompt},{type:'input_image',image_url:frame,detail:'high'}]}],text:{format:{type:'json_object'}}})});const data=await response.json();if(!response.ok)throw new Error(data?.error?.message||('API request failed: '+response.status));const text=data.output_text||data.output?.flatMap(x=>x.content||[]).find(x=>x.type==='output_text')?.text;if(!text)throw new Error('The API returned no text result.');return JSON.parse(text)}
-async function wadaAiCapture(){if(!lastCameraMatch)return;playCameraClickSound();const productionName=lastCameraMatch.name,frame=wadaAiFrameDataUrl();wadaAiProdSwatch.style.background=map[productionName];wadaAiProdName.textContent=productionName;wadaAiProdMeta.textContent='Production match from this exact click event.';wadaAiSnapshot.src=frame||'';wadaAiSnapshot.style.display=frame?'block':'none';plusChooseColor(productionName);if(!frame){wadaAiStatus.textContent='Production result captured, but no camera frame was available for AI analysis.';return}if(!wadaAiKey.value.trim()){wadaAiStatus.textContent='Production result captured. Enter an API key to run the AI comparison.';return}wadaAiAiName.textContent='Analyzing…';wadaAiAiMeta.textContent='Examining the whole frame for illumination and color cast.';wadaAiStatus.textContent='Sending this capture to the AI…';try{const result=await wadaAiAsk(frame,productionName),aiName=result.best_match;if(!map[aiName])throw new Error('AI returned a name that is not in the Wada catalog: '+aiName);wadaAiAiSwatch.style.background=map[aiName];wadaAiAiName.textContent=aiName;wadaAiAiMeta.textContent='Confidence: '+(Number(result.confidence)*100).toFixed(0)+'%. Lighting: '+(result.lighting||'—')+' Correction: '+(result.correction||'—')+' Reason: '+(result.reason||'—');wadaAiStatus.textContent='Comparison complete.'}catch(err){wadaAiAiName.textContent='AI analysis failed';wadaAiAiMeta.textContent=err.message||String(err);wadaAiStatus.textContent='AI request failed; the production result remains available.'}}
+const wadaAiStatus=document.getElementById('wadaAiStatus'),wadaAiSave=document.getElementById('wadaAiSave'),wadaAiCaptureMeta=document.getElementById('wadaAiCaptureMeta'),wadaAiSnapshot=document.getElementById('wadaAiSnapshot');
+let wadaAiLastFrame=null;
+function wadaAiFrameDataUrl(){
+ if(!cameraVideo||cameraVideo.readyState<2)return null;
+ const c=document.createElement('canvas'),maxW=960,scale=Math.min(1,maxW/cameraVideo.videoWidth);
+ c.width=Math.max(1,Math.round(cameraVideo.videoWidth*scale));
+ c.height=Math.max(1,Math.round(cameraVideo.videoHeight*scale));
+ const x=c.getContext('2d');
+ if(cameraFacing==='user'){x.translate(c.width,0);x.scale(-1,1)}
+ x.drawImage(cameraVideo,0,0,c.width,c.height);
+ return c.toDataURL('image/jpeg',.9);
+}
+function wadaAiExportFrame(frame){
+ const a=document.createElement('a');
+ a.href=frame;
+ a.download='WadaAI-capture-'+new Date().toISOString().replace(/[:.]/g,'-')+'.jpg';
+ document.body.appendChild(a);a.click();a.remove();
+}
+function wadaAiCapture(){
+ if(!lastCameraMatch)return;
+ playCameraClickSound();
+ const frame=wadaAiFrameDataUrl();
+ wadaAiLastFrame=frame;
+ if(!frame){
+   wadaAiStatus.textContent='No camera frame was available.';
+   wadaAiSave.disabled=true;
+   wadaAiSnapshot.style.display='none';
+   return;
+ }
+ wadaAiSnapshot.src=frame;
+ wadaAiSnapshot.style.display='block';
+ wadaAiSave.disabled=false;
+ wadaAiCaptureMeta.textContent='Captured '+new Date().toLocaleString()+'. The full camera frame is shown above.';
+ wadaAiStatus.textContent='Image captured. Use “Save captured image” and upload the JPG here for the AI portion of the experiment.';
+ plusChooseColor(lastCameraMatch.name);
+}
+wadaAiSave.addEventListener('click',()=>{if(wadaAiLastFrame)wadaAiExportFrame(wadaAiLastFrame)});
 cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;wadaAiCapture()});
 window.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});window.addEventListener('orientationchange',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});
 
