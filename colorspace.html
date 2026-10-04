@@ -3,110 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>WadaDrobe CIELAB Color Space — r02</title>
+<title>WadaDrobe CIELAB Color Space — r03</title>
 <style>
 :root{--bg:#f5f5f2;--panel:#fff;--text:#202124;--muted:#666;--border:#d8d8d3}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
-#top{z-index:5;display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--border);backdrop-filter:blur(8px)}
-#top h1{font-size:18px;margin:0;white-space:nowrap}.version{font-size:.62em;font-weight:400;letter-spacing:.04em;color:#888;margin-left:5px;vertical-align:middle}
-#top .sub{font-size:12px;color:var(--muted);white-space:nowrap}
-.controls{margin-left:auto;display:flex;gap:6px}
+#top{z-index:5;display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--border)}
+#top h1{font-size:18px;margin:0;white-space:nowrap}.version{font-size:.62em;font-weight:400;letter-spacing:.04em;color:#888;margin-left:5px}
+#top .sub{font-size:12px;color:var(--muted);white-space:nowrap}.controls{margin-left:auto;display:flex;gap:6px}
 button{border:1px solid #bbb;background:#fff;border-radius:7px;padding:7px 10px;font:inherit;cursor:pointer}
-button:active{transform:translateY(1px)}
-#stage{position:relative;flex:1;min-height:0;touch-action:none;background:#f7f7f5}
-canvas{display:block;width:100%;height:100%}
-#legend{position:absolute;left:12px;bottom:12px;z-index:4;background:rgba(255,255,255,.92);border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:12px;line-height:1.45;max-width:min(330px,calc(100% - 24px));box-shadow:0 3px 12px rgba(0,0,0,.08)}
-#selected{font-weight:700}
-#details{color:var(--muted);font-variant-numeric:tabular-nums}
-#hint{margin-top:4px;font-size:11px}
-#zoomReadout{position:absolute;right:12px;bottom:12px;z-index:4;background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted)}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden;background:#f7f7f5;touch-action:none}
+svg{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+.gridline{stroke:rgba(0,0,0,.10);stroke-width:.18}.axisline{stroke:rgba(0,0,0,.42);stroke-width:.28}
+.axis-label{font:2.8px system-ui,sans-serif;fill:rgba(0,0,0,.58)}
+.marker{cursor:pointer;vector-effect:non-scaling-stroke;stroke:rgba(0,0,0,.42);stroke-width:1.2}
+.marker.selected{stroke:#111;stroke-width:3.2}
+.wada-label{font:2.8px system-ui,sans-serif;fill:#222;pointer-events:none}
+.label-bg{fill:rgba(255,255,255,.88);stroke:rgba(0,0,0,.08);stroke-width:.12}
+#legend{position:absolute;left:12px;bottom:12px;z-index:4;background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:12px;line-height:1.45;max-width:min(330px,calc(100% - 24px));box-shadow:0 3px 12px rgba(0,0,0,.08);pointer-events:none}
+#selected{font-weight:700}#details{color:var(--muted);font-variant-numeric:tabular-nums}#hint{margin-top:4px;font-size:11px}
+#zoomReadout{position:absolute;right:12px;bottom:12px;z-index:4;background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted);pointer-events:none}
 @media(max-width:650px){#top{align-items:flex-start;flex-wrap:wrap}#top .sub{order:3;width:100%}.controls{margin-left:auto}#legend{font-size:11px}}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="top">
-    <h1>WadaDrobe CIELAB <span class="version">r02</span></h1>
-    <div class="sub">2D a* / b* color space · all Wada colors</div>
-    <div class="controls"><button id="reset">Reset</button><button id="fit">Fit all</button></div>
-  </div>
-  <div id="stage"><canvas id="space"></canvas>
-    <div id="legend"><div id="selected">Click a color marker</div><div id="details"></div><div id="hint">Drag to pan · pinch/wheel to zoom · labels appear when zoomed in</div></div>
-    <div id="zoomReadout"></div>
-  </div>
-</div>
+<div id="top"><h1>WadaDrobe CIELAB <span class="version">r03</span></h1><div class="sub">2D a* / b* color space · all Wada colors</div><div class="controls"><button id="reset">Reset</button><button id="fit">Fit all</button></div></div>
+<div id="stage">
+<svg id="space" xmlns="http://www.w3.org/2000/svg" aria-label="2D CIELAB color space">
+<g id="viewport"><g id="grid"></g><g id="points"></g><g id="labels"></g></g>
+</svg>
+<div id="legend"><div id="selected">Click a color marker</div><div id="details"></div><div id="hint">Drag to pan · pinch/wheel to zoom · labels appear when zoomed in</div></div>
+<div id="zoomReadout"></div>
+</div></div>
 <script>
 const COLORS=[{"name":"Pale Purplish Vinaceous","hex":"#fde2dd"},{"name":"Hermosa Pink","hex":"#f9c1ce"},{"name":"Corinthian Pink","hex":"#f8b6ba"},{"name":"Cameo Pink","hex":"#e0b3b6"},{"name":"Pale Cinammon-Pink","hex":"#f4deca"},{"name":"Fawn","hex":"#d1b0a7"},{"name":"Pale Ecru-Drab","hex":"#c5b7b0"},{"name":"Light Brown Drab","hex":"#b59392"},{"name":"Coral Red","hex":"#f58e84"},{"name":"Fresh Color","hex":"#f6917e"},{"name":"Grenadine Pink","hex":"#f48067"},{"name":"Eosine Pink","hex":"#f37f94"},{"name":"Spinel Red","hex":"#f27291"},{"name":"Old Rose","hex":"#d46d7a"},{"name":"Eugenia Red 1","hex":"#e2625e"},{"name":"Eugenia Red 2","hex":"#da525d"},{"name":"Raw Sienna","hex":"#bb7125"},{"name":"Vinaceous Tawny","hex":"#c56127"},{"name":"Jasper Red","hex":"#eb5324"},{"name":"Spectrum Red","hex":"#e31f26"},{"name":"Red Orange","hex":"#dd4027"},{"name":"Etruscan Red","hex":"#c55347"},{"name":"Burnt Sienna","hex":"#ae5224"},{"name":"Ocher Red","hex":"#ab544d"},{"name":"Scarlet","hex":"#cb2f43"},{"name":"Carmine","hex":"#cc1236"},{"name":"Indian Lake","hex":"#c53c69"},{"name":"Rosolanc Purple","hex":"#b73f74"},{"name":"Pomegranate Purple","hex":"#b71f57"},{"name":"Hydrangea Red","hex":"#a94151"},{"name":"Brick Red","hex":"#a84222"},{"name":"Carmine Red","hex":"#a62c37"},{"name":"Pompeian Red","hex":"#ab2439"},{"name":"Red","hex":"#a72144"},{"name":"Brown","hex":"#7c4226"},{"name":"Hay's Russet","hex":"#793327"},{"name":"Vandyke Red","hex":"#82241f"},{"name":"Pansy Purple","hex":"#7d133a"},{"name":"Pale Burnt Lake","hex":"#802626"},{"name":"Violet Red","hex":"#642d5e"},{"name":"Vistoris Lake","hex":"#6d4145"},{"name":"Sulphur Yellow","hex":"#f5ecc2"},{"name":"Sea-foam Yellow","hex":"#f0e6be"},{"name":"Pale Lemon Yellow","hex":"#ffefae"},{"name":"Naples Yellow","hex":"#fbe6a0"},{"name":"Ivory Buff","hex":"#ebd3a2"},{"name":"Seashell Pink","hex":"#fdd4bd"},{"name":"Light Pinkish Cinnamon","hex":"#fcc79b"},{"name":"Pinkish Cinnamon","hex":"#eeb480"},{"name":"Cinnamon Buff","hex":"#fdc57e"},{"name":"Cream Yellow","hex":"#fdbf68"},{"name":"Golden Yellow","hex":"#f3a257"},{"name":"Vinaceous Cinnamon","hex":"#eea78c"},{"name":"Ochraceous Salmon","hex":"#d8a37b"},{"name":"Isabella Color","hex":"#c5a56e"},{"name":"Maple","hex":"#c59f6b"},{"name":"Olive Buff","hex":"#c1c494"},{"name":"Ecru","hex":"#c2ae93"},{"name":"Yellow","hex":"#fff200"},{"name":"Lemon Yellow","hex":"#f8ed43"},{"name":"Apricot Yellow","hex":"#ffdd00"},{"name":"Pyrite Yellow","hex":"#cab356"},{"name":"Olive Ocher","hex":"#d6b43e"},{"name":"Yellow Ocher","hex":"#e2b540"},{"name":"Orange Yellow","hex":"#fcb315"},{"name":"Yellow Orange","hex":"#f99d1b"},{"name":"Apricot Orange","hex":"#f68c50"},{"name":"Orange","hex":"#f37420"},{"name":"Peach Red","hex":"#f15a30"},{"name":"English Red","hex":"#d96629"},{"name":"Cinnamon Rufous","hex":"#c27544"},{"name":"Orange Rufous","hex":"#c16b27"},{"name":"Sulphine Yellow","hex":"#c19f2c"},{"name":"Khaki / Tawny Olive","hex":"#bc892b"},{"name":"Citron Yellow","hex":"#b2b73e"},{"name":"Citrine","hex":"#a49531"},{"name":"Dull Citrine","hex":"#8d8559"},{"name":"Buffy Citrine","hex":"#96874d"},{"name":"Dark Citrine","hex":"#8b835b"},{"name":"Light Grayish Olive","hex":"#848061"},{"name":"Kronbergs Green","hex":"#84875e"},{"name":"Olive","hex":"#837e31"},{"name":"Orange Citrine","hex":"#986f2d"},{"name":"Sudan Brown","hex":"#a36752"},{"name":"Olive Green","hex":"#6b7140"},{"name":"Light Brownish Olive","hex":"#806e4b"},{"name":"Deep Grayish Olive","hex":"#635a3a"},{"name":"Pale Raw Umber","hex":"#71502f"},{"name":"Sepia","hex":"#644b1e"},{"name":"Madder Brown","hex":"#762c19"},{"name":"Mars Brown Tobacco","hex":"#653514"},{"name":"Vandyke Brown","hex":"#4b3317"},{"name":"Turquoise Green","hex":"#b5decc"},{"name":"Glaucous Green","hex":"#b4cdc2"},{"name":"Dark Greenish Glaucous","hex":"#b7c2a9"},{"name":"Pale Turtle Green","hex":"#c3cd9d"},{"name":"Yellow Green","hex":"#afd472"},{"name":"Light Green Yellow","hex":"#c7d14f"},{"name":"Light Green","hex":"#87c540"},{"name":"Olive Yellow","hex":"#a6a159"},{"name":"Artemisia Green","hex":"#709390"},{"name":"Andover Green","hex":"#6d7e77"},{"name":"Rainette Green","hex":"#788860"},{"name":"Chromium Green","hex":"#719470"},{"name":"Pistachio Green","hex":"#648f7b"},{"name":"Sea Green","hex":"#00b49b"},{"name":"Benzol Green","hex":"#00978d"},{"name":"Light Porcelain Green","hex":"#00908a"},{"name":"Green","hex":"#489b6e"},{"name":"Dull Viridian Green","hex":"#009465"},{"name":"Oil Green","hex":"#819238"},{"name":"Grape Green","hex":"#a2a865"},{"name":"Diamine Green","hex":"#008842"},{"name":"Cossack Green","hex":"#437742"},{"name":"Lincoln Green","hex":"#555832"},{"name":"Blackish Olive","hex":"#42533e"},{"name":"Deep Slate Olive","hex":"#253122"},{"name":"Pale King's Blue 1","hex":"#f0f3e7"},{"name":"Nile Blue","hex":"#bce4e5"},{"name":"Pale King's Blue 2","hex":"#a7d4e4"},{"name":"Light Glaucous Blue","hex":"#a5c8d1"},{"name":"Salvia Blue","hex":"#97acc8"},{"name":"Cobalt Green","hex":"#96d1aa"},{"name":"Calamine Blue","hex":"#78cdd0"},{"name":"Venice Green","hex":"#62c6bf"},{"name":"Pale Methyl Blue","hex":"#54afb4"},{"name":"Cerulean Blue","hex":"#0093a5"},{"name":"Peacock Blue","hex":"#00939b"},{"name":"Green Blue","hex":"#099197"},{"name":"Olympic Blue","hex":"#5a82b3"},{"name":"Blue","hex":"#006eb8"},{"name":"Antwarp Blue","hex":"#007190"},{"name":"Helvetia Blue","hex":"#005b8d"},{"name":"Dark Medici Blue","hex":"#547076"},{"name":"Dusky Green","hex":"#004f46"},{"name":"Deep Lyons Blue","hex":"#1c4286"},{"name":"Violet Blue","hex":"#40456a"},{"name":"Vandar Poel's Blue","hex":"#064f6e"},{"name":"Dark Tyrian Blue","hex":"#12354e"},{"name":"Dull Violet Black","hex":"#0d1c43"},{"name":"Deep Indigo","hex":"#051230"},{"name":"Deep Slate Green","hex":"#112f2c"},{"name":"Grayish Lavender 1","hex":"#b5b1d8"},{"name":"Grayish Lavender 2","hex":"#c0a9b3"},{"name":"Laelia Pink","hex":"#ca92a8"},{"name":"Lilac","hex":"#b984af"},{"name":"Eupatorium Purple","hex":"#bf5892"},{"name":"Light Mauve","hex":"#9a72aa"},{"name":"Aconite Violet","hex":"#a36aa5"},{"name":"Dull Blue Violet","hex":"#80719e"},{"name":"Dark Soft Violet","hex":"#66629c"},{"name":"Blue Violet","hex":"#6450a1"},{"name":"Violet Ultramarine","hex":"#522e91"},{"name":"Purple Drab","hex":"#84565b"},{"name":"Deep Violet Plumbeous","hex":"#70727c"},{"name":"Vernonia Purple","hex":"#8c4c62"},{"name":"Dark Slate Purple","hex":"#704357"},{"name":"Taupe Brown","hex":"#7a4456"},{"name":"Violet Carmine","hex":"#713b4c"},{"name":"Violet","hex":"#4f4086"},{"name":"Red Violet","hex":"#59256a"},{"name":"Cotinga Purple","hex":"#501345"},{"name":"Dusky Madder Violet","hex":"#4e1d4c"},{"name":"Dark Perilla Purple","hex":"#542e36"},{"name":"Dull Purplish Black","hex":"#443b35"},{"name":"White","hex":"#ffffff"},{"name":"Neutral Gray","hex":"#b6bfc1"},{"name":"Mineral Gray","hex":"#a2b0ad"},{"name":"Warm Gray","hex":"#a1a39a"},{"name":"Slate Color","hex":"#34454c"},{"name":"Black","hex":"#111314"}];
-const canvas=document.getElementById('space'),ctx=canvas.getContext('2d');
-const stage=document.getElementById('stage'),selectedEl=document.getElementById('selected'),detailsEl=document.getElementById('details'),zoomEl=document.getElementById('zoomReadout');
-function hexRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
-function rgbLab(r,g,b){
- const lin=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)};
- r=lin(r);g=lin(g);b=lin(b);
- const x=(r*.4124564+g*.3575761+b*.1804375)/.95047,y=(r*.2126729+g*.7151522+b*.072175)/1,z=(r*.0193339+g*.119192+b*.9503041)/1.08883;
- const f=v=>v>.008856?Math.cbrt(v):7.787*v+16/116;
- const fx=f(x),fy=f(y),fz=f(z);return [116*fy-16,500*(fx-fy),200*(fy-fz)]
-}
-const points=COLORS.map(({name,hex})=>{const [L,a,b]=rgbLab(...hexRgb(hex));return{name,hex,L,a,b}});
-let dpr=1,W=0,H=0;
-let view={cx:0,cy:0,scale:7};
-let selected=null;
-let pointers=new Map(),dragStart=null,pinchStart=null;
-const labelZoom=2.25;
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=stage.clientWidth;H=stage.clientHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
-function worldToScreen(a,b){return[(W/2)+(a-view.cx)*view.scale,(H/2)-(b-view.cy)*view.scale]}
+const svg=document.getElementById('space'),vp=document.getElementById('viewport'),grid=document.getElementById('grid'),pointsLayer=document.getElementById('points'),labelsLayer=document.getElementById('labels');
+const selectedEl=document.getElementById('selected'),detailsEl=document.getElementById('details'),zoomEl=document.getElementById('zoomReadout'),stage=document.getElementById('stage');
+function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function rgbLab(r,g,b){const lin=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)};r=lin(r);g=lin(g);b=lin(b);const x=(r*.4124564+g*.3575761+b*.1804375)/.95047,y=(r*.2126729+g*.7151522+b*.072175),z=(r*.0193339+g*.119192+b*.9503041)/1.08883,f=v=>v>.008856?Math.cbrt(v):7.787*v+16/116,fx=f(x),fy=f(y),fz=f(z);return[116*fy-16,500*(fx-fy),200*(fy-fz)]}
+const pts=COLORS.map(({name,hex})=>{const[L,a,b]=rgbLab(...hexRgb(hex));return{name,hex,L,a,b}});
+let view={cx:0,cy:0,scale:1},selected=null,W=1,H=1,pointers=new Map(),gesture=null,lastTap=null;
+function bounds(){const as=pts.map(p=>p.a),bs=pts.map(p=>p.b);return{minA:Math.min(...as),maxA:Math.max(...as),minB:Math.min(...bs),maxB:Math.max(...bs)}}
+function fitAll(){const b=bounds();view.cx=(b.minA+b.maxA)/2;view.cy=(b.minB+b.maxB)/2;const rx=b.maxA-b.minA,ry=b.maxB-b.minB;view.scale=Math.min((W-24)/rx,(H-24)/ry);view.scale=Math.max(1,Math.min(view.scale,25));render()}
+function reset(){view={cx:0,cy:0,scale:Math.min(W,H)/100};render()}
+function worldToScreen(a,b){return[W/2+(a-view.cx)*view.scale,H/2-(b-view.cy)*view.scale]}
 function screenToWorld(x,y){return[view.cx+(x-W/2)/view.scale,view.cy-(y-H/2)/view.scale]}
-function fitAll(){const as=points.map(p=>p.a),bs=points.map(p=>p.b);view.cx=(Math.min(...as)+Math.max(...as))/2;view.cy=(Math.min(...bs)+Math.max(...bs))/2;const rx=Math.max(1,Math.max(...as)-Math.min(...as)),ry=Math.max(1,Math.max(...bs)-Math.min(...bs));view.scale=Math.min((W-90)/rx,(H-90)/ry);view.scale=Math.max(2.0,Math.min(view.scale,18));draw()}
-function reset(){view={cx:0,cy:0,scale:5.5};draw()}
-function gridStep(){const target=55/view.scale;const p=10**Math.floor(Math.log10(target));const q=target/p;return(q<=1?1:q<=2?2:q<=5?5:10)*p}
-function textColor(hex){const [r,g,b]=hexRgb(hex);return((.2126*r+.7152*g+.0722*b)/255)>.58?'#111':'#fff'}
-function drawAxes(){
- const step=gridStep();
- ctx.lineWidth=1;ctx.font='11px system-ui, sans-serif';
- const minA=view.cx-W/(2*view.scale),maxA=view.cx+W/(2*view.scale),minB=view.cy-H/(2*view.scale),maxB=view.cy+H/(2*view.scale);
- for(let a=Math.ceil(minA/step)*step;a<=maxA;a+=step){const [x]=worldToScreen(a,0);ctx.strokeStyle=a===0?'rgba(0,0,0,.45)':'rgba(0,0,0,.10)';ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();if(a!==0){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillText(String(Math.round(a*10)/10),x+3,H-8)}}
- for(let b=Math.ceil(minB/step)*step;b<=maxB;b+=step){const [,y]=worldToScreen(0,b);ctx.strokeStyle=b===0?'rgba(0,0,0,.45)':'rgba(0,0,0,.10)';ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();if(b!==0){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillText(String(Math.round(b*10)/10),6,y-4)}}
- ctx.fillStyle='rgba(0,0,0,.58)';ctx.font='12px system-ui,sans-serif';ctx.fillText('a*  green ← → red',12,20);ctx.fillText('b*  blue ← → yellow',12,36)
-}
-function labelLayout(items){
- const placed=[];return items.map(it=>{
-   const pad=3,w=ctx.measureText(it.name).width+pad*2,h=16;let x=it.x+9,y=it.y-9;
-   const candidates=[[x,y],[it.x-w-9,it.y-9],[it.x+9,it.y-h-9],[it.x-w-9,it.y-h-9]];
-   let chosen=candidates[0];
-   for(const c of candidates){const r={x:c[0],y:c[1]-h,w,h};if(r.x>=2&&r.y>=2&&r.x+r.w<=W-2&&r.y+r.h<=H-2&&!placed.some(q=>!(r.x+r.w<q.x||q.x+q.w<r.x||r.y+r.h<q.y||q.y+q.h<r.y))){chosen=c;break}}
-   placed.push({x:chosen[0],y:chosen[1]-h,w,h});return{...it,x:chosen[0],y:chosen[1]}
- })}
-function draw(){
- ctx.clearRect(0,0,W,H);ctx.fillStyle='#f7f7f5';ctx.fillRect(0,0,W,H);drawAxes();
- const r=Math.max(4,Math.min(9,4+view.scale*.08));
- const visible=points.map(p=>({...p,...(()=>{const [x,y]=worldToScreen(p.a,p.b);return{x,y}})()})).filter(p=>p.x>-20&&p.x<W+20&&p.y>-20&&p.y<H+20);
- for(const p of visible){ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fillStyle=p.hex;ctx.fill();ctx.lineWidth=p.name===selected?.name?3:1;ctx.strokeStyle=p.name===selected?.name?'#000':'rgba(0,0,0,.42)';ctx.stroke()}
- if(view.scale>=labelZoom){
-   ctx.font='11px system-ui,sans-serif';ctx.textBaseline='middle';
-   const labels=labelLayout(visible);
-   for(const p of labels){ctx.fillStyle='rgba(255,255,255,.9)';const m=ctx.measureText(p.name);ctx.fillRect(p.x-3,p.y-8,m.width+6,16);ctx.fillStyle='#222';ctx.fillText(p.name,p.x,p.y)}
- }
- if(selected){const [x,y]=worldToScreen(selected.a,selected.b);ctx.beginPath();ctx.arc(x,y,r+5,0,Math.PI*2);ctx.lineWidth=2.5;ctx.strokeStyle='#fff';ctx.stroke();ctx.beginPath();ctx.arc(x,y,r+6.5,0,Math.PI*2);ctx.lineWidth=1.5;ctx.strokeStyle='#111';ctx.stroke()}
+function setViewport(){W=stage.clientWidth;H=stage.clientHeight;svg.setAttribute('viewBox','0 0 '+W+' '+H);render()}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function gridStep(){const target=65/view.scale,p=Math.pow(10,Math.floor(Math.log10(target))),q=target/p;return(q<=1?1:q<=2?2:q<=5?5:10)*p}
+function render(){
+ if(!W||!H)return;
+ const b=bounds(),step=gridStep(),minA=view.cx-W/(2*view.scale),maxA=view.cx+W/(2*view.scale),minB=view.cy-H/(2*view.scale),maxB=view.cy+H/(2*view.scale);
+ let gh='';
+ for(let a=Math.ceil(minA/step)*step;a<=maxA+step/2;a+=step){const[x]=worldToScreen(a,0);gh+='<line class="'+(Math.abs(a)<1e-9?'axisline':'gridline')+'" x1="'+x+'" y1="0" x2="'+x+'" y2="'+H+'"/>';if(Math.abs(a)>1e-9)gh+='<text class="axis-label" x="'+(x+3)+'" y="'+(H-6)+'">'+a.toFixed(a%1?1:0)+'</text>'}
+ for(let bval=Math.ceil(minB/step)*step;bval<=maxB+step/2;bval+=step){const[,y]=worldToScreen(0,bval);gh+='<line class="'+(Math.abs(bval)<1e-9?'axisline':'gridline')+'" x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'"/>';if(Math.abs(bval)>1e-9)gh+='<text class="axis-label" x="5" y="'+(y-3)+'">'+bval.toFixed(bval%1?1:0)+'</text>'}
+ gh+='<text class="axis-label" x="10" y="16">a*  green ← → red</text><text class="axis-label" x="10" y="30">b*  blue ← → yellow</text>';grid.innerHTML=gh;
+ const r=Math.max(4/view.scale,3/view.scale+1.8), labelsOn=view.scale>=7;
+ pointsLayer.innerHTML=pts.map(p=>{const[x,y]=worldToScreen(p.a,p.b);if(x<-20||x>W+20||y<-20||y>H+20)return'';return '<circle class="marker '+(selected?.name===p.name?'selected':'')+'" cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+p.hex+'" data-name="'+esc(p.name)+'"/>'}).join('');
+ if(labelsOn){labelsLayer.innerHTML=pts.map(p=>{const[x,y]=worldToScreen(p.a,p.b);if(x<-30||x>W+30||y<-30||y>H+30)return'';return '<g transform="translate('+x+','+y+')"><rect class="label-bg" x="'+(r+2)+'" y="-4" width="'+Math.max(12,p.name.length*1.55)+'" height="5.5" rx="1"/><text class="wada-label" x="'+(r+4)+'" y="0">'+esc(p.name)+'</text></g>'}).join('')}else labelsLayer.innerHTML='';
  zoomEl.textContent='Zoom '+view.scale.toFixed(2)+'×';
 }
-function pick(x,y){
- let best=null,bd=Infinity;
- const threshold=Math.max(12,10+view.scale*.35);
- for(const p of points){const [sx,sy]=worldToScreen(p.a,p.b),d=Math.hypot(sx-x,sy-y);if(d<bd&&d<=threshold){bd=d;best=p}}
- return best
-}
-function selectPoint(p){if(!p)return;selected=p;selectedEl.textContent=p.name;detailsEl.textContent=''+p.hex+' · L* '+p.L.toFixed(1)+' · a* '+p.a.toFixed(1)+' · b* '+p.b.toFixed(1);draw()}
-function zoomAt(f,x,y){
- const [wa,wb]=screenToWorld(x,y);view.scale=Math.max(.65,Math.min(80,view.scale*f));view.cx=wa-(x-W/2)/view.scale;view.cy=wb+(y-H/2)/view.scale;draw()
-}
-function pointerPos(e){const r=canvas.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,pointerPos(e));if(pointers.size===1)dragStart={x:e.clientX,y:e.clientY,cx:view.cx,cy:view.cy};else if(pointers.size===2){const a=[...pointers.values()];pinchStart={dist:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),scale:view.scale,center:[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2],world:screenToWorld((a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2)}})
-canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,pointerPos(e));if(pointers.size===1&&dragStart){const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;view.cx=dragStart.cx-dx/view.scale;view.cy=dragStart.cy+dy/view.scale;draw()}else if(pointers.size===2&&pinchStart){const a=[...pointers.values()];const d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);const f=d/pinchStart.dist;const c=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];view.scale=Math.max(.65,Math.min(80,pinchStart.scale*f));view.cx=pinchStart.world[0]-(c[0]-W/2)/view.scale;view.cy=pinchStart.world[1]+(c[1]-H/2)/view.scale;draw()}})
-canvas.addEventListener('pointerup',e=>{const p=pointerPos(e);if(pointers.size===1&&dragStart&&Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)<6)selectPoint(pick(p[0],p[1]));pointers.delete(e.pointerId);dragStart=null;pinchStart=null})
-canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);dragStart=null;pinchStart=null})
-canvas.addEventListener('wheel',e=>{e.preventDefault();const p=pointerPos(e);zoomAt(Math.exp(-e.deltaY*.001),p[0],p[1])},{passive:false});
-document.getElementById('reset').onclick=reset;document.getElementById('fit').onclick=fitAll;
-window.addEventListener('resize',resize);resize();fitAll();
+function pick(x,y){let best=null,bd=Infinity;const threshold=Math.max(16,Math.min(32,10+view.scale*.5));for(const p of pts){const[sx,sy]=worldToScreen(p.a,p.b),d=Math.hypot(sx-x,sy-y);if(d<bd&&d<=threshold){bd=d;best=p}}return best}
+function choose(p){if(!p)return;selected=p;selectedEl.textContent=p.name;detailsEl.textContent=p.hex+' · L* '+p.L.toFixed(1)+' · a* '+p.a.toFixed(1)+' · b* '+p.b.toFixed(1);render()}
+function local(e){const r=svg.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+function zoomAt(f,x,y){const[wA,wB]=screenToWorld(x,y);view.scale=Math.max(.5,Math.min(100,view.scale*f));view.cx=wA-(x-W/2)/view.scale;view.cy=wB+(y-H/2)/view.scale;render()}
+svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);const p=local(e);pointers.set(e.pointerId,p);if(pointers.size===1)gesture={type:'pan',start:p,orig:{cx:view.cx,cy:view.cy},moved:false};else if(pointers.size===2){const a=[...pointers.values()];gesture={type:'pinch',dist:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),scale:view.scale,center:[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2],world:screenToWorld((a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2)}}});
+svg.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const p=local(e);pointers.set(e.pointerId,p);if(pointers.size===1&&gesture?.type==='pan'){const dx=p[0]-gesture.start[0],dy=p[1]-gesture.start[1];if(Math.hypot(dx,dy)>5)gesture.moved=true;view.cx=gesture.orig.cx-dx/view.scale;view.cy=gesture.orig.cy+dy/view.scale;render()}else if(pointers.size===2&&gesture?.type==='pinch'){const a=[...pointers.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),f=d/gesture.dist,c=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];view.scale=Math.max(.5,Math.min(100,gesture.scale*f));view.cx=gesture.world[0]-(c[0]-W/2)/view.scale;view.cy=gesture.world[1]+(c[1]-H/2)/view.scale;render()}});
+svg.addEventListener('pointerup',e=>{const p=local(e),wasSingle=pointers.size===1,moved=gesture?.moved;pointers.delete(e.pointerId);if(wasSingle&&!moved)choose(pick(p[0],p[1]));gesture=null});
+svg.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);gesture=null});
+svg.addEventListener('wheel',e=>{e.preventDefault();const p=local(e);zoomAt(Math.exp(-e.deltaY*.001),p[0],p[1])},{passive:false});
+document.getElementById('fit').onclick=fitAll;document.getElementById('reset').onclick=reset;window.addEventListener('resize',setViewport);setViewport();fitAll();
 </script>
 </body></html>
