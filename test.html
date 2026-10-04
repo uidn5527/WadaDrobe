@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r36</title>
+<title>WadaDrobe plus r38</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r36</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r38</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1001,8 +1001,34 @@ function stopCamera(){
  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
  cameraVideo.srcObject=null;
 }
+function playCameraClickSound(){
+ try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(!AudioCtx)return;
+   if(!window.wadaCameraAudioCtx)window.wadaCameraAudioCtx=new AudioCtx();
+   const ctx=window.wadaCameraAudioCtx;
+   if(ctx.state==='suspended')ctx.resume();
+   const now=ctx.currentTime;
+   const master=ctx.createGain();
+   master.gain.setValueAtTime(0.0001,now);
+   master.gain.exponentialRampToValueAtTime(0.12,now+0.004);
+   master.gain.exponentialRampToValueAtTime(0.0001,now+0.075);
+   master.connect(ctx.destination);
+   const osc=ctx.createOscillator();
+   const gain=ctx.createGain();
+   osc.type='triangle';
+   osc.frequency.setValueAtTime(1050,now);
+   osc.frequency.exponentialRampToValueAtTime(720,now+0.06);
+   gain.gain.setValueAtTime(1,now);
+   osc.connect(gain);
+   gain.connect(master);
+   osc.start(now);
+   osc.stop(now+0.08);
+ }catch(err){}
+}
 function captureCameraColor(){
  if(!lastCameraMatch)return;
+ playCameraClickSound();
  const chosen=lastCameraMatch.name;
  colorSearch.value='';
  populateColorSelect(chosen);
