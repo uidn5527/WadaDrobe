@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WadaDrobe 2C r42 — r44 baseline</title><style>
+<title>WadaDrobe 2C r43 — r44 baseline</title><style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c;--olive:#505423}
 *{box-sizing:border-box}
 html{font-size:16px;-webkit-text-size-adjust:100%}
@@ -18,7 +18,7 @@ section{margin:14px 0;padding:14px;border-radius:12px;background:var(--card);bor
 .slot-swatch{height:54px;border-radius:8px;border:1px solid #888;margin:9px 0}
 .slot-meta{font-size:.8rem;color:var(--muted);min-height:18px}
 .color-picker{position:relative}
-.color-search{width:100%;box-sizing:border-box;margin:0 0 8px;padding:10px 12px;border:1px solid #bbb;border-radius:6px;font:inherit;min-height:44px}
+.color-search{width:100%;box-sizing:border-box;margin:0;padding:10px 42px 10px 12px;border:1px solid #bbb;border-radius:6px;font:inherit;min-height:44px}.search-wrap{position:relative;margin:0 0 8px}.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#666;font:inherit;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer}.search-clear:hover{background:#eee;color:#222}.search-clear:focus{outline:2px solid rgba(49,95,140,.35);outline-offset:1px}.search-clear.visible{display:flex}
 .custom-select{position:relative;width:100%}
 .custom-select-button{width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #bbb;border-radius:6px;background:#fff;color:#222;font:inherit;text-align:left;cursor:pointer;min-height:44px}
 .custom-select-button:focus{outline:3px solid rgba(49,95,140,.25);outline-offset:1px}
@@ -192,7 +192,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">2C r42</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">2C r43</span></h1>
 
 <section id="cameraPanel">
 <div class="camera-stage">
@@ -214,7 +214,7 @@ body.fullscreen-two #fullscreenTwo{display:flex;visibility:visible!important;pos
 </section>
 <section class="two-color-controls">
 <div class="color-picker shared-picker">
-  <input class="color-search" id="search" type="search" placeholder="Search colors…" autocomplete="off">
+  <div class="search-wrap"><input class="color-search" id="search" type="search" placeholder="Search colors…" autocomplete="off"><button class="search-clear" id="searchClear" type="button" aria-label="Clear color search" title="Clear search">×</button></div>
   <div class="custom-select" id="picker" role="combobox" aria-expanded="false" aria-haspopup="listbox">
     <button class="custom-select-button" id="pickerButton" type="button"><span class="selected-picker-swatch" id="pickerSwatch"></span><span class="selected-picker-name" id="pickerName">Choose a color for the active frame</span><span class="custom-select-chevron">⌄</span></button>
     <div class="custom-select-menu" id="pickerMenu" role="listbox" hidden></div>
@@ -259,10 +259,20 @@ function colorFamily(name){const n=name.toLowerCase();if(/red|scarlet|coral/.tes
 const records=COLORS.map(([name,hex])=>({name,hex,family:colorFamily(name)}));
 const selected=[null,null];let activeSlot=1;let currentLikes=[[],[]];
 
-function buildPicker(query=''){
- const menu=document.getElementById('pickerMenu'), current=selected[activeSlot-1];menu.innerHTML='';
- const groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));records.filter(c=>c.name.toLowerCase().includes(query.trim().toLowerCase())).forEach(c=>groups[c.family].push(c));
- familyOrder.forEach(f=>{if(!groups[f].length)return;const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;menu.appendChild(label);groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>{const b=document.createElement('button');b.type='button';b.className='custom-select-option';b.dataset.color=c.name;b.setAttribute('role','option');b.setAttribute('aria-selected',String(c.name===current));b.innerHTML='<span class="custom-option-swatch" style="background:'+c.hex+'"></span><span>'+c.name+'</span>';menu.appendChild(b);});});
+function buildPicker(filter){
+ const menu=document.getElementById('pickerMenu');
+ const q=(filter||'').trim().toLowerCase();
+ const groups={};
+ for(const [n,h] of COLORS){
+   if(q&&!n.toLowerCase().includes(q))continue;
+   const g=colorFamily(n);(groups[g]??=[]).push([n,h]);
+ }
+ const entries=Object.entries(groups);
+ if(!entries.length){
+   menu.innerHTML='<div class="empty" role="status">No colors found.<br><small>Try a different search.</small></div>';
+   return;
+ }
+ menu.innerHTML=entries.map(([g,items])=>'<div class="custom-select-group-label">'+g+'</div>'+items.map(([n,h])=>'<button type="button" class="custom-select-option" role="option" data-color="'+n+'"><span class="custom-option-swatch" style="background:'+h+'"></span><span>'+n+'</span></button>').join('')).join('');
 }
 function updatePicker(){
  const n=selected[activeSlot-1],sw=document.getElementById('pickerSwatch'),name=document.getElementById('pickerName');
@@ -294,7 +304,25 @@ document.getElementById('pickerButton').addEventListener('click',()=>{
  menu.hidden=!open;
  document.getElementById('picker').setAttribute('aria-expanded',String(open));
 });
-document.getElementById('search').addEventListener('input',()=>buildPicker(document.getElementById('search').value));
+const searchInput=document.getElementById('search'),searchClear=document.getElementById('searchClear');
+function updateSearchClear(){searchClear.classList.toggle('visible',searchInput.value.length>0)}
+searchInput.addEventListener('input',()=>{
+ buildPicker(searchInput.value);
+ updateSearchClear();
+ const menu=document.getElementById('pickerMenu');
+ menu.hidden=false;
+ document.getElementById('picker').setAttribute('aria-expanded','true');
+});
+searchClear.addEventListener('click',()=>{
+ searchInput.value='';
+ buildPicker('');
+ updateSearchClear();
+ searchInput.focus();
+ const menu=document.getElementById('pickerMenu');
+ menu.hidden=false;
+ document.getElementById('picker').setAttribute('aria-expanded','true');
+});
+updateSearchClear();
 document.getElementById('pickerMenu').addEventListener('click',e=>{const b=e.target.closest('.custom-select-option');if(b)chooseColor(activeSlot,b.dataset.color);});
 for(let slot=1;slot<=2;slot++){
  const el=document.getElementById('slot'+slot);
