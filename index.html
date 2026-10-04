@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r37</title>
+<title>WadaDrobe plus r39</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r37</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r39</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1001,8 +1001,34 @@ function stopCamera(){
  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
  cameraVideo.srcObject=null;
 }
+function playCameraClickSound(){
+ try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(!AudioCtx)return;
+   if(!window.wadaCameraAudioCtx)window.wadaCameraAudioCtx=new AudioCtx();
+   const ctx=window.wadaCameraAudioCtx;
+   if(ctx.state==='suspended')ctx.resume();
+   const now=ctx.currentTime;
+   const master=ctx.createGain();
+   master.gain.setValueAtTime(0.0001,now);
+   master.gain.exponentialRampToValueAtTime(0.12,now+0.004);
+   master.gain.exponentialRampToValueAtTime(0.0001,now+0.075);
+   master.connect(ctx.destination);
+   const osc=ctx.createOscillator();
+   const gain=ctx.createGain();
+   osc.type='triangle';
+   osc.frequency.setValueAtTime(1050,now);
+   osc.frequency.exponentialRampToValueAtTime(720,now+0.06);
+   gain.gain.setValueAtTime(1,now);
+   osc.connect(gain);
+   gain.connect(master);
+   osc.start(now);
+   osc.stop(now+0.08);
+ }catch(err){}
+}
 function captureCameraColor(){
  if(!lastCameraMatch)return;
+ playCameraClickSound();
  const chosen=lastCameraMatch.name;
  colorSearch.value='';
  populateColorSelect(chosen);
@@ -1113,7 +1139,7 @@ document.getElementById('colorPickerMenu').addEventListener('click',e=>{const x=
 document.getElementById('colorSearch').addEventListener('input',e=>{e.stopImmediatePropagation();plusSearchInput()},{capture:true});
 document.getElementById('colorSearchClear').addEventListener('click',e=>{e.stopImmediatePropagation();plusClearSearch()},{capture:true});
 document.getElementById('colorPickerButton').addEventListener('click',e=>{e.stopImmediatePropagation();const open=!colorPickerMenu.hidden;colorPickerMenu.hidden=open;colorPicker.setAttribute('aria-expanded',String(!open))},{capture:true});
-cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;plusChooseColor(lastCameraMatch.name)});
+cameraTarget.removeEventListener('click',captureCameraColor);cameraTarget.addEventListener('click',e=>{if(e.target.closest('button')||!lastCameraMatch)return;playCameraClickSound();plusChooseColor(lastCameraMatch.name)});
 window.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});window.addEventListener('orientationchange',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>{if(document.body.classList.contains('fullscreen-two-mode'))plusRenderTwoFullscreen();else if(document.body.classList.contains('fullscreen-color-mode'))requestAnimationFrame(fitFullscreenColorNames)});
 
 // p04: make two-color fullscreen explicitly dismissible on touch, mouse, and Escape.
