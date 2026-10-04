@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r51</title>
+<title>WadaDrobe plus r52</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r51</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r52</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -636,7 +636,7 @@ function lightingAwareCandidates(selected,level){
   const scenarios=['warm','cool','dark','bright'];
   const scored=COLORS.map(([name])=>{
     if(name===selected)return null;
-    const candidate=rgbMap[name];
+    const candidate=rgbMap[name].map(v=>v*255);
     let best=Infinity;
     for(const scenario of scenarios){
       const transformed=lightingTransformRGB(candidate,scenario,strength);
@@ -652,7 +652,7 @@ function lightingAwareCandidates(selected,level){
   if(!scored.length){
     const fallback=COLORS.map(([name])=>{
       if(name===selected)return null;
-      const candidate=rgbMap[name];
+      const candidate=rgbMap[name].map(v=>v*255);
       let best=Infinity;
       for(const scenario of scenarios){
         const transformed=lightingTransformRGB(candidate,scenario,strength);
