@@ -623,7 +623,7 @@ function lightingUncertaintyLimit(level){
   if(t===0)return 0;
   // Calibrated so level 4 produces roughly seven colors, including MC,
   // across a representative sample of the Wada catalog.
-  return 12*Math.pow(t/4,1.5);
+  return 13*Math.pow(t/4,1.5);
 }
 function lightingAwareCandidates(selected,level){
   if(!selected)return[];
