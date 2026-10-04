@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WadaDrobe Color Space</title>
+<style>
+:root{--bg:#f4f4f1;--panel:#fff;--text:#202124;--muted:#666;--border:#d6d6d2;--accent:#315f8c}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1280px;margin:auto;padding:18px 16px 34px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:clamp(1.45rem,4vw,2.15rem);margin:0;color:#505423}
+.subtitle{margin:0;color:var(--muted);font-size:.92rem}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+button{min-height:42px;padding:8px 13px;border:1px solid #aaa;border-radius:7px;background:#fff;color:#222;font:inherit;cursor:pointer}
+button:hover{background:#f0f0ed}
+button:focus-visible{outline:3px solid rgba(49,95,140,.3);outline-offset:2px}
+.status{display:flex;align-items:center;gap:10px;min-width:0;margin-left:auto}
+.status-swatch{width:32px;height:32px;border-radius:6px;border:1px solid #888;flex:none}
+.status-text{min-width:0}
+.status-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status-detail{font-size:.78rem;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+#spaceWrap{position:relative;background:#e9e9e5;border:1px solid var(--border);border-radius:12px;overflow:hidden;touch-action:none;user-select:none}
+#spaceCanvas{display:block;width:100%;height:min(72vh,760px);min-height:420px;cursor:grab}
+#spaceCanvas.dragging{cursor:grabbing}
+.help{display:flex;gap:18px;flex-wrap:wrap;margin-top:9px;color:var(--muted);font-size:.8rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.legend span{white-space:nowrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:5px;border:1px solid #777}
+@media(max-width:650px){
+ main{padding:12px 10px 24px}
+ header{display:block}
+ .subtitle{margin-top:3px}
+ .status{margin-left:0;margin-top:8px}
+ #spaceCanvas{height:68vh;min-height:400px}
+ .help{gap:8px 14px}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div>
+<h1>WadaDrobe Color Space</h1>
+<p class="subtitle">Interactive CIELAB 3D map of the complete Sanzo Wada color catalog</p>
+</div>
+<div class="status" aria-live="polite">
+<div id="statusSwatch" class="status-swatch" style="background:#111314"></div>
+<div class="status-text">
+<div id="statusName" class="status-name">Black</div>
+<div id="statusDetail" class="status-detail"></div>
+</div>
+</div>
+</header>
+
+<div class="toolbar">
+<button id="reset" type="button">Reset view</button>
+<button id="topView" type="button">Top view</button>
+<button id="frontView" type="button">Front view</button>
+<span class="subtitle">171 Wada colors</span>
+</div>
+
+<div id="spaceWrap">
+<canvas id="spaceCanvas" aria-label="Interactive three-dimensional CIELAB color space containing every Sanzo Wada color"></canvas>
+</div>
+<div class="help">
+<span>Drag to rotate</span>
+<span>Shift-drag to pan</span>
+<span>Scroll or pinch to zoom</span>
+<span>Click a marker to select it</span>
+</div>
+<div class="legend">
+<span><i class="dot" style="background:#fff"></i>Selected color is outlined</span>
+<span>Names appear automatically at a sufficiently high zoom level</span>
+</div>
+</main>
+<script>
+const COLORS=[{"name":"Pale Purplish Vinaceous","hex":"#fde2dd"},{"name":"Hermosa Pink","hex":"#f9c1ce"},{"name":"Corinthian Pink","hex":"#f8b6ba"},{"name":"Cameo Pink","hex":"#e0b3b6"},{"name":"Pale Cinammon-Pink","hex":"#f4deca"},{"name":"Fawn","hex":"#d1b0a7"},{"name":"Pale Ecru-Drab","hex":"#c5b7b0"},{"name":"Light Brown Drab","hex":"#b59392"},{"name":"Coral Red","hex":"#f58e84"},{"name":"Fresh Color","hex":"#f6917e"},{"name":"Grenadine Pink","hex":"#f48067"},{"name":"Eosine Pink","hex":"#f37f94"},{"name":"Spinel Red","hex":"#f27291"},{"name":"Old Rose","hex":"#d46d7a"},{"name":"Eugenia Red 1","hex":"#e2625e"},{"name":"Eugenia Red 2","hex":"#da525d"},{"name":"Raw Sienna","hex":"#bb7125"},{"name":"Vinaceous Tawny","hex":"#c56127"},{"name":"Jasper Red","hex":"#eb5324"},{"name":"Spectrum Red","hex":"#e31f26"},{"name":"Red Orange","hex":"#dd4027"},{"name":"Etruscan Red","hex":"#c55347"},{"name":"Burnt Sienna","hex":"#ae5224"},{"name":"Ocher Red","hex":"#ab544d"},{"name":"Scarlet","hex":"#cb2f43"},{"name":"Carmine","hex":"#cc1236"},{"name":"Indian Lake","hex":"#c53c69"},{"name":"Rosolanc Purple","hex":"#b73f74"},{"name":"Pomegranate Purple","hex":"#b71f57"},{"name":"Hydrangea Red","hex":"#a94151"},{"name":"Brick Red","hex":"#a84222"},{"name":"Carmine Red","hex":"#a62c37"},{"name":"Pompeian Red","hex":"#ab2439"},{"name":"Red","hex":"#a72144"},{"name":"Brown","hex":"#7c4226"},{"name":"Hay's Russet","hex":"#793327"},{"name":"Vandyke Red","hex":"#82241f"},{"name":"Pansy Purple","hex":"#7d133a"},{"name":"Pale Burnt Lake","hex":"#802626"},{"name":"Violet Red","hex":"#642d5e"},{"name":"Vistoris Lake","hex":"#6d4145"},{"name":"Sulphur Yellow","hex":"#f5ecc2"},{"name":"Sea-foam Yellow","hex":"#f0e6be"},{"name":"Pale Lemon Yellow","hex":"#ffefae"},{"name":"Naples Yellow","hex":"#fbe6a0"},{"name":"Ivory Buff","hex":"#ebd3a2"},{"name":"Seashell Pink","hex":"#fdd4bd"},{"name":"Light Pinkish Cinnamon","hex":"#fcc79b"},{"name":"Pinkish Cinnamon","hex":"#eeb480"},{"name":"Cinnamon Buff","hex":"#fdc57e"},{"name":"Cream Yellow","hex":"#fdbf68"},{"name":"Golden Yellow","hex":"#f3a257"},{"name":"Vinaceous Cinnamon","hex":"#eea78c"},{"name":"Ochraceous Salmon","hex":"#d8a37b"},{"name":"Isabella Color","hex":"#c5a56e"},{"name":"Maple","hex":"#c59f6b"},{"name":"Olive Buff","hex":"#c1c494"},{"name":"Ecru","hex":"#c2ae93"},{"name":"Yellow","hex":"#fff200"},{"name":"Lemon Yellow","hex":"#f8ed43"},{"name":"Apricot Yellow","hex":"#ffdd00"},{"name":"Pyrite Yellow","hex":"#cab356"},{"name":"Olive Ocher","hex":"#d6b43e"},{"name":"Yellow Ocher","hex":"#e2b540"},{"name":"Orange Yellow","hex":"#fcb315"},{"name":"Yellow Orange","hex":"#f99d1b"},{"name":"Apricot Orange","hex":"#f68c50"},{"name":"Orange","hex":"#f37420"},{"name":"Peach Red","hex":"#f15a30"},{"name":"English Red","hex":"#d96629"},{"name":"Cinnamon Rufous","hex":"#c27544"},{"name":"Orange Rufous","hex":"#c16b27"},{"name":"Sulphine Yellow","hex":"#c19f2c"},{"name":"Khaki / Tawny Olive","hex":"#bc892b"},{"name":"Citron Yellow","hex":"#b2b73e"},{"name":"Citrine","hex":"#a49531"},{"name":"Dull Citrine","hex":"#8d8559"},{"name":"Buffy Citrine","hex":"#96874d"},{"name":"Dark Citrine","hex":"#8b835b"},{"name":"Light Grayish Olive","hex":"#848061"},{"name":"Kronbergs Green","hex":"#84875e"},{"name":"Olive","hex":"#837e31"},{"name":"Orange Citrine","hex":"#986f2d"},{"name":"Sudan Brown","hex":"#a36752"},{"name":"Olive Green","hex":"#6b7140"},{"name":"Light Brownish Olive","hex":"#806e4b"},{"name":"Deep Grayish Olive","hex":"#635a3a"},{"name":"Pale Raw Umber","hex":"#71502f"},{"name":"Sepia","hex":"#644b1e"},{"name":"Madder Brown","hex":"#762c19"},{"name":"Mars Brown Tobacco","hex":"#653514"},{"name":"Vandyke Brown","hex":"#4b3317"},{"name":"Turquoise Green","hex":"#b5decc"},{"name":"Glaucous Green","hex":"#b4cdc2"},{"name":"Dark Greenish Glaucous","hex":"#b7c2a9"},{"name":"Pale Turtle Green","hex":"#c3cd9d"},{"name":"Yellow Green","hex":"#afd472"},{"name":"Light Green Yellow","hex":"#c7d14f"},{"name":"Light Green","hex":"#87c540"},{"name":"Olive Yellow","hex":"#a6a159"},{"name":"Artemisia Green","hex":"#709390"},{"name":"Andover Green","hex":"#6d7e77"},{"name":"Rainette Green","hex":"#788860"},{"name":"Chromium Green","hex":"#719470"},{"name":"Pistachio Green","hex":"#648f7b"},{"name":"Sea Green","hex":"#00b49b"},{"name":"Benzol Green","hex":"#00978d"},{"name":"Light Porcelain Green","hex":"#00908a"},{"name":"Green","hex":"#489b6e"},{"name":"Dull Viridian Green","hex":"#009465"},{"name":"Oil Green","hex":"#819238"},{"name":"Grape Green","hex":"#a2a865"},{"name":"Diamine Green","hex":"#008842"},{"name":"Cossack Green","hex":"#437742"},{"name":"Lincoln Green","hex":"#555832"},{"name":"Blackish Olive","hex":"#42533e"},{"name":"Deep Slate Olive","hex":"#253122"},{"name":"Pale King's Blue 1","hex":"#f0f3e7"},{"name":"Nile Blue","hex":"#bce4e5"},{"name":"Pale King's Blue 2","hex":"#a7d4e4"},{"name":"Light Glaucous Blue","hex":"#a5c8d1"},{"name":"Salvia Blue","hex":"#97acc8"},{"name":"Cobalt Green","hex":"#96d1aa"},{"name":"Calamine Blue","hex":"#78cdd0"},{"name":"Venice Green","hex":"#62c6bf"},{"name":"Pale Methyl Blue","hex":"#54afb4"},{"name":"Cerulean Blue","hex":"#0093a5"},{"name":"Peacock Blue","hex":"#00939b"},{"name":"Green Blue","hex":"#099197"},{"name":"Olympic Blue","hex":"#5a82b3"},{"name":"Blue","hex":"#006eb8"},{"name":"Antwarp Blue","hex":"#007190"},{"name":"Helvetia Blue","hex":"#005b8d"},{"name":"Dark Medici Blue","hex":"#547076"},{"name":"Dusky Green","hex":"#004f46"},{"name":"Deep Lyons Blue","hex":"#1c4286"},{"name":"Violet Blue","hex":"#40456a"},{"name":"Vandar Poel's Blue","hex":"#064f6e"},{"name":"Dark Tyrian Blue","hex":"#12354e"},{"name":"Dull Violet Black","hex":"#0d1c43"},{"name":"Deep Indigo","hex":"#051230"},{"name":"Deep Slate Green","hex":"#112f2c"},{"name":"Grayish Lavender 1","hex":"#b5b1d8"},{"name":"Grayish Lavender 2","hex":"#c0a9b3"},{"name":"Laelia Pink","hex":"#ca92a8"},{"name":"Lilac","hex":"#b984af"},{"name":"Eupatorium Purple","hex":"#bf5892"},{"name":"Light Mauve","hex":"#9a72aa"},{"name":"Aconite Violet","hex":"#a36aa5"},{"name":"Dull Blue Violet","hex":"#80719e"},{"name":"Dark Soft Violet","hex":"#66629c"},{"name":"Blue Violet","hex":"#6450a1"},{"name":"Violet Ultramarine","hex":"#522e91"},{"name":"Purple Drab","hex":"#84565b"},{"name":"Deep Violet Plumbeous","hex":"#70727c"},{"name":"Vernonia Purple","hex":"#8c4c62"},{"name":"Dark Slate Purple","hex":"#704357"},{"name":"Taupe Brown","hex":"#7a4456"},{"name":"Violet Carmine","hex":"#713b4c"},{"name":"Violet","hex":"#4f4086"},{"name":"Red Violet","hex":"#59256a"},{"name":"Cotinga Purple","hex":"#501345"},{"name":"Dusky Madder Violet","hex":"#4e1d4c"},{"name":"Dark Perilla Purple","hex":"#542e36"},{"name":"Dull Purplish Black","hex":"#443b35"},{"name":"White","hex":"#ffffff"},{"name":"Neutral Gray","hex":"#b6bfc1"},{"name":"Mineral Gray","hex":"#a2b0ad"},{"name":"Warm Gray","hex":"#a1a39a"},{"name":"Slate Color","hex":"#34454c"},{"name":"Black","hex":"#111314"}];
+
+const canvas=document.getElementById('spaceCanvas');
+const wrap=document.getElementById('spaceWrap');
+const ctx=canvas.getContext('2d');
+const statusSwatch=document.getElementById('statusSwatch');
+const statusName=document.getElementById('statusName');
+const statusDetail=document.getElementById('statusDetail');
+const resetButton=document.getElementById('reset');
+const topViewButton=document.getElementById('topView');
+const frontViewButton=document.getElementById('frontView');
+
+function hexRgb(hex){
+ const h=hex.slice(1);
+ return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function rgbToLab(r,g,b){
+ const v=[r,g,b].map(x=>{x/=255;return x<=.04045?x/12.92:Math.pow((x+.055)/1.055,2.4)});
+ let x=(v[0]*.4124564+v[1]*.3575761+v[2]*.1804375)/.95047;
+ let y=(v[0]*.2126729+v[1]*.7151522+v[2]*.0721750)/1;
+ let z=(v[0]*.0193339+v[1]*.1191920+v[2]*.9503041)/1.08883;
+ const f=t=>t>.008856?Math.cbrt(t):(7.787*t)+16/116;
+ const fx=f(x),fy=f(y),fz=f(z);
+ return [116*fy-16,500*(fx-fy),200*(fy-fz)];
+}
+const points=COLORS.map(([name,hex],index)=>{
+ const lab=rgbToLab(...hexRgb(hex));
+ return {index,name,hex,lab};
+});
+
+let selected=points.find(p=>p.name==='Black')||points[points.length-1];
+let yaw=-0.58,pitch=0.34,zoom=1.0,panX=0,panY=0;
+const pointers=new Map();
+let lastDrag=null;
+let pinchStart=null;
+
+function resize(){
+ const dpr=Math.min(window.devicePixelRatio||1,2);
+ const rect=canvas.getBoundingClientRect();
+ canvas.width=Math.max(1,Math.round(rect.width*dpr));
+ canvas.height=Math.max(1,Math.round(rect.height*dpr));
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ draw();
+}
+function project(p){
+ const [L,a,b]=p.lab;
+ // Normalize CIELAB axes. L is vertical in the scene; a/b form the horizontal plane.
+ let x=a/110,y=(L-50)/55,z=b/110;
+ const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+ let x1=x*cy-z*sy;
+ let z1=x*sy+z*cy;
+ let y1=y*cp-z1*sp;
+ let z2=y*sp+z1*cp;
+ const perspective=1+z2*.13;
+ const w=canvas.clientWidth,h=canvas.clientHeight;
+ return {x:w/2+panX+x1*zoom*190*perspective,y:h/2+panY-y1*zoom*190*perspective,z:z2,scale:perspective};
+}
+function drawAxes(){
+ const w=canvas.clientWidth,h=canvas.clientHeight;
+ const origin=project({lab:[50,0,0]});
+ const axes=[
+  {lab:[50,95,0],label:'a*  +',color:'rgba(110,70,70,.55)'},
+  {lab:[50,-95,0],label:'a*  −',color:'rgba(70,70,110,.55)'},
+  {lab:[50,0,95],label:'b*  +',color:'rgba(100,85,45,.55)'},
+  {lab:[50,0,-95],label:'b*  −',color:'rgba(55,85,100,.55)'},
+  {lab:[100,0,0],label:'L* 100',color:'rgba(70,70,70,.55)'},
+  {lab:[0,0,0],label:'L* 0',color:'rgba(70,70,70,.55)'}
+ ];
+ ctx.lineWidth=1;
+ for(const a of axes){
+  const q=project(a);
+  ctx.beginPath();ctx.moveTo(origin.x,origin.y);ctx.lineTo(q.x,q.y);
+  ctx.strokeStyle=a.color;ctx.stroke();
+  ctx.font='11px system-ui,sans-serif';ctx.fillStyle='rgba(55,55,55,.72)';
+  ctx.fillText(a.label,q.x+5,q.y+4);
+ }
+}
+function draw(){
+ const w=canvas.clientWidth,h=canvas.clientHeight;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#e9e9e5';ctx.fillRect(0,0,w,h);
+
+ // faint reference plane/grid
+ ctx.save();
+ ctx.strokeStyle='rgba(80,80,80,.10)';
+ ctx.lineWidth=1;
+ for(let i=-2;i<=2;i++){
+  const a=project({lab:[50,i*45,0]}),b=project({lab:[50,i*45,0]});
+  if(a&&b){}
+ }
+ ctx.restore();
+
+ drawAxes();
+
+ const projected=points.map(p=>({...p,screen:project(p)})).sort((a,b)=>a.screen.z-b.screen.z);
+ const labelMode=zoom>=2.35;
+ const occupied=[];
+ for(const p of projected){
+  const q=p.screen;
+  const radius=Math.max(3.2,Math.min(9,4.1*Math.sqrt(zoom)*q.scale));
+  if(q.x<-20||q.x>w+20||q.y<-20||q.y>h+20)continue;
+  ctx.beginPath();ctx.arc(q.x,q.y,radius,0,Math.PI*2);
+  ctx.fillStyle=p.hex;ctx.fill();
+  ctx.strokeStyle='rgba(30,30,30,.48)';ctx.lineWidth=0.8;ctx.stroke();
+
+  if(p===selected){
+   ctx.beginPath();ctx.arc(q.x,q.y,radius+5,0,Math.PI*2);
+   ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+   ctx.beginPath();ctx.arc(q.x,q.y,radius+5,0,Math.PI*2);
+   ctx.strokeStyle='#222';ctx.lineWidth=1;ctx.stroke();
+  }
+
+  if(labelMode && p!==selected){
+   const minGap=Math.max(13,17/Math.sqrt(zoom));
+   let clear=true;
+   for(const o of occupied){if(Math.hypot(q.x-o.x,q.y-o.y)<minGap){clear=false;break}}
+   if(clear){
+    occupied.push({x:q.x,y:q.y});
+    ctx.font='10px system-ui,sans-serif';
+    ctx.fillStyle='#202124';
+    ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillText(p.name,q.x+radius+4,q.y);
+   }
+  }
+ }
+ if(selected){
+  const q=project(selected),r=Math.max(4.5,Math.min(11,5*Math.sqrt(zoom)*q.scale));
+  ctx.font='600 13px system-ui,sans-serif';
+  ctx.fillStyle='#202124';ctx.textAlign='left';ctx.textBaseline='bottom';
+  ctx.fillText(selected.name,q.x+r+7,q.y-r-5);
+ }
+}
+function updateStatus(){
+ const [L,a,b]=selected.lab;
+ statusSwatch.style.background=selected.hex;
+ statusName.textContent=selected.name;
+ statusDetail.textContent=selected.hex+'  ·  L* '+L.toFixed(1)+'  a* '+a.toFixed(1)+'  b* '+b.toFixed(1);
+}
+function pick(x,y){
+ let best=null,bestD=Infinity;
+ const threshold=Math.max(9,13*Math.sqrt(zoom));
+ for(const p of points){
+  const q=project(p),d=Math.hypot(q.x-x,q.y-y);
+  if(d<threshold&&d<bestD){best=p;bestD=d}
+ }
+ if(best){selected=best;updateStatus();draw()}
+}
+function clampZoom(z){return Math.max(.55,Math.min(12,z))}
+function zoomAt(factor,x,y){
+ const old=zoom,newZoom=clampZoom(old*factor);
+ const ratio=newZoom/old;
+ panX=x-(x-panX)*ratio;
+ panY=y-(y-panY)*ratio;
+ zoom=newZoom;
+ draw();
+}
+function reset(){
+ yaw=-0.58;pitch=.34;zoom=1;panX=0;panY=0;draw();
+}
+function setView(y,p){yaw=y;pitch=p;zoom=1.35;panX=0;panY=0;draw()}
+resetButton.addEventListener('click',reset);
+topViewButton.addEventListener('click',()=>setView(0,1.48));
+frontViewButton.addEventListener('click',()=>setView(0,0));
+
+canvas.addEventListener('wheel',e=>{
+ e.preventDefault();
+ const r=canvas.getBoundingClientRect();
+ zoomAt(Math.exp(-e.deltaY*.0012),e.clientX-r.left,e.clientY-r.top);
+},{passive:false});
+
+canvas.addEventListener('pointerdown',e=>{
+ canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size===2){
+  const a=[...pointers.values()][0],b=[...pointers.values()][1];
+  pinchStart={distance:Math.hypot(a.x-b.x,a.y-b.y),zoom,center:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}};
+  lastDrag=null;
+ }else{
+  lastDrag={x:e.clientX,y:e.clientY,yaw,pitch,panX,panY,pan:e.shiftKey||e.button===1};
+ }
+ canvas.classList.add('dragging');
+});
+canvas.addEventListener('pointermove',e=>{
+ if(!pointers.has(e.pointerId))return;
+ pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pointers.size===2&&pinchStart){
+  const vals=[...pointers.values()],a=vals[0],b=vals[1];
+  const d=Math.hypot(a.x-b.x,a.y-b.y),factor=d/Math.max(1,pinchStart.distance);
+  zoom=clampZoom(pinchStart.zoom*factor);
+  draw();return;
+ }
+ if(!lastDrag)return;
+ const dx=e.clientX-lastDrag.x,dy=e.clientY-lastDrag.y;
+ if(lastDrag.pan){panX=lastDrag.panX+dx;panY=lastDrag.panY+dy}
+ else{yaw=lastDrag.yaw+dx*.009;pitch=Math.max(-1.48,Math.min(1.48,lastDrag.pitch+dy*.009))}
+ draw();
+});
+function endPointer(e){
+ pointers.delete(e.pointerId);
+ if(pointers.size<2)pinchStart=null;
+ if(pointers.size===0){canvas.classList.remove('dragging');lastDrag=null}
+}
+canvas.addEventListener('pointerup',e=>{
+ const moved=lastDrag&&Math.hypot(e.clientX-lastDrag.x,e.clientY-lastDrag.y)>5;
+ endPointer(e);
+ if(!moved){
+  const r=canvas.getBoundingClientRect();pick(e.clientX-r.left,e.clientY-r.top);
+ }
+});
+canvas.addEventListener('pointercancel',endPointer);
+canvas.addEventListener('dblclick',e=>{const r=canvas.getBoundingClientRect();pick(e.clientX-r.left,e.clientY-r.top)});
+
+window.addEventListener('resize',resize);
+updateStatus();resize();
+</script>
+</body>
+</html>
