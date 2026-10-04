@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r04</title>
+<title>WadaDrobe plus r05</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -432,10 +432,17 @@ body:not(.mode-two) #twoCombinationsSection{display:none!important}
   body:not(.mode-two) main>.single-combinations{order:6}
   body:not(.mode-two) main>footer{order:7}
 }
+</style><style>
+/* p05: match the established 2C fullscreen typography on narrow mobile screens. */
+@media(max-width:420px){
+  .fullscreen-two-name{font-size:12px}
+  .fullscreen-two-band.main .fullscreen-two-name{font-size:18px}
+  .fullscreen-two-hint{font-size:11px}
+}
 </style></head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r04</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r05</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
