@@ -1162,8 +1162,9 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
 </body></html><script>
 /* WadaAI local lighting experiment — r44: lighting-aware Wada badge/ring updated every 500ms. */
 (function(){
-  var liveOfficial=null,liveTimer=null,liveBusy=false,candidateOfficial=null,candidateOfficialSince=0;
+  var liveOfficial=null,liveTimer=null,liveBusy=false;
   var HYSTERESIS_MARGIN=.75,HYSTERESIS_DWELL_MS=750;
+  var stableOfficial=null,stableCandidate=null,stableCandidateSince=0;
   function clamp(v,a,b){return Math.max(a===undefined?0:a,Math.min(b===undefined?255:b,v));}
   function localDE(rgb,name){return ciede2000Lab(rgbBytesToLab(clamp(rgb[0]),clamp(rgb[1]),clamp(rgb[2])),labMap[name]);}
   function applyCameraColorCorrection(rgb){
@@ -1288,33 +1289,16 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
   function showOfficial(local){
     if(!local)return;
     var preliminary={name:local.name,hex:local.hex,rgb:local.corrected,delta:localDE(local.corrected,local.name),score:local.score};
-    if(!liveOfficial){
-      liveOfficial=preliminary;
-      candidateOfficial=null;
-      candidateOfficialSince=0;
-    }else if(preliminary.name===liveOfficial.name){
-      liveOfficial=preliminary;
-      candidateOfficial=null;
-      candidateOfficialSince=0;
-    }else if(preliminary.score < liveOfficial.score-HYSTERESIS_MARGIN){
+    if(!stableOfficial){stableOfficial=preliminary;stableCandidate=null;stableCandidateSince=0;}
+    else if(preliminary.name===stableOfficial.name){stableOfficial=preliminary;stableCandidate=null;stableCandidateSince=0;}
+    else if(preliminary.score < stableOfficial.score-HYSTERESIS_MARGIN){
       var now=performance.now();
-      if(!candidateOfficial||candidateOfficial.name!==preliminary.name){
-        candidateOfficial=preliminary;
-        candidateOfficialSince=now;
-      }else if(now-candidateOfficialSince>=HYSTERESIS_DWELL_MS){
-        liveOfficial=preliminary;
-        candidateOfficial=null;
-        candidateOfficialSince=0;
-      }
-    }else{
-      candidateOfficial=null;
-      candidateOfficialSince=0;
-    }
-    var official=liveOfficial;
-    displayedCameraMatch=official;
-    lastCameraMatch=official;
-    candidateCameraMatch=null;
-    candidateSince=0;
+      if(!stableCandidate||stableCandidate.name!==preliminary.name){stableCandidate=preliminary;stableCandidateSince=now;}
+      else if(now-stableCandidateSince>=HYSTERESIS_DWELL_MS){stableOfficial=preliminary;stableCandidate=null;stableCandidateSince=0;}
+    }else{stableCandidate=null;stableCandidateSince=0;}
+    var official=stableOfficial;
+    liveOfficial=official;displayedCameraMatch=official;lastCameraMatch=official;
+    candidateCameraMatch=null;candidateSince=0;
     cameraStableRing.style.setProperty('--stable-color',official.hex);
     cameraResultSwatch.style.background=official.hex;
     cameraResultText.textContent=official.name;
