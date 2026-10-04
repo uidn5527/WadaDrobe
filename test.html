@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r10</title>
+<title>WadaDrobe plus r11</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -30,7 +30,7 @@ body.fullscreen-color-mode #fullscreenHint{display:block;visibility:visible!impo
 @media screen and (orientation: landscape) and (min-width: 600px) and (max-width: 1200px){
   main{
     display:grid;
-    grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);
+    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
     grid-template-areas:
       "title title"
       "controls camera"
@@ -413,7 +413,7 @@ body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscree
   text-shadow:0 1px 3px rgba(0,0,0,.14);
 }
 body.fullscreen-color-mode.fullscreen-has-bands #fullscreenColorBands .fullscreen-band.main .fullscreen-name{font-size:23.1px}
-.search-wrap{position:relative;margin:6px 0 10px}.search-wrap #colorSearch{margin:0;padding-right:42px}.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#666;font:inherit;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;min-height:32px}.search-clear.visible{display:flex}.search-clear:hover{background:#eee;color:#222}.search-clear:focus{outline:2px solid rgba(49,95,140,.35);outline-offset:1px}.add-color2{width:100%;min-height:44px;margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer}.two-selected{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-inputs,.two-like-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two-slot{border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0}.two-slot.active{border:2px solid #505423;padding:9px;box-shadow:0 0 0 1px rgba(80,84,35,.12)}.two-slot-head{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-weight:700;gap:8px}.two-slot-swatch{height:56px;border-radius:8px;border:1px solid #888;margin:9px 0}.two-slot-meta{font-size:.8rem;color:var(--muted);min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clear-color2{width:32px;height:32px;min-height:32px;border:0;border-radius:50%;background:transparent;color:#666;font-size:22px;line-height:1;cursor:pointer}.clear-color2:hover{background:#eee;color:#222}.two-likes,.two-combinations{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-like-group{border:1px solid var(--border);border-radius:9px;padding:8px;min-width:0}.two-like-group h3{margin:0 0 7px;font-size:.95rem}.two-like-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.two-like-card{min-width:0;border:1px solid #bbb;border-radius:6px;padding:4px;cursor:pointer}.two-like-card .swatch{height:38px;border-radius:4px;border:1px solid #777}.two-like-card .name{font-size:.68rem;line-height:1.1;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.two-like-card.main-like{border:2px solid #555;padding:3px}.two-combo{border:1px solid var(--border);border-radius:9px;padding:10px;margin:9px 0;background:#fff}.two-combo-title{font-weight:700;margin-bottom:7px}.two-match-pair{display:flex;flex:2 1 0;min-width:0;overflow:hidden;cursor:pointer}.two-match-pair .block{flex:1 1 0;width:0;border-right:1px solid rgba(0,0,0,.35)}.two-match-pair .block:last-child{border-right:0}.two-combo .blocks{display:flex;gap:0;overflow:hidden;border-radius:6px}.two-combo .block{height:64px;position:relative;cursor:pointer;flex:1 1 0;width:0;min-width:0}.two-combo .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mode-two .single-selected,.mode-two .single-similar,.mode-two .single-combinations{display:none}.mode-two .two-selected,.mode-two .two-likes,.mode-two .two-combinations{display:block}.mode-two main{display:flex;flex-direction:column}.mode-two #colorFieldToggle{display:block}.mode-two .controls{display:block!important}.mode-two .two-selected{order:2}.mode-two .controls{order:3}.mode-two .camera-panel{order:1}.mode-two .similarity-controls{order:4}.mode-two .two-likes{order:5}.mode-two .two-combinations{order:6}.mode-two footer{order:7}.fullscreen-two-root{display:none}body.fullscreen-two-mode{overflow:hidden}body.fullscreen-two-mode .fullscreen-two-root{display:flex;position:fixed;left:0;top:0;right:0;bottom:0;width:auto;height:auto;z-index:9999;background:#000;overflow:hidden}.fullscreen-two-pane{position:relative;flex:1 1 50%;min-width:0;height:100%;overflow:hidden;display:flex;flex-direction:column}.fullscreen-two-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.fullscreen-two-band.main{flex:5 1 0}.fullscreen-two-name{padding:8px 12px;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.14)}.fullscreen-two-band.main .fullscreen-two-name{font-size:23.1px}.fullscreen-two-hint{position:absolute;left:0;top:0;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s;pointer-events:none}@media(max-width:420px){.two-like-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.two-combo .block{height:58px}}@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){.mode-two main{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(420px,.58fr);grid-template-areas:"title title" "controls camera" "selected camera" "similarity similarity" "likes likes" "combos combos" "footer footer";column-gap:18px;row-gap:0;align-items:stretch;padding-left:42px;padding-right:42px}.mode-two main>h1{grid-area:title;margin-bottom:2px}.mode-two main>.controls{grid-area:controls;margin:8px 0 0;padding:16px}.mode-two main>.camera-panel{grid-area:camera;margin:8px 18px 0 0;padding:0;height:100%;display:flex;flex-direction:column}.mode-two main>.camera-panel .camera-stage{width:100%;max-width:none;height:100%;min-height:0;aspect-ratio:auto;flex:1 1 auto}.mode-two main>.two-selected{grid-area:selected;margin:0;padding:8px 14px 14px}.mode-two main>.similarity-controls{grid-area:similarity;margin:52px 0 0;padding:0 14px 10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:18px;align-items:start}.mode-two main>.two-likes{grid-area:likes;margin:14px 0 0;padding:0 14px 14px}.mode-two main>.two-combinations{grid-area:combos;margin:34px 0 0;padding:14px}.mode-two main>footer{grid-area:footer;margin-top:4px}}</style><style>
+.search-wrap{position:relative;margin:6px 0 10px}.search-wrap #colorSearch{margin:0;padding-right:42px}.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#666;font:inherit;font-size:22px;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;min-height:32px}.search-clear.visible{display:flex}.search-clear:hover{background:#eee;color:#222}.search-clear:focus{outline:2px solid rgba(49,95,140,.35);outline-offset:1px}.add-color2{width:100%;min-height:44px;margin-top:10px;padding:9px 12px;border:1px solid #777;border-radius:8px;background:#fff;font:inherit;font-weight:600;cursor:pointer}.two-selected{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-inputs,.two-like-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.two-slot{border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0}.two-slot.active{border:2px solid #505423;padding:9px;box-shadow:0 0 0 1px rgba(80,84,35,.12)}.two-slot-head{display:flex;justify-content:space-between;align-items:center;min-height:44px;font-weight:700;gap:8px}.two-slot-swatch{height:56px;border-radius:8px;border:1px solid #888;margin:9px 0}.two-slot-meta{font-size:.8rem;color:var(--muted);min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clear-color2{width:32px;height:32px;min-height:32px;border:0;border-radius:50%;background:transparent;color:#666;font-size:22px;line-height:1;cursor:pointer}.clear-color2:hover{background:#eee;color:#222}.two-likes,.two-combinations{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}.two-like-group{border:1px solid var(--border);border-radius:9px;padding:8px;min-width:0}.two-like-group h3{margin:0 0 7px;font-size:.95rem}.two-like-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.two-like-card{min-width:0;border:1px solid #bbb;border-radius:6px;padding:4px;cursor:pointer}.two-like-card .swatch{height:38px;border-radius:4px;border:1px solid #777}.two-like-card .name{font-size:.68rem;line-height:1.1;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.two-like-card.main-like{border:2px solid #555;padding:3px}.two-combo{border:1px solid var(--border);border-radius:9px;padding:10px;margin:9px 0;background:#fff}.two-combo-title{font-weight:700;margin-bottom:7px}.two-match-pair{display:flex;flex:2 1 0;min-width:0;overflow:hidden;cursor:pointer}.two-match-pair .block{flex:1 1 0;width:0;border-right:1px solid rgba(0,0,0,.35)}.two-match-pair .block:last-child{border-right:0}.two-combo .blocks{display:flex;gap:0;overflow:hidden;border-radius:6px}.two-combo .block{height:64px;position:relative;cursor:pointer;flex:1 1 0;width:0;min-width:0}.two-combo .block span{position:absolute;left:4px;right:4px;bottom:4px;background:rgba(255,255,255,.8);color:#111;font-size:.65rem;padding:2px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mode-two .single-selected,.mode-two .single-similar,.mode-two .single-combinations{display:none}.mode-two .two-selected,.mode-two .two-likes,.mode-two .two-combinations{display:block}.mode-two main{display:flex;flex-direction:column}.mode-two #colorFieldToggle{display:block}.mode-two .controls{display:block!important}.mode-two .two-selected{order:2}.mode-two .controls{order:3}.mode-two .camera-panel{order:1}.mode-two .similarity-controls{order:4}.mode-two .two-likes{order:5}.mode-two .two-combinations{order:6}.mode-two footer{order:7}.fullscreen-two-root{display:none}body.fullscreen-two-mode{overflow:hidden}body.fullscreen-two-mode .fullscreen-two-root{display:flex;position:fixed;left:0;top:0;right:0;bottom:0;width:auto;height:auto;z-index:9999;background:#000;overflow:hidden}.fullscreen-two-pane{position:relative;flex:1 1 50%;min-width:0;height:100%;overflow:hidden;display:flex;flex-direction:column}.fullscreen-two-band{position:relative;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.fullscreen-two-band.main{flex:5 1 0}.fullscreen-two-name{padding:8px 12px;font-size:15.4px;font-weight:700;letter-spacing:.03em;line-height:1.15;white-space:nowrap;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.14)}.fullscreen-two-band.main .fullscreen-two-name{font-size:23.1px}.fullscreen-two-hint{position:absolute;left:0;top:0;font-size:14px;font-weight:300;letter-spacing:.08em;line-height:1;z-index:3;text-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .8s;pointer-events:none}@media(max-width:420px){.two-like-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.two-combo .block{height:58px}}@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){.mode-two main{display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);grid-template-areas:"title title" "controls camera" "selected camera" "similarity similarity" "likes likes" "combos combos" "footer footer";column-gap:18px;row-gap:0;align-items:stretch;padding-left:42px;padding-right:42px}.mode-two main>h1{grid-area:title;margin-bottom:2px}.mode-two main>.controls{grid-area:controls;margin:8px 0 0;padding:16px}.mode-two main>.camera-panel{grid-area:camera;margin:8px 18px 0 0;padding:0;height:100%;display:flex;flex-direction:column}.mode-two main>.camera-panel .camera-stage{width:100%;max-width:none;height:100%;min-height:0;aspect-ratio:auto;flex:1 1 auto}.mode-two main>.two-selected{grid-area:selected;margin:0;padding:8px 14px 14px}.mode-two main>.similarity-controls{grid-area:similarity;margin:52px 0 0;padding:0 14px 10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:18px;align-items:start}.mode-two main>.two-likes{grid-area:likes;margin:14px 0 0;padding:0 14px 14px}.mode-two main>.two-combinations{grid-area:combos;margin:34px 0 0;padding:14px}.mode-two main>footer{grid-area:footer;margin-top:4px}}</style><style>
 /* p02: two-color-only UI must never occupy the single-color layout */
 body:not(.mode-two) #twoSelected,
 body:not(.mode-two) #twoLikesSection,
@@ -452,10 +452,77 @@ body:not(.mode-two) #twoSelected{display:block!important}
   body:not(.mode-two) main>.single-combinations{order:6}
   body:not(.mode-two) main>footer{order:7}
 }
-</style></head>
+<style>
+/* plus r11: robust landscape sizing and empty Color 2 indicator */
+@media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
+  main{
+    width:100%;
+    max-width:none;
+    min-width:0;
+    padding-left:24px;
+    padding-right:24px;
+    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
+  }
+  main>*,
+  main>section,
+  main>footer{
+    min-width:0;
+    max-width:100%;
+  }
+  main>.controls,
+  main>.camera-panel,
+  main>.two-selected,
+  main>.similarity-controls,
+  main>.single-similar,
+  main>.single-combinations,
+  main>.two-likes,
+  main>.two-combinations{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  main>.controls *{
+    min-width:0;
+    max-width:100%;
+  }
+  main>.controls .custom-select,
+  main>.controls .custom-select-button,
+  main>.controls .custom-select-menu,
+  main>.controls .search-wrap,
+  main>.controls #colorSearch,
+  main>.controls #colorFieldToggle{
+    max-width:100%;
+  }
+  main>.similarity-controls input,
+  main>.similarity-controls select{
+    min-width:0;
+    max-width:100%;
+  }
+  main>.single-combinations #combinations,
+  main>.two-combinations #twoResults{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .combination,
+  .two-combo,
+  .blocks,
+  .two-combo .blocks{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+}
+.two-slot.empty-color2 .two-slot-swatch{
+  background-color:#fff;
+  background-image:
+    linear-gradient(45deg,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px)),
+    linear-gradient(-45deg,transparent calc(50% - 1px),#999 calc(50% - 1px),#999 calc(50% + 1px),transparent calc(50% + 1px));
+}
+</style></style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r10</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r11</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -956,7 +1023,7 @@ render=function(){if(plusColor2){plusRenderTwo();return}plusSingleRender()};
 function plusBuildPicker(){const q=colorSearch.value.trim().toLowerCase(),groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));colorRecords.filter(x=>x.name.toLowerCase().includes(q)).forEach(x=>groups[x.family].push(x));colorPickerMenu.innerHTML='';let found=0;familyOrder.forEach(f=>{if(!groups[f].length)return;found+=groups[f].length;const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;colorPickerMenu.appendChild(label);groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(x=>{const item=document.createElement('button');item.type='button';item.className='custom-select-option';item.setAttribute('role','option');item.dataset.color=x.name;item.setAttribute('aria-selected',String(x.name===select.value));item.innerHTML='<span class="custom-option-swatch" style="background:'+x.hex+'"></span><span class="custom-option-name">'+x.name+'</span>';colorPickerMenu.appendChild(item)})});if(!found)colorPickerMenu.innerHTML='<div class="empty" role="status">No colors found.<br><small>Try a different search.</small></div>'}
 function plusSetSearchClear(){colorSearchClear.classList.toggle('visible',!!colorSearch.value)}
 function plusSetActive(slot){plusActiveSlot=slot===2?2:1;twoSlot1.classList.toggle('active',plusActiveSlot===1);twoSlot2.classList.toggle('active',plusActiveSlot===2);twoSlot1.setAttribute('aria-pressed',String(plusActiveSlot===1));twoSlot2.setAttribute('aria-pressed',String(plusActiveSlot===2));select.value=plusActiveSlot===2?(plusColor2||plusColor1):plusColor1;updateColorPickerButton();plusBuildPicker()}
-function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'transparent';twoSwatch2.style.background=plusColor2?map[plusColor2]:'transparent';twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
+function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'transparent';twoSwatch2.style.background=plusColor2?map[plusColor2]:'transparent';twoSlot2.classList.toggle('empty-color2',!plusColor2);twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
 function plusGroupFor(n,k){if(!n)return[];return[n,...COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b)).slice(0,k)]}
 function plusRadius(n,k){if(!n||k<=0)return 0;const ns=COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b));return distance(n,ns[k-1])+.05*k*k}
 function plusComboCandidates(){const a=plusColor1,b=plusColor2;if(!a||!b)return[];const k=Number(threshold.value),r1=plusRadius(a,k),r2=plusRadius(b,k),out=[];for(const c of COMBINATIONS){if(c.colors.length<2||c.colors.length>4)continue;let best=null;for(let i=0;i<c.colors.length;i++){const x=c.colors[i],d1=distance(a,x.name);if(d1>r1)continue;for(let j=0;j<c.colors.length;j++){if(i===j)continue;const y=c.colors[j],d2=distance(b,y.name);if(d2>r2)continue;const z={a:{x,i},b:{x:y,i:j},worst:Math.max(d1,d2),total:d1+d2,balance:Math.abs(d1-d2)};if(!best||z.total<best.total||z.total===best.total&&z.worst<best.worst||z.total===best.total&&z.worst===best.worst&&z.balance<best.balance)best=z}}if(best)out.push({c,best})}out.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);return out.slice(0,12)}
