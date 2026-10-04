@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe sound r02</title>
+<title>WadaDrobe sound r03</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -531,17 +531,8 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style>
 </head>
 <body>
-<main><section id="soundTestPanel" style="margin:12px auto 18px;max-width:520px;padding:14px 16px;border:1px solid rgba(0,0,0,.14);border-radius:12px;background:rgba(255,255,255,.72);text-align:center"><div style="font-weight:700;margin-bottom:8px">Sound r01</div><select id="soundTestMode" style="width:100%;padding:8px;border-radius:8px"><option value="current">1 — Current soft tick</option>
-<option value="mechanical">2 — Soft mechanical shutter</option>
-<option value="shutter">3 — Classic camera shutter</option>
-<option value="beep">4 — Digital camera beep + click</option>
-<option value="chime">5 — Soft glass/chime</option>
-<option value="polaroid">6 — Polaroid-style</option>
-<option value="analog">7 — Vinyl/analog click</option>
-<option value="two-stage">8 — Two-stage capture</option>
-<option value="subbass">9 — Sub-bass thump + click</option>
-<option value="micro">10 — Almost silent micro-click</option></select><button id="soundTestPlay" type="button" style="margin-top:10px;padding:8px 14px;border-radius:8px">Play selected sound</button></section>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision" >sound r02</span></h1>
+<main><section id="soundTestPanel" style="margin:12px auto 18px;max-width:520px;padding:14px 16px;border:1px solid rgba(0,0,0,.14);border-radius:12px;background:rgba(255,255,255,.72);text-align:center"><div style="font-weight:700;margin-bottom:8px">Sound r01</div><select id="soundTestMode" style="width:100%;padding:8px;border-radius:8px"><option value="current">1 — Current soft tick</option><option value="mechanical">2 — Refined soft mechanical shutter</option><option value="shutter">3 — Refined classic camera shutter</option><option value="beep">4 — Digital camera beep + click</option><option value="chime">5 — Refined glass/chime</option><option value="polaroid">6 — Refined Polaroid-style</option><option value="analog">7 — Refined vinyl/analog click</option><option value="two-stage">8 — Refined two-stage capture</option><option value="subbass">9 — Refined sub-bass thump + click</option><option value="micro">10 — Refined almost-silent micro-click</option></select><button id="soundTestPlay" type="button" style="margin-top:10px;padding:8px 14px;border-radius:8px">Play selected sound</button></section>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision" >sound r03</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1019,38 +1010,31 @@ function playCameraClickSound(){
    if(ctx.state==='suspended')ctx.resume();
    const now=ctx.currentTime;
    const mode=document.getElementById('soundTestMode')?.value||'current';
-   const master=ctx.createGain();
-   master.gain.setValueAtTime(0.0001,now); master.connect(ctx.destination);
-   const tone=(type,f1,f2,dur,level,delay=0)=>{
-     const t=now+delay,osc=ctx.createOscillator(),gain=ctx.createGain();
-     osc.type=type; osc.frequency.setValueAtTime(f1,t);
-     if(f2!==f1)osc.frequency.exponentialRampToValueAtTime(f2,t+dur*.8);
-     gain.gain.setValueAtTime(level,t); gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-     osc.connect(gain); gain.connect(master); osc.start(t); osc.stop(t+dur+.005);
-   };
+   const master=ctx.createGain(); master.gain.setValueAtTime(.0001,now); master.connect(ctx.destination);
+   const tone=(type,f1,f2,dur,level,delay=0)=>{const t=now+delay,osc=ctx.createOscillator(),g=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(f1,t);if(f2!==f1)osc.frequency.exponentialRampToValueAtTime(f2,t+dur*.75);g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+dur+.006)};
+   const noise=(dur,level,delay=0,filterFreq=2200)=>{const t=now+delay,buffer=ctx.createBuffer(1,Math.max(1,Math.floor(ctx.sampleRate*dur)),ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.2);const src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();src.buffer=buffer;f.type='bandpass';f.frequency.value=filterFreq;f.Q.value=.8;g.gain.setValueAtTime(level,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.connect(f);f.connect(g);g.connect(master);src.start(t);src.stop(t+dur+.005)};
    if(mode==='mechanical'){
-     tone('triangle',920,620,.055,.85); tone('triangle',680,480,.045,.65,.045);
+     tone('triangle',920,610,.045,.7);noise(.022,.16,.005,3000);tone('triangle',690,430,.04,.5,.048);
    }else if(mode==='shutter'){
-     tone('triangle',1180,650,.045,.85); tone('triangle',760,430,.07,.62,.035);
+     tone('triangle',1500,700,.028,.62);noise(.025,.28,.008,4200);tone('triangle',850,360,.05,.58,.055);noise(.018,.12,.07,2800);
    }else if(mode==='beep'){
-     tone('sine',880,880,.055,.42); tone('triangle',1080,900,.055,.68,.055);
+     tone('sine',880,880,.045,.35);tone('triangle',1120,930,.06,.58,.055);
    }else if(mode==='chime'){
-     tone('sine',1040,900,.075,.55); tone('sine',1560,1380,.11,.32,.025);
+     tone('sine',1040,900,.075,.48);tone('sine',1560,1380,.10,.28,.026);tone('sine',2080,1900,.075,.12,.05);
    }else if(mode==='polaroid'){
-     tone('triangle',760,430,.07,.72); tone('sawtooth',145,115,.18,.12,.075);
+     tone('triangle',820,390,.06,.62);noise(.028,.2,.012,1800);tone('sawtooth',145,105,.16,.08,.075);
    }else if(mode==='analog'){
-     tone('triangle',620,360,.075,.5); tone('triangle',980,620,.035,.25,.028);
+     noise(.045,.18,0,1400);tone('triangle',560,300,.07,.42);noise(.025,.1,.032,2400);
    }else if(mode==='two-stage'){
-     tone('triangle',920,620,.05,.48); tone('sine',1280,1120,.055,.3,.055);
+     tone('triangle',930,650,.045,.46);tone('sine',1280,1120,.06,.3,.07);
    }else if(mode==='subbass'){
-     tone('sine',110,75,.12,.16); tone('triangle',850,520,.055,.5,.008);
+     tone('sine',105,68,.12,.14);tone('triangle',900,520,.055,.46,.01);noise(.018,.08,.015,1800);
    }else if(mode==='micro'){
-     tone('triangle',1050,780,.045,.28);
+     noise(.014,.08,0,3200);tone('triangle',1050,780,.04,.22,.002);
    }else{
-     tone('triangle',1050,720,.08,1);
+     tone('triangle',1050,720,.08,.82);
    }
-   master.gain.exponentialRampToValueAtTime(0.12,now+.004);
-   master.gain.exponentialRampToValueAtTime(0.0001,now+.24);
+   master.gain.exponentialRampToValueAtTime(.12,now+.004);master.gain.exponentialRampToValueAtTime(.0001,now+.25);
  }catch(err){}
 }
 function captureCameraColor(){
