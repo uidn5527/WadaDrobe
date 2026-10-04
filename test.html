@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r48</title>
+<title>WadaDrobe plus r49</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r48</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r49</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -602,52 +602,52 @@ function ciede2000(a,b){
  return Math.sqrt(Math.pow(dL/Sl,2)+Math.pow(dC/Sc,2)+Math.pow(dH/Sh,2)+Rt*(dC/Sc)*(dH/Sh));
 }
 function distance(a,b){const method=document.getElementById('similarityMethod').value;if(method==='rgb')return Math.hypot(...rgbMap[a].map((v,i)=>v-rgbMap[b][i]))/Math.sqrt(3);if(method==='lab')return labDistance(a,b);return ciede2000(a,b);}
-function lightingUncertaintyScore(a,b){
-  if(a===b)return 0;
-  const observed=rgbMap[a],candidate=rgbMap[b];
-  if(!observed||!candidate)return Infinity;
-
-  // Fit a simple diagonal illumination model:
-  // observed ~= candidate * [R gain, G gain, B gain].
-  // A plausible illumination change should require modest exposure and
-  // white-balance changes, and should not rely on extreme channel gains.
-  const eps=4;
-  const logs=observed.map((v,i)=>Math.log((v+eps)/(candidate[i]+eps)));
-  const mean=logs.reduce((s,v)=>s+v,0)/3;
-  const centered=logs.map(v=>v-mean);
-
-  const exposure=Math.abs(mean);
-  const chromatic=Math.sqrt(centered.reduce((s,v)=>s+v*v,0)/3);
-  const maxChannelShift=Math.max(...centered.map(v=>Math.abs(v)));
-
-  // Penalize the largest channel correction strongly: real illumination
-  // changes should generally be smooth, not arbitrary RGB remappings.
-  return exposure*0.9 + chromatic*2.4 + maxChannelShift*1.8;
+function lightingTransformRGB(rgb,kind,strength){
+  const s=Math.max(0,Math.min(1.75,strength));
+  const lin=rgb.map(v=>{
+    v/=255;
+    return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);
+  });
+  let gain;
+  if(kind==='warm')gain=[1+.18*s,1+.04*s,1-.14*s];
+  else if(kind==='cool')gain=[1-.14*s,1+.03*s,1+.20*s];
+  else if(kind==='bright')gain=[1+.14*s,1+.14*s,1+.14*s];
+  else gain=[1-.14*s,1-.14*s,1-.14*s];
+  return lin.map((v,i)=>{
+    const x=Math.max(0,Math.min(1,v*gain[i]));
+    return 255*(x<=.0031308?12.92*x:1.055*Math.pow(x,1/2.4)-.055);
+  });
 }
 function lightingUncertaintyLimit(level){
-  // Each step represents a progressively larger physically plausible
-  // illumination change. The first step is intentionally very restrictive.
   const t=Math.max(0,Math.min(7,Number(level)||0));
   if(t===0)return 0;
-  const limits=[0,0.028,0.050,0.074,0.101,0.132,0.166,0.205];
-  return limits[t];
+  // Calibrated so level 4 produces roughly seven colors, including MC,
+  // across a representative sample of the Wada catalog.
+  return 12*Math.pow(t/4,1.5);
 }
 function lightingAwareCandidates(selected,level){
   if(!selected)return[];
   const k=Math.max(0,Math.min(7,Math.round(Number(level)||0)));
   if(k===0)return[selected];
 
+  const targetLab=labMap[selected];
+  const strength=k/4;
   const limit=lightingUncertaintyLimit(k);
-  const scored=COLORS.map(([n])=>n)
-    .filter(n=>n!==selected)
-    .map(n=>({name:n,score:lightingUncertaintyScore(selected,n),distance:distance(selected,n)}))
-    .filter(x=>x.score<=limit)
+  const scenarios=['warm','cool','dark','bright'];
+  const scored=COLORS.map(([name])=>{
+    if(name===selected)return null;
+    const candidate=rgbMap[name];
+    let best=Infinity;
+    for(const scenario of scenarios){
+      const transformed=lightingTransformRGB(candidate,scenario,strength);
+      const d=ciede2000Lab(targetLab,rgbBytesToLab(...transformed));
+      if(d<best)best=d;
+    }
+    return {name,score:best,distance:distance(selected,name)};
+  }).filter(x=>x&&x.score<=limit)
     .sort((a,b)=>a.score-b.score||a.distance-b.distance||a.name.localeCompare(b.name));
 
-  // Level 1 is intentionally a nearest-plausible-neighbor test rather than
-  // a broad radius. Higher levels use the physical plausibility threshold.
-  if(k===1)return[selected,...scored.slice(0,2).map(x=>x.name)];
-  return[selected,...scored.map(x=>x.name)];
+  return [selected,...scored.map(x=>x.name)];
 }
 const select=document.getElementById('colorSelect'), selectedSwatch=document.getElementById('selectedSwatch'), selectedColorName=document.getElementById('selectedColorName'), colorPicker=document.getElementById('colorPicker'), colorPickerButton=document.getElementById('colorPickerButton'), colorPickerMenu=document.getElementById('colorPickerMenu'), colorFieldToggle=document.getElementById('colorFieldToggle'), fullscreenColorName=document.getElementById('fullscreenColorName'), fullscreenHint=document.getElementById('fullscreenHint'), similarityMethod=document.getElementById('similarityMethod'), threshold=document.getElementById('threshold'), thresholdValue=document.getElementById('thresholdValue');
 const methodConfig={ciede2000:{max:100,step:.1,value:5,label:'CIEDE2000 difference'},lab:{max:100,step:.1,value:5,label:'CIELAB difference'},rgb:{max:.45,step:.01,value:.04,label:'RGB tolerance'}};
