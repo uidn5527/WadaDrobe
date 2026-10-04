@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r11</title>
+<title>WadaDrobe plus r12</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -453,66 +453,81 @@ body:not(.mode-two) #twoSelected{display:block!important}
   body:not(.mode-two) main>footer{order:7}
 }
 <style>
-/* plus r11: robust landscape sizing and empty Color 2 indicator */
+/* plus r12: class-based landscape layout and empty Color 2 indicator */
 @media screen and (orientation:landscape) and (min-width:600px) and (max-width:1200px){
   main{
+    display:grid;
     width:100%;
     max-width:none;
     min-width:0;
+    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
+    grid-template-areas:
+      "title title"
+      "controls camera"
+      "selected camera"
+      "similarity similarity"
+      "similar similar"
+      "combinations combinations"
+      "footer footer";
+    column-gap:18px;
+    row-gap:0;
     padding-left:24px;
     padding-right:24px;
-    grid-template-columns:minmax(0,.42fr) minmax(0,.58fr);
+    align-items:stretch;
   }
-  main>*,
+
+  main>h1{grid-area:title;min-width:0}
+  main>.controls{grid-area:controls;min-width:0;width:100%;max-width:100%;margin:8px 0 0}
+  main>.camera-panel{grid-area:camera;min-width:0;width:100%;max-width:100%;margin:8px 0 0}
+  main>.two-selected{grid-area:selected;min-width:0;width:100%;max-width:100%;margin:0}
+  main>.similarity-controls{grid-area:similarity;min-width:0;width:100%;max-width:100%;margin:52px 0 0}
+  main>.single-similar{grid-area:similar;min-width:0;width:100%;max-width:100%;margin:14px 0 0}
+  main>.single-combinations{grid-area:combinations;min-width:0;width:100%;max-width:100%;margin:34px 0 0}
+  main>.two-likes{grid-area:similar;min-width:0;width:100%;max-width:100%;margin:14px 0 0}
+  main>.two-combinations{grid-area:combinations;min-width:0;width:100%;max-width:100%;margin:34px 0 0}
+  main>footer{grid-area:footer;min-width:0;width:100%;max-width:100%;margin-top:4px}
+
   main>section,
-  main>footer{
+  main>footer,
+  main>section>*{
     min-width:0;
     max-width:100%;
   }
-  main>.controls,
-  main>.camera-panel,
-  main>.two-selected,
-  main>.similarity-controls,
-  main>.single-similar,
-  main>.single-combinations,
-  main>.two-likes,
-  main>.two-combinations{
-    width:100%;
-    min-width:0;
-    max-width:100%;
-  }
-  main>.controls *{
-    min-width:0;
-    max-width:100%;
-  }
+
+  main>.controls .search-wrap,
+  main>.controls #colorSearch,
   main>.controls .custom-select,
   main>.controls .custom-select-button,
   main>.controls .custom-select-menu,
-  main>.controls .search-wrap,
-  main>.controls #colorSearch,
   main>.controls #colorFieldToggle{
+    width:100%;
     max-width:100%;
+    min-width:0;
   }
+
   main>.similarity-controls input,
   main>.similarity-controls select{
     min-width:0;
     max-width:100%;
   }
+
   main>.single-combinations #combinations,
   main>.two-combinations #twoResults{
     width:100%;
     min-width:0;
     max-width:100%;
   }
-  .combination,
-  .two-combo,
-  .blocks,
-  .two-combo .blocks{
+
+  main>.single-combinations .combination,
+  main>.two-combinations .two-combo,
+  main>.single-combinations .blocks,
+  main>.two-combinations .blocks{
     width:100%;
     min-width:0;
     max-width:100%;
   }
 }
+
 .two-slot.empty-color2 .two-slot-swatch{
   background-color:#fff;
   background-image:
@@ -522,7 +537,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </style></style></head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r11</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r12</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1023,7 +1038,7 @@ render=function(){if(plusColor2){plusRenderTwo();return}plusSingleRender()};
 function plusBuildPicker(){const q=colorSearch.value.trim().toLowerCase(),groups=Object.fromEntries(familyOrder.map(f=>[f,[]]));colorRecords.filter(x=>x.name.toLowerCase().includes(q)).forEach(x=>groups[x.family].push(x));colorPickerMenu.innerHTML='';let found=0;familyOrder.forEach(f=>{if(!groups[f].length)return;found+=groups[f].length;const label=document.createElement('div');label.className='custom-select-group-label';label.textContent=f;colorPickerMenu.appendChild(label);groups[f].sort((a,b)=>a.name.localeCompare(b.name)).forEach(x=>{const item=document.createElement('button');item.type='button';item.className='custom-select-option';item.setAttribute('role','option');item.dataset.color=x.name;item.setAttribute('aria-selected',String(x.name===select.value));item.innerHTML='<span class="custom-option-swatch" style="background:'+x.hex+'"></span><span class="custom-option-name">'+x.name+'</span>';colorPickerMenu.appendChild(item)})});if(!found)colorPickerMenu.innerHTML='<div class="empty" role="status">No colors found.<br><small>Try a different search.</small></div>'}
 function plusSetSearchClear(){colorSearchClear.classList.toggle('visible',!!colorSearch.value)}
 function plusSetActive(slot){plusActiveSlot=slot===2?2:1;twoSlot1.classList.toggle('active',plusActiveSlot===1);twoSlot2.classList.toggle('active',plusActiveSlot===2);twoSlot1.setAttribute('aria-pressed',String(plusActiveSlot===1));twoSlot2.setAttribute('aria-pressed',String(plusActiveSlot===2));select.value=plusActiveSlot===2?(plusColor2||plusColor1):plusColor1;updateColorPickerButton();plusBuildPicker()}
-function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'transparent';twoSwatch2.style.background=plusColor2?map[plusColor2]:'transparent';twoSlot2.classList.toggle('empty-color2',!plusColor2);twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
+function plusUpdateTwoSlots(){twoSwatch1.style.background=plusColor1?map[plusColor1]:'';twoSwatch2.style.background=plusColor2?map[plusColor2]:'';twoSlot2.classList.toggle('empty-color2',!plusColor2);twoMeta1.textContent=plusColor1||'Choose Color 1';twoMeta2.textContent=plusColor2||'Choose Color 2'}
 function plusGroupFor(n,k){if(!n)return[];return[n,...COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b)).slice(0,k)]}
 function plusRadius(n,k){if(!n||k<=0)return 0;const ns=COLORS.map(x=>x[0]).filter(x=>x!==n).sort((a,b)=>distance(n,a)-distance(n,b));return distance(n,ns[k-1])+.05*k*k}
 function plusComboCandidates(){const a=plusColor1,b=plusColor2;if(!a||!b)return[];const k=Number(threshold.value),r1=plusRadius(a,k),r2=plusRadius(b,k),out=[];for(const c of COMBINATIONS){if(c.colors.length<2||c.colors.length>4)continue;let best=null;for(let i=0;i<c.colors.length;i++){const x=c.colors[i],d1=distance(a,x.name);if(d1>r1)continue;for(let j=0;j<c.colors.length;j++){if(i===j)continue;const y=c.colors[j],d2=distance(b,y.name);if(d2>r2)continue;const z={a:{x,i},b:{x:y,i:j},worst:Math.max(d1,d2),total:d1+d2,balance:Math.abs(d1-d2)};if(!best||z.total<best.total||z.total===best.total&&z.worst<best.worst||z.total===best.total&&z.worst===best.worst&&z.balance<best.balance)best=z}}if(best)out.push({c,best})}out.sort((a,b)=>a.best.total-b.best.total||a.best.worst-b.best.worst||a.best.balance-b.best.balance||a.c.number-b.c.number);return out.slice(0,12)}
