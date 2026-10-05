@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r58</title>
+<title>WadaDrobe plus r59</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r58</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r59</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1225,7 +1225,7 @@ document.addEventListener('keydown',e=>{
 });
 
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
-</script><section id="r51diag" aria-label="Lighting diagnostic"><b>r58 lighting diagnostic</b><br>Loading diagnostic…</section>
+</script><section id="r51diag" aria-label="Lighting diagnostic"><b>r59 lighting diagnostic</b><br>Loading diagnostic…</section>
 <style id="r55diag-style">
 #r51diag{position:static;margin:30px 0 0;background:rgba(255,255,255,.97);border:1px solid #777;border-radius:6px;padding:10px;font:13px/1.35 monospace;color:#111;overflow:auto;white-space:normal;box-shadow:none}
 #r51diag b{font-weight:700}.r51ok{color:#174d17}.r51bad{color:#8b1111}.r55group{margin-top:2px}.r55label{font-weight:700}
@@ -1236,6 +1236,7 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
  const scenarios=['warm','cool','dark','bright','warmDark','warmBright','coolDark','coolBright'];
  function scenarioCandidates(selected,k,scenario){
    const targetLab=labMap[selected],strength=k/4,limit=lightingUncertaintyLimit(k);
+   const directMin=1.0*k,directMax=6.0+2.5*k;
    return COLORS.map(([name])=>{
      if(name===selected)return null;
      const candidate=rgbMap[name].map(v=>v*255);
@@ -1249,8 +1250,9 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
        transformed=lightingTransformRGB(transformed,illumination,strength);
      }
      const score=ciede2000Lab(targetLab,rgbBytesToLab(...transformed));
-     return {name,score};
-   }).filter(x=>x&&x.score<=limit).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name));
+     const direct=ciede2000Lab(targetLab,labMap[name]);
+     return {name,score,direct};
+   }).filter(x=>x&&x.score<=limit&&x.direct>=directMin&&x.direct<=directMax).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name));
  }
  function update(){
    const selected=select.value,k=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0)));
@@ -1259,7 +1261,7 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
    const groups=scenarios.map(sc=>({sc,items:scenarioCandidates(selected,k,sc)}));
    const union=[...new Set(groups.flatMap(g=>g.items.map(x=>x.name)))];
    const match=JSON.stringify(shown)===JSON.stringify(expected.slice(1));
-   panel.innerHTML='<b>r57 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b><br>'+
+   panel.innerHTML='<b>r57 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b> | direct window <b>'+ (k?('≥ '+(1*k).toFixed(1)+' and ≤ '+(6+2.5*k).toFixed(1)):'none') +'</b><br>'+
      groups.map(g=>'<div class="r55group"><span class="r55label">'+esc(g.sc)+'</span> ('+g.items.length+'): '+esc(g.items.map(x=>x.name).join(' | ')||'—')+'</div>').join('')+
      '<div class="r55group"><span class="r55label">UNION / deduplicated</span> ('+union.length+'): '+esc(union.join(' | ')||'—')+'</div>'+
      '<div class="r55group"><span class="r55label">DOM matches aggregate:</span> <span class="'+(match?'r51ok':'r51bad')+'">'+match+'</span> | DOM count '+shown.length+'</div>';
