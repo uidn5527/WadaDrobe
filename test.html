@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r54</title>
+<title>WadaDrobe plus r55</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r54</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r55</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -1221,19 +1221,43 @@ document.addEventListener('keydown',e=>{
 });
 
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
-</script><style id="r51diag-style">
-#r51diag{position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:rgba(255,255,255,.97);border:1px solid #777;border-radius:8px;padding:8px;font:11px/1.35 monospace;color:#111;max-height:38vh;overflow:auto;box-shadow:0 2px 10px rgba(0,0,0,.18)}
-#r51diag b{font-weight:700}.r51ok{color:#174d17}.r51bad{color:#8b1111}
-</style><script id="r51diag-script">
+</script><style id="r55diag-style">
+#r51diag{position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;background:rgba(255,255,255,.97);border:1px solid #777;border-radius:6px;padding:5px;font:8px/1.2 monospace;color:#111;max-height:28vh;overflow:auto;box-shadow:0 1px 6px rgba(0,0,0,.18)}
+#r51diag b{font-weight:700}.r51ok{color:#174d17}.r51bad{color:#8b1111}.r55group{margin-top:2px}.r55label{font-weight:700}
+</style><script id="r55diag-script">
 (function(){
- const panel=document.createElement('div');panel.id='r51diag';document.body.appendChild(panel);
+ const panel=document.getElementById('r51diag');
  const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const scenarios=['warm','cool','dark','bright','warmDark','warmBright','coolDark','coolBright'];
+ function scenarioCandidates(selected,k,scenario){
+   const targetLab=labMap[selected],strength=k/4,limit=lightingUncertaintyLimit(k);
+   return COLORS.map(([name])=>{
+     if(name===selected)return null;
+     const candidate=rgbMap[name].map(v=>v*255);
+     let transformed;
+     if(scenario==='warm'||scenario==='cool'||scenario==='dark'||scenario==='bright'){
+       transformed=lightingTransformRGB(candidate,scenario,strength);
+     }else{
+       const temperature=scenario.startsWith('warm')?'warm':'cool';
+       const illumination=scenario.endsWith('Dark')?'dark':'bright';
+       transformed=lightingTransformRGB(candidate,temperature,strength);
+       transformed=lightingTransformRGB(transformed,illumination,strength);
+     }
+     const score=ciede2000Lab(targetLab,rgbBytesToLab(...transformed));
+     return {name,score};
+   }).filter(x=>x&&x.score<=limit).sort((a,b)=>a.score-b.score||a.name.localeCompare(b.name));
+ }
  function update(){
    const selected=select.value,k=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0)));
    const expected=selected?lightingAwareCandidates(selected,k):[];
    const shown=[...document.querySelectorAll('#similarColors .color-card .name')].map(x=>x.textContent.trim());
-   const match=JSON.stringify(shown)===JSON.stringify(expected);
-   panel.innerHTML='<b>r51 single-color diagnostic</b><br>select.value = <b>'+esc(selected)+'</b><br>threshold.value = <b>'+esc(threshold.value)+'</b> &nbsp; displayed = <b>'+esc(thresholdValue.textContent)+'</b><br>lightingAwareCandidates length = <b>'+expected.length+'</b><br>expected = '+esc(expected.join(' | '))+'<br>DOM similarColors count = <b>'+shown.length+'</b><br>DOM = '+esc(shown.join(' | '))+'<br>DOM matches candidate array: <b class="'+(match?'r51ok':'r51bad')+'">'+match+'</b>';
+   const groups=scenarios.map(sc=>({sc,items:scenarioCandidates(selected,k,sc)}));
+   const union=[...new Set(groups.flatMap(g=>g.items.map(x=>x.name)))];
+   const match=JSON.stringify(shown)===JSON.stringify(expected.slice(1));
+   panel.innerHTML='<b>r55 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b><br>'+
+     groups.map(g=>'<div class="r55group"><span class="r55label">'+esc(g.sc)+'</span> ('+g.items.length+'): '+esc(g.items.map(x=>x.name).join(' | ')||'—')+'</div>').join('')+
+     '<div class="r55group"><span class="r55label">UNION / deduplicated</span> ('+union.length+'): '+esc(union.join(' | ')||'—')+'</div>'+
+     '<div class="r55group"><span class="r55label">DOM matches aggregate:</span> <span class="'+(match?'r51ok':'r51bad')+'">'+match+'</span> | DOM count '+shown.length+'</div>';
  }
  window.r51DiagnosticUpdate=update;
  threshold.addEventListener('input',()=>requestAnimationFrame(update));
