@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r61</title>
+<title>WadaDrobe plus r42</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r61</span></h1>
+<h1 class="site-title-even"><span class="revision">plus r42</span><span class="brand">WadaDrobe</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -723,7 +723,7 @@ function render(){const selected=select.value,count=Math.max(0,Math.min(7,Math.r
  const grid=document.getElementById('similarColors');grid.innerHTML=group.map((n,index)=>`<article class="color-card${index===0?' selected-similar-color':''}"><div class="swatch clickable-color" role="button" tabindex="0" data-color="${n}" title="Choose ${n}" style="background:${map[n]}"></div><div class="name">${n}</div></article>`).join('')||'<div class="empty">No colors fall within the selected tolerance.</div>';
  const similarityRank=Object.fromEntries([selected,...similar].map((name,index)=>[name,index]));const matches=COMBINATIONS.filter(c=>c.colors.some(x=>group.includes(x.name))).map(c=>{const keyCandidates=c.colors.filter(x=>group.includes(x.name));const key=keyCandidates.sort((a,b)=>(similarityRank[a.name]??Infinity)-(similarityRank[b.name]??Infinity))[0];return {c,key,ordered:key?[key,...c.colors.filter(x=>x!==key)]:c.colors,keyRank:key?similarityRank[key.name]:Infinity};}).sort((a,b)=>a.keyRank-b.keyRank||a.c.colors.length-b.c.colors.length||a.c.number-b.c.number);const box=document.getElementById('combinations');box.innerHTML=matches.map(({c,ordered})=>`<article class="combination"><div class="combination-title">Combination #${c.number}</div><div class="blocks">${ordered.map(x=>`<div class="block clickable-color" role="button" tabindex="0" data-color="${x.name}" title="Choose ${x.name}" style="background:${x.hex}"><span>${x.name}</span></div>`).join('')}</div></article>`).join('')||'<div class="empty">No combinations in the current catalog use this group.</div>';
 }
-document.addEventListener('click',e=>{const swatch=e.target.closest('.clickable-color');if(swatch&&swatch.dataset.color){const chosen=swatch.dataset.color;colorSearch.value='';populateColorSelect(chosen);}});
+document.addEventListener('click',e=>{const swatch=e.target.closest('.clickable-color');if(swatch&&swatch.dataset.color){const chosen=swatch.dataset.color;if(!plusColor2&&plusActiveSlot===2&&map[chosen]&&(swatch.closest('#similarColors,#combinations'))){e.preventDefault();e.stopImmediatePropagation();plusChooseColor(chosen);return;}colorSearch.value='';populateColorSelect(chosen);}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('clickable-color')){e.preventDefault();e.target.click();}});
 const fullscreenLanguages=[
  ['tap anywhere to exit','en'],
@@ -1225,7 +1225,7 @@ document.addEventListener('keydown',e=>{
 });
 
 plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPicker();plusUpdateFullscreenButton();document.addEventListener('click',e=>{if(!plusColor2&&e.target.closest('.clickable-color')){plusColor1=select.value;plusUpdateTwoSlots()}});
-</script><section id="r51diag" aria-label="Lighting diagnostic"><b>r60 lighting diagnostic</b><br>Loading diagnostic…</section>
+</script><section id="r51diag" aria-label="Lighting diagnostic"><b>r42 lighting diagnostic</b><br>Loading diagnostic…</section>
 <style id="r55diag-style">
 #r51diag{position:static;margin:30px 0 0;background:rgba(255,255,255,.97);border:1px solid #777;border-radius:6px;padding:10px;font:13px/1.35 monospace;color:#111;overflow:auto;white-space:normal;box-shadow:none}
 #r51diag b{font-weight:700}.r51ok{color:#174d17}.r51bad{color:#8b1111}.r55group{margin-top:2px}.r55label{font-weight:700}
@@ -1261,7 +1261,7 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
    const groups=scenarios.map(sc=>({sc,items:scenarioCandidates(selected,k,sc)}));
    const union=[...new Set(groups.flatMap(g=>g.items.map(x=>x.name)))];
    const match=JSON.stringify(shown)===JSON.stringify(expected);
-   panel.innerHTML='<b>r57 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b> | direct window <b>'+ (k?('≥ '+(1*k).toFixed(1)+' and ≤ '+(6+2.5*k).toFixed(1)):'none') +'</b><br>'+
+   panel.innerHTML='<b>r42 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b> | direct window <b>'+ (k?('≥ '+(1*k).toFixed(1)+' and ≤ '+(6+2.5*k).toFixed(1)):'none') +'</b><br>'+
      groups.map(g=>'<div class="r55group"><span class="r55label">'+esc(g.sc)+'</span> ('+g.items.length+'): '+esc(g.items.map(x=>x.name).join(' | ')||'—')+'</div>').join('')+
      '<div class="r55group"><span class="r55label">UNION / deduplicated</span> ('+union.length+'): '+esc(union.join(' | ')||'—')+'</div>'+
      '<div class="r55group"><span class="r55label">DOM matches aggregate:</span> <span class="'+(match?'r51ok':'r51bad')+'">'+match+'</span> | DOM count '+shown.length+'</div>';
