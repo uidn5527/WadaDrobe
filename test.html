@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r60</title>
+<title>WadaDrobe plus r61</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -532,7 +532,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r60</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r61</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -639,8 +639,8 @@ function lightingAwareCandidates(selected,level){
   // similarity threshold. As lighting confidence gets worse, very-close
   // ordinary neighbors lose priority while the admissible window moves
   // outward and widens.
-  const directMin=1.0*k;
-  const directMax=6.0+2.5*k;
+  const directMin=2.0*k;
+  const directMax=6.0+3.0*k;
 
   const scoreCandidate=name=>{
     if(name===selected)return null;
@@ -1257,10 +1257,10 @@ plusSetSearchClear();plusUpdateTwoSlots();twoSelected.hidden=false;plusBuildPick
  function update(){
    const selected=select.value,k=Math.max(0,Math.min(7,Math.round(Number(threshold.value)||0)));
    const expected=selected?lightingAwareCandidates(selected,k):[];
-   const shown=[...document.querySelectorAll('#similarColors .color-card .name')].map(x=>x.textContent.trim());
+   const shown=[...document.querySelectorAll('#similarColors .color-card .name')].map(x=>x.textContent.trim()).filter((n)=>n!==selected);
    const groups=scenarios.map(sc=>({sc,items:scenarioCandidates(selected,k,sc)}));
    const union=[...new Set(groups.flatMap(g=>g.items.map(x=>x.name)))];
-   const match=JSON.stringify(shown)===JSON.stringify(expected.slice(1));
+   const match=JSON.stringify(shown)===JSON.stringify(expected);
    panel.innerHTML='<b>r57 lighting diagnostic</b> | <b>'+esc(selected)+'</b> | level <b>'+k+'</b> | limit <b>'+lightingUncertaintyLimit(k).toFixed(2)+'</b> | direct window <b>'+ (k?('≥ '+(1*k).toFixed(1)+' and ≤ '+(6+2.5*k).toFixed(1)):'none') +'</b><br>'+
      groups.map(g=>'<div class="r55group"><span class="r55label">'+esc(g.sc)+'</span> ('+g.items.length+'): '+esc(g.items.map(x=>x.name).join(' | ')||'—')+'</div>').join('')+
      '<div class="r55group"><span class="r55label">UNION / deduplicated</span> ('+union.length+'): '+esc(union.join(' | ')||'—')+'</div>'+
