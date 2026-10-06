@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WadaDrobe plus r46</title>
+<title>WadaDrobe plus r47</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--text:#202124;--muted:#666;--border:#ddd;--accent:#315f8c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -540,7 +540,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 </head>
 <body>
 <main>
-<h1 class="site-title-even"><span class="revision">plus r46</span><span class="brand">WadaDrobe</span></h1>
+<h1 class="site-title-odd"><span class="brand">WadaDrobe</span><span class="revision">plus r47</span></h1>
 
 <section class="controls single-controls">
 <div class="color-picker">
@@ -565,7 +565,7 @@ body:not(.mode-two) #twoSelected{display:block!important}
 <div id="cameraResult" class="camera-result" hidden><span id="cameraResultSwatch" class="camera-result-swatch"></span><span id="cameraResultText"></span></div>
 </div>
 <div id="cameraDiagnostic" class="camera-diagnostic" aria-live="polite">
-<div class="camera-diagnostic-title">Camera match diagnostic <span>r46</span></div>
+<div class="camera-diagnostic-title">Camera match diagnostic <span>r47</span></div>
 <div class="camera-diagnostic-grid">
 <div><span>Raw RGB</span><strong id="cameraDiagRaw">—</strong></div>
 <div><span>Corrected RGB</span><strong id="cameraDiagCorrected">—</strong></div>
@@ -935,7 +935,7 @@ function updateCameraDiagnostic(rawRgb,correctedRgb,lab,match1,match2){
  cameraDiagMatch2.textContent=match2?match2.name:'—';
  cameraDiagDelta2.textContent=match2?match2.delta.toFixed(2):'—';
  const correction=colorCorrectionEnabled?'on':'off';
- cameraDiagNote.textContent='Correction '+correction+'. Matching uses corrected RGB → CIELAB → CIEDE2000; the diagnostic shows the two closest catalog colors before debounce.';
+ cameraDiagNote.textContent='Correction '+correction+'. Exposure normalization OFF in r47; white-balance neutralization remains on. Matching uses corrected RGB → CIELAB → CIEDE2000; the diagnostic shows the two closest catalog colors before debounce.';
 }
 function sampleCameraColor(){
  if(!cameraStream||cameraVideo.readyState<2)return;
@@ -976,10 +976,8 @@ function sampleCameraColor(){
  // drift before matching. In r38 this pipeline is user-toggleable; OFF preserves
  // the pre-r37 raw sampled RGB behavior.
  if(colorCorrectionEnabled){
- const mean=(rgb[0]+rgb[1]+rgb[2])/3;
- const targetMean=128;
- const exposureGain=Math.max(.82,Math.min(1.22,targetMean/Math.max(32,mean)));
- rgb=rgb.map(v=>Math.max(0,Math.min(255,v*exposureGain)));
+ // r47 experiment: exposure normalization is disabled so scene brightness is preserved.
+ // The existing white-balance neutralization remains unchanged.
  const correctedMean=(rgb[0]+rgb[1]+rgb[2])/3;
  const wbStrength=.28;
  rgb=rgb.map(v=>v+(correctedMean-v)*wbStrength*0.35);
